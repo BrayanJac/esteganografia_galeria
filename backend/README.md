@@ -1,4 +1,4 @@
-# Galería Multimedia Segura - Backend
+# SecureFrame Gallery - Backend
 
 Una API REST segura para gestión de galerías multimedia con detección de esteganografía integrada.
 
