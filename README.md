@@ -1,497 +1,497 @@
-# SecureGallery - Secure Multimedia Gallery
+# SecureGallery - Galería Multimedia Segura
 
-A complete web application for managing image galleries with integrated automatic steganography detection, secure authentication, and user role system.
+Una aplicación web completa para gestionar galerías de imágenes con detección automática integrada de esteganografía, autenticación segura y sistema de roles de usuario.
 
-## Table of Contents
+## Tabla de Contenidos
 
-1. [What is SecureGallery?](#what-is-securegallery)
-2. [How Does It Work?](#how-does-it-work)
-3. [Main Components](#main-components)
-4. [Prerequisites](#prerequisites)
-5. [Step-by-Step Installation](#step-by-step-installation)
-6. [Getting Started](#getting-started)
-7. [Detailed Operation](#detailed-operation)
-8. [Project Structure](#project-structure)
-9. [Frequently Asked Questions](#frequently-asked-questions)
-
----
-
-## What is SecureGallery?
-
-SecureGallery is a web platform that allows:
-
-- **Gallery Management** - Create, edit, and organize photo albums
-- **Secure Authentication** - Each user has their own protected account
-- **Steganography Detection** - Automatically analyzes if images contain hidden information
-- **User Roles** - Normal users, supervisors, and administrators with different permissions
-- **Image Quarantine** - Automatically isolates suspicious images
-- **Public Gallery** - Share your public albums with others
-
-### Key Concepts
-
-**What is Steganography?**
-It is the technique of hiding information within files (such as images). For example, someone could hide a text file inside a photo without it being noticeable at first glance.
-
-**Why is it important?**
-In security contexts, it is important to detect if someone is trying to sneak hidden information into the images you upload.
+1. [¿Qué es SecureGallery?](#qué-es-securegallery)
+2. [¿Cómo Funciona?](#cómo-funciona)
+3. [Componentes Principales](#componentes-principales)
+4. [Requisitos Previos](#requisitos-previos)
+5. [Instalación Paso a Paso](#instalación-paso-a-paso)
+6. [Primeros Pasos](#primeros-pasos)
+7. [Funcionamiento Detallado](#funcionamiento-detallado)
+8. [Estructura del Proyecto](#estructura-del-proyecto)
+9. [Preguntas Frecuentes](#preguntas-frecuentes)
 
 ---
 
-## How Does It Work?
+## ¿Qué es SecureGallery?
 
-### General Flow
+SecureGallery es una plataforma web que permite:
+
+- **Gestión de Galerías** - Crear, editar y organizar álbumes de fotos
+- **Autenticación Segura** - Cada usuario tiene su propia cuenta protegida
+- **Detección de Esteganografía** - Analiza automáticamente si las imágenes contienen información oculta
+- **Sistema de Roles** - Usuarios normales, supervisores y administradores con diferentes permisos
+- **Cuarentena de Imágenes** - Aísla automáticamente imágenes sospechosas
+- **Galería Pública** - Comparte tus álbumes públicos con otros
+
+### Conceptos Clave
+
+**¿Qué es la Esteganografía?**
+Es la técnica de ocultar información dentro de archivos (como imágenes). Por ejemplo, alguien podría ocultar un archivo de texto dentro de una foto sin que se note a simple vista.
+
+**¿Por qué es importante?**
+En contextos de seguridad, es importante detectar si alguien está intentando colarse información oculta en las imágenes que subes.
+
+---
+
+## ¿Cómo Funciona?
+
+### Flujo General
 
 ```
-User                 Browser              Backend                Database
-  |                    |                     |                       |
-  |--- Register ------>|                     |                       |
-  |                    |--- POST /register ->|--- Save user -------->|
-  |<--- Confirmation ---|<--- JWT Token -----|                       |
-  |                    |                     |                       |
-  |--- Login --------->|                     |                       |
-  |                    |--- POST /login ---->|--- Verify credentials |
-  |<--- JWT Token ------|<--- JWT Token -----|                       |
-  |                    |                     |                       |
-  |--- Upload image -->|                     |                       |
-  |                    |--- POST /upload --->|--- Save file -------->|
-  |                    |                     |--- Analyze image --->|
-  |                    |                     |--- Save result ------>|
-  |<--- Result ---------|<--- Image Status---|<--- Analysis Status---|
+Usuario              Navegador              Backend                Base de Datos
+  |                    |                     |                          |
+  |--- Registrarse -->|                     |                          |
+  |                    |--- POST /register ->|--- Guardar usuario ----->|
+  |<--- Confirmación --|<--- Token JWT ------|                          |
+  |                    |                     |                          |
+  |--- Iniciar sesión -|                     |                          |
+  |                    |--- POST /login ---->|--- Verificar credenciales|
+  |<--- Token JWT ------|<--- Token JWT ------|                          |
+  |                    |                     |                          |
+  |--- Subir imagen --->|                     |                          |
+  |                    |--- POST /upload --->|--- Guardar archivo ----->|
+  |                    |                     |--- Analizar imagen ----->|
+  |                    |                     |--- Guardar resultado ---->|
+  |<--- Resultado ------|<--- Estado imagen--|<--- Estado análisis ------|
 ```
 
-### Step by Step: What Happens When You Upload an Image?
+### Paso a Paso: ¿Qué Ocurre Cuando Subes una Imagen?
 
-1. **Upload** - You select an image in the browser
-2. **Sending** - The image is sent to the backend server
-3. **Storage** - It is saved in the `uploads/` folder
-4. **Analysis** - The backend runs steganography detection algorithms
-5. **Result** - It is saved as either "CLEAN" or "SUSPICIOUS"
-6. **Quarantine** - If suspicious, it is automatically isolated
-7. **Notification** - You see the result in the gallery
+1. **Carga** - Seleccionas una imagen en el navegador
+2. **Envío** - La imagen se envía al servidor backend
+3. **Almacenamiento** - Se guarda en la carpeta `uploads/`
+4. **Análisis** - El backend ejecuta algoritmos de detección de esteganografía
+5. **Resultado** - Se guarda como "LIMPIA" o "SOSPECHOSA"
+6. **Cuarentena** - Si es sospechosa, se aísla automáticamente
+7. **Notificación** - Ves el resultado en la galería
 
 ---
 
-## Main Components
+## Componentes Principales
 
 ### 1. Backend (Python + FastAPI)
 
-**What is it?** It is the "brain" of the application that runs on the server.
+**¿Qué es?** Es el "cerebro" de la aplicación que se ejecuta en el servidor.
 
-**What does it do?**
-- Manages users and authentication
-- Processes uploaded images
-- Performs steganography analysis
-- Stores data in the database
-- Provides REST APIs for the frontend to use
+**¿Qué hace?**
+- Gestiona usuarios y autenticación
+- Procesa las imágenes subidas
+- Realiza el análisis de esteganografía
+- Almacena datos en la base de datos
+- Proporciona APIs REST para que el frontend las use
 
-**Location:** `/backend/`
+**Ubicación:** `/backend/`
 
 ### 2. Frontend (React + Vite + TypeScript)
 
-**What is it?** It is the visual interface you see in the browser.
+**¿Qué es?** Es la interfaz visual que ves en el navegador.
 
-**What does it do?**
-- Displays login/registration forms
-- Allows image uploads
-- Shows the gallery with results
-- Communicates with the backend
+**¿Qué hace?**
+- Muestra formularios para login/registro
+- Permite subir imágenes
+- Muestra la galería con resultados
+- Comunica con el backend
 
-**Location:** `/frontend/`
+**Ubicación:** `/frontend/`
 
-### 3. Database (PostgreSQL)
+### 3. Base de Datos (PostgreSQL)
 
-**What is it?** Stores all information in an organized manner.
+**¿Qué es?** Almacena toda la información de manera organizada.
 
-**What does it store?**
-- User information
-- Album details
-- Image information
-- Analysis results
+**¿Qué guarda?**
+- Información de usuarios
+- Detalles de álbumes
+- Información de imágenes
+- Resultados de análisis
 
 ---
 
-## Prerequisites
+## Requisitos Previos
 
-Before starting, you need to have installed:
+Antes de empezar, necesitas tener instalado:
 
 ### 1. Python 3.8+
-Programming language for the backend.
-- [Download Python](https://www.python.org/downloads/)
-- **Verify installation:**
+Lenguaje de programación para el backend.
+- [Descargar Python](https://www.python.org/downloads/)
+- **Verificar instalación:**
   ```bash
   python --version
   ```
 
 ### 2. Node.js 16+
-Environment for running JavaScript/TypeScript from the frontend.
-- [Download Node.js](https://nodejs.org/)
-- **Verify installation:**
+Entorno para ejecutar JavaScript/TypeScript del frontend.
+- [Descargar Node.js](https://nodejs.org/)
+- **Verificar instalación:**
   ```bash
   node --version
   npm --version
   ```
 
 ### 3. PostgreSQL 12+
-Database where all data is stored.
-- [Download PostgreSQL](https://www.postgresql.org/download/)
-- **Verify installation:**
+Base de datos donde se guardan todos los datos.
+- [Descargar PostgreSQL](https://www.postgresql.org/download/)
+- **Verificar instalación:**
   ```bash
   psql --version
   ```
 
-### 4. Git (Optional but recommended)
-To clone the repository.
-- [Download Git](https://git-scm.com/downloads)
+### 4. Git (Opcional pero recomendado)
+Para clonar el repositorio.
+- [Descargar Git](https://git-scm.com/downloads)
 
 ---
 
-## Step-by-Step Installation
+## Instalación Paso a Paso
 
-### STEP 1: Download the Project
+### PASO 1: Descargar el Proyecto
 
-**Option A: With Git (Recommended)**
+**Opción A: Con Git (Recomendado)**
 ```bash
 git clone https://github.com/BrayanJac/esteganografia_galeria.git
 cd esteganografia_galeria
 ```
 
-**Option B: Manual download**
-1. Go to: https://github.com/BrayanJac/esteganografia_galeria
-2. Click "Code" → "Download ZIP"
-3. Extract the folder
+**Opción B: Descarga manual**
+1. Ve a: https://github.com/BrayanJac/esteganografia_galeria
+2. Click en "Code" → "Download ZIP"
+3. Descomprime la carpeta
 
 ---
 
-### STEP 2: Configure Database
+### PASO 2: Configurar Base de Datos
 
-#### 2.1 Create the database
+#### 2.1 Crear la base de datos
 
-Open pgAdmin (PostgreSQL graphical interface) or the terminal:
+Abre pgAdmin (interfaz gráfica de PostgreSQL) o la terminal:
 
 ```bash
-# Open PostgreSQL terminal
+# Abre la terminal de PostgreSQL
 psql -U postgres
 
-# In the PostgreSQL terminal, type:
+# En la terminal de PostgreSQL, escribe:
 CREATE DATABASE secure_gallery;
 \q
 ```
 
-#### 2.2 Verify connection
+#### 2.2 Verificar conexión
 
 ```bash
 psql -U postgres -d secure_gallery -c "SELECT 1;"
-# Should show: 1
+# Debe mostrar: 1
 ```
 
 ---
 
-### STEP 3: Install Backend
+### PASO 3: Instalar Backend
 
-#### 3.1 Enter the backend folder
+#### 3.1 Entra en la carpeta del backend
 ```bash
 cd backend
 ```
 
-#### 3.2 Create virtual environment
-An "isolated environment" for Python dependencies.
+#### 3.2 Crear entorno virtual
+Un "entorno aislado" para las dependencias de Python.
 
 ```bash
-# On Windows
+# En Windows
 python -m venv venv
 venv\Scripts\activate
 
-# On Mac/Linux
+# En Mac/Linux
 python -m venv venv
 source venv/bin/activate
 ```
 
-#### 3.3 Install dependencies
+#### 3.3 Instalar dependencias
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-#### 3.4 Configure environment variables
+#### 3.4 Configurar variables de entorno
 ```bash
-# Copy example file
+# Copiar archivo de ejemplo
 cp .env.example .env
 ```
 
-Open the `.env` file with a text editor and edit:
+Abre el archivo `.env` con un editor de texto y edita:
 
 ```env
-DATABASE_URL=postgresql://postgres:your_password@localhost/secure_gallery
-SECRET_KEY=change-this-to-a-secure-long-key
+DATABASE_URL=postgresql://postgres:tu_contraseña@localhost/secure_gallery
+SECRET_KEY=cambia-esto-a-una-clave-segura-larga
 ```
 
-#### 3.5 Create database tables
+#### 3.5 Crear tablas en la base de datos
 ```bash
 python -c "from database.database import create_tables; create_tables()"
 ```
 
-#### 3.6 Start the backend
+#### 3.6 Iniciar el backend
 ```bash
 python main.py
 ```
 
-**What should you see?**
+**¿Qué debería ver?**
 ```
 INFO:     Started server process [12345]
 INFO:     Uvicorn running on http://127.0.0.1:8000
 INFO:     Application startup complete
 ```
 
-**Important!** Keep this terminal open while working.
+**Importante:** Mantén esta terminal abierta mientras trabajas.
 
 ---
 
-### STEP 4: Install Frontend
+### PASO 4: Instalar Frontend
 
-#### 4.1 Open ANOTHER terminal and enter the frontend folder
+#### 4.1 Abre OTRA terminal y entra en la carpeta del frontend
 ```bash
 cd frontend
 ```
 
-#### 4.2 Install dependencies
+#### 4.2 Instalar dependencias
 ```bash
 npm install
 ```
 
-#### 4.3 Start the development server
+#### 4.3 Iniciar el servidor de desarrollo
 ```bash
 npm run dev
 ```
 
-**What should you see?**
+**¿Qué debería ver?**
 ```
 ➜  Local:   http://localhost:5173/
 ```
 
-#### 4.4 Open in browser
-Open your favorite browser and go to:
+#### 4.4 Abre en el navegador
+Abre tu navegador favorito y ve a:
 ```
 http://localhost:5173
 ```
 
 ---
 
-## Getting Started
+## Primeros Pasos
 
-### 1. Register
+### 1. Registrarse
 
-1. On the home page, click **"Register"**
-2. Complete the form:
-   - **Username:** Your username (e.g., "juan123")
-   - **Email:** Your email (e.g., "juan@example.com")
-   - **Password:** Minimum 12 characters, including:
-     - Uppercase (A-Z)
-     - Lowercase (a-z)
-     - Numbers (0-9)
-     - Special characters (!@#$%^&*)
-   - Valid example: `MyPassword@123!`
+1. En la página de inicio, click en **"Registrarse"**
+2. Completa el formulario:
+   - **Usuario:** Tu nombre de usuario (ej: "juan123")
+   - **Email:** Tu email (ej: "juan@example.com")
+   - **Contraseña:** Mínimo 12 caracteres, incluyendo:
+     - Mayúsculas (A-Z)
+     - Minúsculas (a-z)
+     - Números (0-9)
+     - Caracteres especiales (!@#$%^&*)
+   - Ejemplo válido: `MiPassword@123!`
 
-3. Click **"Register"**
+3. Click en **"Registrarse"**
 
-### 2. Login
+### 2. Iniciar Sesión
 
-1. Click **"Login"**
-2. Enter your username and password
-3. Click **"Login"**
+1. Click en **"Iniciar Sesión"**
+2. Ingresa tu usuario y contraseña
+3. Click en **"Iniciar Sesión"**
 
-### 3. Create an Album
+### 3. Crear un Álbum
 
-1. Once inside, go to **"My Gallery"**
-2. Click **"New Album"**
-3. Fill in:
-   - **Title:** Album name (e.g., "Vacation 2024")
-   - **Description:** Optional description
-   - **Public:** Check if you want others to see it
-4. Click **"Create"**
+1. Una vez dentro, ve a **"Mi Galería"**
+2. Click en **"Nuevo Álbum"**
+3. Completa:
+   - **Título:** Nombre del álbum (ej: "Vacaciones 2024")
+   - **Descripción:** Descripción opcional
+   - **Público:** Marca si quieres que otros lo vean
+4. Click en **"Crear"**
 
-### 4. Upload Images
+### 4. Subir Imágenes
 
-1. In your album, click **"Upload image"**
-2. Select images from your computer
-3. Wait for them to process
-4. You will see the status: "Clean" or "Suspicious"
+1. En tu álbum, click en **"Subir imagen"**
+2. Selecciona imágenes de tu computadora
+3. Espera a que se procesen
+4. Verás el estado: "Limpia" o "Sospechosa"
 
 ---
 
-## Detailed Operation
+## Funcionamiento Detallado
 
-### Authentication (Login/Register)
-
-```
-1. Registration:
-   User ----[name, email, password]--> Backend
-   Backend: "I will encrypt the password"
-   Backend: "I will save the user in the database"
-   Frontend: "Done! Now login"
-
-2. Login:
-   User ----[username, password]--> Backend
-   Backend: "Does the password match?"
-   Backend: "Yes! Here is your TOKEN"
-   Frontend: "I will save the TOKEN for future requests"
-
-3. Future Requests:
-   User wants to upload image
-   Frontend: "I will attach the TOKEN to the request"
-   Backend: "Has valid TOKEN?"
-   Backend: "Yes! Allow upload"
-```
-
-**What is a TOKEN?**
-It is like an access pass. Once you log in, the server gives you a pass that says "This user is trusted". Each time you do something, you show your pass.
-
-### Image Analysis
+### Autenticación (Login/Registro)
 
 ```
-User uploads image
+1. Registro:
+   Usuario ----[nombre, email, contraseña]--> Backend
+   Backend: "Voy a cifrar la contraseña"
+   Backend: "Voy a guardar el usuario en la BD"
+   Frontend: "Listo! Ahora inicia sesión"
+
+2. Iniciar Sesión:
+   Usuario ----[usuario, contraseña]--> Backend
+   Backend: "¿La contraseña coincide?"
+   Backend: "Sí! Aquí está tu TOKEN"
+   Frontend: "Guardaré el TOKEN para futuras peticiones"
+
+3. Peticiones Futuras:
+   Usuario quiere subir imagen
+   Frontend: "Adjuntaré el TOKEN al request"
+   Backend: "¿Tiene TOKEN válido?"
+   Backend: "Sí! Permite la subida"
+```
+
+**¿Qué es un TOKEN?**
+Es como un pase de acceso. Una vez que inicias sesión, el servidor te da un pase que dice "Este usuario es confiable". Cada vez que haces algo, le muestras el pase.
+
+### Análisis de Imágenes
+
+```
+Usuario sube imagen
     ↓
-Backend receives the image
+Backend recibe la imagen
     ↓
-Backend saves image in "uploads/" folder
+Backend guarda la imagen en carpeta "uploads/"
     ↓
-Backend runs analysis algorithms:
+Backend ejecuta algoritmos de análisis:
   - LSB Steganography (Least Significant Bit)
   - DCT Coefficients (Discrete Cosine Transform)
   - Fourier Analysis
     ↓
-Backend calculates a "suspicion score"
+Backend calcula un "score de sospecha"
     ↓
-Score > 70%? → QUARANTINE (Suspicious)
-Score < 30%? → CLEAN (Safe)
-Score 30-70%? → REQUIRES REVIEW (Manual)
+Score > 70%? → CUARENTENA (Sospechosa)
+Score < 30%? → LIMPIA (Segura)
+Score 30-70%? → REQUIERE REVISIÓN (Manual)
     ↓
-Result is saved in the Database
+Resultado se guarda en la Base de Datos
     ↓
-Frontend shows result to user
+Frontend muestra el resultado al usuario
 ```
 
-### Role Flow
+### Flujo de Roles
 
 ```
-NORMAL USER:
-├── Create own albums
-├── Upload images
-├── View their gallery
-└── View public galleries
+USUARIO NORMAL:
+├── Crear álbumes propios
+├── Subir imágenes
+├── Ver su galería
+└── Ver galerías públicas
 
 SUPERVISOR:
-├── Everything the user can do
-├── Review quarantined images
-├── Approve/Reject albums
-└── View administration panel
+├── Todo lo del usuario
+├── Revisar imágenes en cuarentena
+├── Aprobar/Rechazar álbumes
+└── Ver panel de administración
 
 ADMIN:
-├── Everything the supervisor can do
-├── Manage users
-├── View statistics
-└── Complete system access
+├── Todo lo del supervisor
+├── Gestionar usuarios
+├── Ver estadísticas
+└── Acceso completo a todo
 ```
 
 ---
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 esteganografia_galeria/
 │
-├── backend/                          [REST API - Python]
-│   ├── main.py                       Main file (run this)
-│   ├── requirements.txt              Python dependencies
-│   ├── .env                          Configuration variables
+├── backend/                          [API REST - Python]
+│   ├── main.py                       Archivo principal (ejecutar esto)
+│   ├── requirements.txt              Dependencias Python
+│   ├── .env                          Variables de configuración
 │   ├── config/
-│   │   └── config.py                 App configuration
+│   │   └── config.py                 Configuración del app
 │   ├── database/
-│   │   ├── database.py               Database connection
-│   │   └── models.py                 Data structure
-│   ├── routers/                      API endpoints
-│   │   ├── auth_router.py            Login/Register
-│   │   ├── album_router.py           Album management
-│   │   ├── image_router.py           Image management
-│   │   └── gallery_router.py         Public gallery
-│   ├── services/                     Business logic
+│   │   ├── database.py               Conexión a BD
+│   │   └── models.py                 Estructura de datos
+│   ├── routers/                      Endpoints de API
+│   │   ├── auth_router.py            Login/Registro
+│   │   ├── album_router.py           Gestión álbumes
+│   │   ├── image_router.py           Gestión imágenes
+│   │   └── gallery_router.py         Galería pública
+│   ├── services/                     Lógica de negocio
 │   │   ├── auth_service.py
 │   │   ├── album_service.py
 │   │   ├── image_service.py
 │   │   └── gallery_service.py
-│   ├── security/                     Security
-│   │   ├── auth.py                   JWT authentication
+│   ├── security/                     Seguridad
+│   │   ├── auth.py                   Autenticación JWT
 │   │   ├── middleware.py             CORS, headers
-│   │   └── steganography.py          Steganography analysis
-│   └── uploads/                      Saved images
+│   │   └── steganography.py          Análisis esteganografía
+│   └── uploads/                      Imágenes guardadas
 │
-├── frontend/                         [Interface - React]
+├── frontend/                         [Interfaz - React]
 │   ├── src/
-│   │   ├── components/               React components
+│   │   ├── components/               Componentes React
 │   │   │   ├── Navbar.tsx
 │   │   │   ├── LoginForm.tsx
 │   │   │   ├── ProtectedRoute.tsx
 │   │   │   └── ...
-│   │   ├── pages/                    Full pages
+│   │   ├── pages/                    Páginas completas
 │   │   │   ├── HomePage.tsx
 │   │   │   ├── LoginPage.tsx
 │   │   │   ├── GalleryPage.tsx
 │   │   │   └── ...
 │   │   ├── services/
-│   │   │   └── api.ts                HTTP client
-│   │   ├── hooks/                    Custom hooks
-│   │   ├── store/                    Global state
-│   │   ├── types/                    TypeScript types
-│   │   ├── App.tsx                   Root component
-│   │   └── main.tsx                  Entry point
-│   ├── package.json                  Node dependencies
-│   ├── vite.config.ts                Vite configuration
-│   └── .env                          Environment variables
+│   │   │   └── api.ts                Cliente HTTP
+│   │   ├── hooks/                    Hooks personalizados
+│   │   ├── store/                    Estado global
+│   │   ├── types/                    Tipos TypeScript
+│   │   ├── App.tsx                   Componente raíz
+│   │   └── main.tsx                  Punto de entrada
+│   ├── package.json                  Dependencias Node
+│   ├── vite.config.ts                Configuración Vite
+│   └── .env                          Variables de entorno
 │
-└── README.md                         This file
+└── README.md                         Este archivo
 ```
 
 ---
 
-## Security
+## Seguridad
 
-### Implemented Security Features
+### Características de Seguridad Implementadas
 
-| Feature | What is it? | Why? |
-|---------|-----------|------|
-| **JWT** | Secure authentication tokens | Prevents impersonation |
-| **Argon2** | Password encryption | Passwords not stored in plain text |
-| **Rate Limiting** | Limits login attempts | Prevents brute force attacks |
-| **CORS** | Cross-origin control | Only authorized frontend can access |
-| **HTTPS (production)** | Encrypted connection | Protects data in transit |
-| **Security Headers** | HTTP security headers | Protects against common attacks |
+| Característica | ¿Qué es? | ¿Por qué? |
+|---|---|---|
+| **JWT** | Tokens seguros para autenticación | Evita que otros se hagan pasar por ti |
+| **Argon2** | Cifrado de contraseñas | Las contraseñas no se guardan en texto plano |
+| **Rate Limiting** | Limita intentos de login | Previene ataques de fuerza bruta |
+| **CORS** | Control de origen cruzado | Solo el frontend autorizado puede acceder |
+| **HTTPS (producción)** | Conexión encriptada | Protege datos en tránsito |
+| **Headers de Seguridad** | Encabezados HTTP seguros | Protege contra ataques comunes |
 
 ---
 
-## Useful Commands
+## Comandos Útiles
 
 ### Backend
 ```bash
-# Start server
+# Iniciar servidor
 python main.py
 
-# View real-time logs
+# Ver logs en tiempo real
 python main.py --reload
 
-# Access API documentation
-# Open in browser: http://localhost:8000/docs
+# Acceder a documentación de API
+# Abre en el navegador: http://localhost:8000/docs
 ```
 
 ### Frontend
 ```bash
-# Development (with hot reload)
+# Desarrollo (con hot reload)
 npm run dev
 
-# Build for production
+# Construir para producción
 npm run build
 
-# View build locally
+# Ver build localmente
 npm run preview
 
-# Type checking
+# Verificación de tipos
 npm run type-check
 
 # Linting
@@ -500,170 +500,170 @@ npm run lint
 
 ---
 
-## Common Problems and Solutions
+## Problemas Comunes y Soluciones
 
-### "Error connecting to database"
+### "Error conectando a la base de datos"
 
-**Cause:** PostgreSQL is not running or incorrect credentials.
+**Causa:** PostgreSQL no está ejecutándose o credenciales incorrectas.
 
-**Solution:**
+**Solución:**
 ```bash
-# Verify PostgreSQL is running
-# Windows: Search "Services" and ensure PostgreSQL is "Running"
+# Verificar que PostgreSQL está ejecutándose
+# Windows: Busca "Servicios" y asegúrate que PostgreSQL esté "Ejecutándose"
 # Mac: brew services list
 # Linux: sudo systemctl status postgresql
 
-# Verify credentials in .env
+# Verificar credenciales en .env
 cat .env
 ```
 
 ### "Cannot GET /api/..."
 
-**Cause:** Backend is not running.
+**Causa:** El backend no está ejecutándose.
 
-**Solution:**
+**Solución:**
 ```bash
-# Verify backend is running - terminal should show:
+# Verificar que el backend esté ejecutándose - la terminal debe mostrar:
 # "INFO:     Application startup complete"
 
-# If not, start the backend:
+# Si no, inicia el backend:
 cd backend
 python main.py
 ```
 
-### "CORS error"
+### "Error CORS"
 
-**Cause:** Frontend and backend are not communicating correctly.
+**Causa:** El frontend y backend no se están comunicando correctamente.
 
-**Solution:**
+**Solución:**
 ```bash
-# Verify in frontend .env:
+# Verificar en el .env del frontend:
 VITE_API_URL=http://localhost:8000/api
 
-# Restart both servers:
-# Backend: Ctrl+C and python main.py
-# Frontend: Ctrl+C and npm run dev
+# Reiniciar ambos servidores:
+# Backend: Ctrl+C y python main.py
+# Frontend: Ctrl+C y npm run dev
 ```
 
-### "npm: command not found"
+### "npm: comando no encontrado"
 
-**Cause:** Node.js not installed or not in PATH.
+**Causa:** Node.js no está instalado o no está en PATH.
 
-**Solution:**
+**Solución:**
 ```bash
-# Download and install Node.js from:
+# Descargar e instalar Node.js desde:
 https://nodejs.org/
 
-# Verify after:
+# Verificar después:
 node --version
 npm --version
 ```
 
-### "python: command not found"
+### "python: comando no encontrado"
 
-**Cause:** Python not installed or not in PATH.
+**Causa:** Python no está instalado o no está en PATH.
 
-**Solution:**
+**Solución:**
 ```bash
-# Download and install Python from:
+# Descargar e instalar Python desde:
 https://www.python.org/downloads/
 
-# On Windows: Check "Add Python to PATH" during installation
+# En Windows: Marca "Add Python to PATH" durante la instalación
 
-# Verify after:
+# Verificar después:
 python --version
 ```
 
 ---
 
-## FAQ - Frequently Asked Questions
+## Preguntas Frecuentes
 
-### How many images can I upload?
-There is no defined limit. Maximum per image is 10MB (configurable).
+### ¿Cuántas imágenes puedo subir?
+No hay límite definido. El máximo por imagen es 10MB (configurable).
 
-### What image formats are supported?
-JPG, PNG, GIF, BMP, WebP and other standard formats.
+### ¿Qué formatos de imagen son soportados?
+JPG, PNG, GIF, BMP, WebP y otros formatos estándar.
 
-### Are images compressed?
-No, they are stored in their original size.
+### ¿Se comprimen las imágenes?
+No, se guardan en su tamaño original.
 
-### Can I change my password?
-Yes, in the user panel (next version).
+### ¿Puedo cambiar mi contraseña?
+Sí, en el panel de usuario (próxima versión).
 
-### What is "Quarantine"?
-It is when an image is marked as suspicious by the analysis and is isolated. A supervisor must review if it really contains steganography.
+### ¿Qué es "Cuarentena"?
+Es cuando una imagen es marcada como sospechosa por el análisis y se aísla. Un supervisor debe revisar si realmente contiene esteganografía.
 
-### What is a "Role"?
-It is the type of user. Each role has different permissions:
-- **User:** Can create albums and upload images
-- **Supervisor:** Can also review quarantined images
-- **Admin:** Full system access
+### ¿Qué es un "Rol"?
+Es el tipo de usuario. Cada rol tiene permisos diferentes:
+- **Usuario:** Puede crear álbumes y subir imágenes
+- **Supervisor:** Puede revisar imágenes en cuarentena
+- **Admin:** Acceso completo al sistema
 
-### Can I delete my account?
-Not yet, but you can contact an admin.
+### ¿Puedo eliminar mi cuenta?
+Aún no, pero puedes contactar con un administrador.
 
-### Are my data private?
-Yes, each user only sees their own data, except public galleries.
+### ¿Son mis datos privados?
+Sí, cada usuario solo ve sus propios datos, excepto las galerías públicas.
 
-### How long does steganography analysis take?
-Typically 1-5 seconds depending on image size.
+### ¿Cuánto tiempo tarda el análisis de esteganografía?
+Típicamente 1-5 segundos dependiendo del tamaño de la imagen.
 
-### Can I use the application offline?
-No, it requires a connection because it uses a server.
-
----
-
-## Additional Documentation
-
-- [Backend README](./backend/README.md) - Detailed backend documentation
-- [Frontend README](./frontend/README.md) - Detailed frontend documentation
-- [Frontend QUICKSTART](./frontend/QUICKSTART.md) - Frontend quick guide
+### ¿Puedo usar la aplicación sin conexión?
+No, requiere una conexión porque utiliza un servidor.
 
 ---
 
-## Contribution
+## Documentación Adicional
 
-Want to improve the project?
-
-1. **Report errors** - If you find a bug, create an issue
-2. **Suggest improvements** - Have ideas? We want to hear them
-3. **Contribute code** - Fork and send a pull request
+- [Backend README](./backend/README.md) - Documentación detallada del backend
+- [Frontend README](./frontend/README.md) - Documentación detallada del frontend
+- [Frontend QUICKSTART](./frontend/QUICKSTART.md) - Guía rápida del frontend
 
 ---
 
-## License
+## Contribución
 
-This project is under MIT license. You are free to use, modify, and distribute it.
+¿Quieres mejorar el proyecto?
 
----
-
-## Author
-
-Developed by: **Brayan Jac**
+1. **Reporta errores** - Si encuentras un bug, crea un issue
+2. **Sugiere mejoras** - ¿Tienes ideas? Queremos escucharlas
+3. **Contribuye código** - Fork y envía un pull request
 
 ---
 
-## Acknowledgments
+## Licencia
 
-- FastAPI - Backend framework
-- React - UI library
-- PostgreSQL - Database
-- Open source community
+Este proyecto está bajo licencia MIT. Eres libre de usarlo, modificarlo y distribuirlo.
 
 ---
 
-## Educational Notes
+## Autor
 
-This project was created for **educational purposes** to learn:
-- Full stack development
-- Web application security
-- Image processing
-- Authentication and authorization
-- Relational databases
-- REST APIs
+Desarrollado por: **Brayan Jac**
 
 ---
 
-For questions or issues, please refer to the documentation or contact the development team.
+## Agradecimientos
 
-Thank you for using SecureGallery!
+- FastAPI - Framework del backend
+- React - Librería de UI
+- PostgreSQL - Base de datos
+- Comunidad open source
+
+---
+
+## Notas Educativas
+
+Este proyecto fue creado con **fines educativos** para aprender:
+- Desarrollo full stack
+- Seguridad en aplicaciones web
+- Procesamiento de imágenes
+- Autenticación y autorización
+- Bases de datos relacionales
+- APIs REST
+
+---
+
+Para preguntas o problemas, consulta la documentación o contacta al equipo de desarrollo.
+
+¡Gracias por usar SecureGallery!
