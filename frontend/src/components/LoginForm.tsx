@@ -19,10 +19,15 @@ export const LoginForm: React.FC = () => {
         try {
             const response = await api.login(username, password);
             const token = response.data.access_token;
+            const userData = response.data.usuario;
+            
+            // Guardar token y usuario
             localStorage.setItem('access_token', token);
-            const userResponse = await api.getCurrentUser();
-
-            login(userResponse.data, token);
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // Actualizar el store
+            login(userData, token);
+            
             navigate('/gallery');
         } catch (err: any) {
             localStorage.removeItem('access_token');
