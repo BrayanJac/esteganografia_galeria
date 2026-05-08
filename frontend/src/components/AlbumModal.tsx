@@ -11,10 +11,35 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(true);
+    const [errorMessage, setErrorMessage] = useState('');
     const createAlbum = useCreateAlbum();
+
+    const extractErrorMessage = (error: unknown) => {
+        const cleanMessage = (message: string) => message.replace(/^Value error,\s*/i, '');
+
+        if (error && typeof error === 'object' && 'response' in error) {
+            const response = (error as { response?: { data?: { detail?: unknown } } }).response;
+            const detail = response?.data?.detail;
+
+            if (typeof detail === 'string') {
+                return cleanMessage(detail);
+            }
+
+            if (Array.isArray(detail) && detail.length > 0) {
+                const firstError = detail[0] as { msg?: string };
+                if (typeof firstError?.msg === 'string') {
+                    return cleanMessage(firstError.msg);
+                }
+            }
+        }
+
+        return 'No se pudo crear el álbum. La descripción contiene contenido no permitido.';
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMessage('');
+
         try {
             await createAlbum.mutateAsync({ title, description, isPublic });
             setTitle('');
@@ -22,6 +47,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
             setIsPublic(true);
             onClose();
         } catch (error) {
+            setErrorMessage(extractErrorMessage(error));
             console.error('Error creating album:', error);
         }
     };
@@ -42,12 +68,23 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    {errorMessage && (
+                        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {errorMessage}
+                        </div>
+                    )}
+
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Título</label>
                         <input
                             type="text"
                             value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e) => {
+                                setTitle(e.target.value);
+                                if (errorMessage) {
+                                    setErrorMessage('');
+                                }
+                            }}
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600"
                             required
                         />
@@ -57,7 +94,12 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
                         <label className="block text-gray-700 font-medium mb-2">Descripción</label>
                         <textarea
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            onChange={(e) => {
+                                setDescription(e.target.value);
+                                if (errorMessage) {
+                                    setErrorMessage('');
+                                }
+                            }}
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600"
                             rows={3}
                         />
@@ -68,7 +110,12 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
                             type="checkbox"
                             id="isPublic"
                             checked={isPublic}
-                            onChange={(e) => setIsPublic(e.target.checked)}
+                            onChange={(e) => {
+                                setIsPublic(e.target.checked);
+                                if (errorMessage) {
+                                    setErrorMessage('');
+                                }
+                            }}
                             className="rounded"
                         />
                         <label htmlFor="isPublic" className="ml-2 text-gray-700">

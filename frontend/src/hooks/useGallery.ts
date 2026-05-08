@@ -56,3 +56,25 @@ export const useUploadImage = () => {
         },
     });
 };
+
+export const usePendingAlbums = () => {
+    return useQuery({
+        queryKey: ['albums', 'pending'],
+        queryFn: async () => {
+            const response = await api.getPendingAlbums();
+            return response.data;
+        },
+    });
+};
+
+export const useApproveAlbum = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { albumId: number; approved: boolean; comment?: string }) =>
+            api.approveAlbum(data.albumId, data.approved, data.comment),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['albums', 'pending'] });
+        },
+    });
+};
