@@ -68,6 +68,10 @@ class ApiClient {
         return this.client.get(`/albums/${albumId}`);
     }
 
+    async getPendingAlbums() {
+        return this.client.get('/albums/pending');
+    }
+
     async createAlbum(title: string, description?: string, isPublic?: boolean) {
         return this.client.post('/albums', {
             title,

@@ -1,8 +1,32 @@
+import re
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from database.models import Album, AlbumStatus
 
+
+HTML_TAG_PATTERN = re.compile(r"<\s*/?\s*[a-zA-Z!][^>]*>")
+
+
+def _validate_album_description(description: str | None):
+    if description is None:
+        return
+
+    if HTML_TAG_PATTERN.search(description):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La descripción no puede contener HTML o JavaScript"
+        )
+
+    if "javascript:" in description.lower():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La descripción no puede contener JavaScript"
+        )
+
 async def create_album(title: str, description: str, is_public: bool, owner_id: int, db: Session):
+    _validate_album_description(description)
+
     if description and len(description) > 2000:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
