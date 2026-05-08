@@ -2,7 +2,7 @@ import re
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from database.models import Album, AlbumStatus
+from database.models import Album, AlbumStatus, ImageStatus
 
 
 HTML_TAG_PATTERN = re.compile(r"<\s*/?\s*[a-zA-Z!][^>]*>")
@@ -62,10 +62,88 @@ async def get_user_albums(user_id: int, db: Session):
             "description": album.description,
             "status": album.status.value,
             "is_public": album.is_public,
+            "owner_id": album.owner_id,
+            "owner": album.owner.username,
+            "image_count": len(album.images),
             "created_at": album.created_at
         }
         for album in albums
     ]
+
+
+async def get_accessible_albums(user_id: int, db: Session):
+    owned_albums = db.query(Album).filter(Album.owner_id == user_id).all()
+    public_albums = db.query(Album).filter(
+        Album.status == AlbumStatus.APPROVED,
+        Album.is_public == True,
+        Album.owner_id != user_id
+    ).all()
+
+    albums = owned_albums + public_albums
+
+    return [
+        {
+            "id": album.id,
+            "title": album.title,
+            "description": album.description,
+            "status": album.status.value,
+            "is_public": album.is_public,
+            "owner_id": album.owner_id,
+            "owner": album.owner.username,
+            "image_count": len(album.images),
+            "created_at": album.created_at
+        }
+        for album in albums
+    ]
+
+
+async def get_album_for_user(album_id: int, user_id: int, db: Session):
+    album = db.query(Album).filter(Album.id == album_id).first()
+
+    if not album:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Álbum no encontrado"
+        )
+
+    if album.status != AlbumStatus.APPROVED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="El álbum aún no ha sido aprobado"
+        )
+
+    if not album.is_public and album.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para ver este álbum"
+        )
+
+    images_query = album.images
+    if album.owner_id != user_id:
+        images_query = [image for image in images_query if image.status == ImageStatus.APPROVED]
+
+    return {
+        "album": {
+            "id": album.id,
+            "title": album.title,
+            "description": album.description,
+            "status": album.status.value,
+            "is_public": album.is_public,
+            "owner_id": album.owner_id,
+            "owner": album.owner.username,
+            "created_at": album.created_at
+        },
+        "images": [
+            {
+                "id": image.id,
+                "filename": image.filename,
+                "original_filename": image.original_filename,
+                "status": image.status.value,
+                "steganography_detected": image.status == ImageStatus.QUARANTINED,
+            }
+            for image in images_query
+        ]
+    }
 
 async def get_pending_albums(db: Session):
     albums = db.query(Album).filter(Album.status == AlbumStatus.PENDING).all()

@@ -32,6 +32,16 @@ export const useUserAlbums = () => {
     });
 };
 
+export const useLibraryAlbums = () => {
+    return useQuery({
+        queryKey: ['albums', 'library'],
+        queryFn: async () => {
+            const response = await api.getAccessibleAlbums();
+            return response.data;
+        },
+    });
+};
+
 export const useCreateAlbum = () => {
     const queryClient = useQueryClient();
 

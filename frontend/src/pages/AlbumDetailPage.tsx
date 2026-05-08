@@ -1,32 +1,29 @@
 import React from 'react';
 import { Navbar } from '@components/Navbar';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '@services/api';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export const AlbumDetailPage: React.FC = () => {
     const { albumId } = useParams<{ albumId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isPublicView = location.pathname.startsWith('/gallery/');
 
     const { data: album, isLoading, error } = useQuery({
         queryKey: ['album', albumId],
         queryFn: async () => {
-            const response = await api.getAlbumById(Number(albumId));
-            return response.data;
+            const response = isPublicView
+                ? await api.getGalleryAlbum(Number(albumId))
+                : await api.getAlbumById(Number(albumId));
+
+            return {
+                ...response.data.album,
+                images: response.data.images,
+            };
         },
     });
-
-    const handleDelete = async (imageId: number) => {
-        if (window.confirm('¿Eliminar esta imagen?')) {
-            try {
-                await api.deleteImage(imageId);
-                // Refetch would happen automatically with React Query
-            } catch (error) {
-                console.error('Error deleting image:', error);
-            }
-        }
-    };
 
     if (isLoading) {
         return (
@@ -48,7 +45,7 @@ export const AlbumDetailPage: React.FC = () => {
                         <h1 className="text-2xl font-bold text-gray-800 mb-4">Error</h1>
                         <p className="text-gray-600 mb-4">No se pudo cargar el álbum</p>
                         <button
-                            onClick={() => navigate('/gallery')}
+                            onClick={() => navigate(isPublicView ? '/' : '/gallery')}
                             className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
                         >
                             Volver a galería
@@ -67,7 +64,7 @@ export const AlbumDetailPage: React.FC = () => {
                     {/* Header */}
                     <div className="mb-8">
                         <button
-                            onClick={() => navigate('/gallery')}
+                            onClick={() => navigate(isPublicView ? '/' : '/gallery')}
                             className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 mb-4"
                         >
                             <ArrowLeft size={20} />
@@ -138,13 +135,6 @@ export const AlbumDetailPage: React.FC = () => {
                                                 )}
                                             </div>
 
-                                            <button
-                                                onClick={() => handleDelete(image.id)}
-                                                className="w-full bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded flex items-center justify-center space-x-2"
-                                            >
-                                                <Trash2 size={16} />
-                                                <span>Eliminar</span>
-                                            </button>
                                         </div>
                                     </div>
                                 ))}

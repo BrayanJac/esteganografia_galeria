@@ -16,6 +16,7 @@ async def get_public_gallery(db: Session):
             "title": album.title,
             "description": album.description,
             "owner": album.owner.username,
+            "image_count": len(album.images),
             "created_at": album.created_at
         }
         for album in albums
@@ -51,6 +52,8 @@ async def get_album_images(album_id: int, db: Session):
                 "id": image.id,
                 "filename": image.filename,
                 "original_filename": image.original_filename
+                ,"status": image.status.value,
+                "steganography_detected": image.status == ImageStatus.QUARANTINED
             }
             for image in images
         ]

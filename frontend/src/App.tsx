@@ -37,6 +37,11 @@ function App() {
                     />
 
                     <Route
+                        path="/gallery/:albumId"
+                        element={<AlbumDetailPage />}
+                    />
+
+                    <Route
                         path="/album/:albumId"
                         element={
                             <ProtectedRoute>

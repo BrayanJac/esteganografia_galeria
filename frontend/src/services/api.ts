@@ -64,6 +64,10 @@ class ApiClient {
         return this.client.get('/albums');
     }
 
+    async getAccessibleAlbums() {
+        return this.client.get('/albums/library');
+    }
+
     async getAlbumById(albumId: number) {
         return this.client.get(`/albums/${albumId}`);
     }
