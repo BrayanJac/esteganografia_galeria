@@ -42,20 +42,18 @@ class ApiClient {
 
     // Auth endpoints
     async register(username: string, email: string, password: string) {
-        const params = new URLSearchParams();
-        params.append('username', username);
-        params.append('email', email);
-        params.append('password', password);
-
-        return this.client.post('/auth/register', params);
+        return this.client.post('/auth/register', {
+            username,
+            email,
+            password
+        });
     }
 
     async login(username: string, password: string) {
-        const params = new URLSearchParams();
-        params.append('username', username);
-        params.append('password', password);
-
-        return this.client.post('/auth/login', params);
+        return this.client.post('/auth/login', {
+            username,
+            password
+        });
     }
 
     async getCurrentUser() {
@@ -72,23 +70,15 @@ class ApiClient {
     }
 
     async createAlbum(title: string, description?: string, isPublic?: boolean) {
-        const params = new URLSearchParams();
-        params.append('title', title);
-        if (description) params.append('description', description);
-        if (isPublic !== undefined) params.append('is_public', String(isPublic));
-
-        return this.client.post('/albums', params);
+        return this.client.post('/albums', {
+            title,
+            description,
+            is_public: isPublic ?? true
+        });
     }
 
     async updateAlbum(albumId: number, data: any) {
-        const params = new URLSearchParams();
-        Object.keys(data).forEach((key) => {
-            if (data[key] !== undefined) {
-                params.append(key, String(data[key]));
-            }
-        });
-
-        return this.client.put(`/albums/${albumId}`, params);
+        return this.client.put(`/albums/${albumId}`, data);
     }
 
     async deleteAlbum(albumId: number) {
@@ -114,6 +104,20 @@ class ApiClient {
 
     async deleteImage(imageId: number) {
         return this.client.delete(`/images/${imageId}`);
+    }
+
+    async approveAlbum(albumId: number, approved: boolean, comment?: string) {
+        return this.client.post(`/albums/${albumId}/approve`, {
+            approved,
+            comment
+        });
+    }
+
+    async reviewImage(imageId: number, approved: boolean, comment?: string) {
+        return this.client.post(`/images/${imageId}/review`, {
+            approved,
+            comment
+        });
     }
 
     // Gallery endpoints
