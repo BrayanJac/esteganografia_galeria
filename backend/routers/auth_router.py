@@ -6,19 +6,20 @@ from database.database import get_db
 from database.models import User
 from security.auth import get_current_user, require_supervisor_or_admin
 from services.auth_service import register_user, authenticate_user
+from schemas.auth_schemas import RegisterRequest, LoginRequest
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/register")
 @limiter.limit("5/minute")
-async def register(request: Request, username: str, email: str, password: str, db: Session = Depends(get_db)):
-    return await register_user(username, email, password, db, get_remote_address(request))
+async def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
+    return await register_user(data.username, data.email, data.password, db, get_remote_address(request))
 
 @router.post("/login")
 @limiter.limit("10/minute")
-async def login(request: Request, username: str, password: str, db: Session = Depends(get_db)):
-    return await authenticate_user(username, password, db, get_remote_address(request), request.headers.get("user-agent", ""))
+async def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
+    return await authenticate_user(data.username, data.password, db, get_remote_address(request), request.headers.get("user-agent", ""))
 
 @router.get("/me")
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
