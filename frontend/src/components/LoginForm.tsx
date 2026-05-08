@@ -18,11 +18,15 @@ export const LoginForm: React.FC = () => {
 
         try {
             const response = await api.login(username, password);
+            const token = response.data.access_token;
+            localStorage.setItem('access_token', token);
             const userResponse = await api.getCurrentUser();
 
-            login(userResponse.data, response.data.access_token);
+            login(userResponse.data, token);
             navigate('/gallery');
         } catch (err: any) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
             setError(err.response?.data?.detail || 'Error al iniciar sesión');
         } finally {
             setLoading(false);
