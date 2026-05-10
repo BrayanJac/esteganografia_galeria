@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request, Form
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
@@ -15,7 +15,7 @@ limiter = Limiter(key_func=get_remote_address)
 @limiter.limit("10/hour")
 async def upload_image_endpoint(
     request: Request,
-    album_id: int,
+    album_id: int = Form(...),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
