@@ -79,11 +79,17 @@ def verify_token(token: str) -> Optional[dict]:
 def autenticar_usuario(db: Session, username: str, password: str, ip_address: str, user_agent: str) -> Optional[User]:
     user = db.query(User).filter(User.username == username).first()
 
+    success = False
+
+    if user and user.is_active and verify_password(password, user.password_hash):
+        success = True
+
     login_attempt = LoginAttempt(
         user_id=user.id if user else None,
+        username_attempted=username,
         ip_address=ip_address,
         user_agent=user_agent,
-        success=False
+        success=success
     )
 
     if not user or not user.is_active:
@@ -102,7 +108,6 @@ def autenticar_usuario(db: Session, username: str, password: str, ip_address: st
         db.commit()
         return None
 
-    login_attempt.success = True
     user.failed_login_attempts = 0
     user.last_login_attempt = datetime.utcnow()
 

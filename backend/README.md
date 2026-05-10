@@ -163,3 +163,15 @@ La API devuelve respuestas HTTP consistentes:
 - `404` - No encontrado
 - `413` - Archivo demasiado grande
 - `429` - Rate limit excedido
+
+## 🚀 Crear o regenerar tablas
+
+El proyecto utiliza SQLAlchemy para la gestión de tablas.
+
+Las tablas se definen en `database/models.py`.
+
+Si una tabla no existe (por ejemplo `login_attempts`) o fue eliminada, puedes recrearlas con:
+
+```bash
+python -m database.init_db
+```

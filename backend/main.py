@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from database.database import create_tables
 from routers.auth_router import router as auth_router
+
 try:
     from routers.album_router import router as album_router
 except Exception as e:
@@ -21,6 +22,7 @@ try:
 except Exception as e:
     gallery_router = None
     print(f"Advertencia: no se pudo cargar router de galería: {e}")
+    
 from security.middleware import setup_cors_middleware, setup_trusted_host_middleware, setup_security_middleware
 
 @asynccontextmanager

@@ -102,7 +102,8 @@ class LoginAttempt(Base):
     __tablename__ = "login_attempts"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    username_attempted = Column(String(50), nullable=True)
     ip_address = Column(String(45), nullable=False)
     user_agent = Column(Text, nullable=True)
     success = Column(Boolean, nullable=False)
