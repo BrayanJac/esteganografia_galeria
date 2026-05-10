@@ -1,9 +1,16 @@
 import React from 'react';
 import { Navbar } from '@components/Navbar';
 import { LoginForm } from '@components/LoginForm';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '@hooks/useAuth';
 
 export const LoginPage: React.FC = () => {
+    const { isAuthenticated } = useAuth();
+
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+
     return (
         <>
             <Navbar />

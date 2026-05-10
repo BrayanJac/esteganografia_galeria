@@ -3,9 +3,23 @@ import { Navbar } from '@components/Navbar';
 import { usePublicGallery } from '@hooks/useGallery';
 import { Link } from 'react-router-dom';
 import { Image as ImageIcon } from 'lucide-react';
+import { useAuth } from '@hooks/useAuth';
 
 export const HomePage: React.FC = () => {
     const { data: gallery, isLoading, error } = usePublicGallery();
+    const { isAuthenticated, isAdmin, isSupervisor } = useAuth();
+
+    const getPrimaryDestination = () => {
+        if (isAdmin) {
+            return '/users';
+        }
+
+        if (isSupervisor) {
+            return '/admin';
+        }
+
+        return '/gallery';
+    };
 
     return (
         <>
@@ -16,20 +30,34 @@ export const HomePage: React.FC = () => {
                     <div className="max-w-7xl mx-auto px-4 text-center">
                         <h1 className="text-4xl font-bold mb-4">🖼️ SecureGallery</h1>
                         <p className="text-lg mb-6">Galería multimedia segura con detección de esteganografía</p>
-                        <div className="space-x-4">
-                            <Link
-                                to="/login"
-                                className="inline-block bg-white text-primary-600 px-6 py-2 rounded-md font-medium hover:bg-gray-100"
-                            >
-                                Iniciar Sesión
-                            </Link>
-                            <Link
-                                to="/register"
-                                className="inline-block border border-white text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700"
-                            >
-                                Registrarse
-                            </Link>
-                        </div>
+                        {isAuthenticated ? (
+                            <div className="space-y-4">
+                                <p className="text-base text-primary-50">
+                                    Ya iniciaste sesión. Continúa en tu panel o revisa la galería.
+                                </p>
+                                <Link
+                                    to={getPrimaryDestination()}
+                                    className="inline-block bg-white text-primary-600 px-6 py-2 rounded-md font-medium hover:bg-gray-100"
+                                >
+                                    Ir a mi panel
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="space-x-4">
+                                <Link
+                                    to="/login"
+                                    className="inline-block bg-white text-primary-600 px-6 py-2 rounded-md font-medium hover:bg-gray-100"
+                                >
+                                    Iniciar Sesión
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="inline-block border border-white text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700"
+                                >
+                                    Registrarse
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
 

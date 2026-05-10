@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@store/authStore';
 import { ProtectedRoute } from '@components/ProtectedRoute';
+import { GuestRoute } from '@components/GuestRoute';
 import { HomePage } from '@pages/HomePage';
 import { LoginPage } from '@pages/LoginPage';
 import { RegisterPage } from '@pages/RegisterPage';
 import { GalleryPage } from '@pages/GalleryPage';
 import { AdminPage } from '@pages/AdminPage';
+import { UsersPage } from '@pages/UsersPage';
 import { AlbumDetailPage } from '@pages/AlbumDetailPage';
 
 const queryClient = new QueryClient();
@@ -24,8 +26,22 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route
+                        path="/login"
+                        element={
+                            <GuestRoute>
+                                <LoginPage />
+                            </GuestRoute>
+                        }
+                    />
+                    <Route
+                        path="/register"
+                        element={
+                            <GuestRoute>
+                                <RegisterPage />
+                            </GuestRoute>
+                        }
+                    />
 
                     <Route
                         path="/gallery"
@@ -55,6 +71,15 @@ function App() {
                         element={
                             <ProtectedRoute requiredRole="supervisor">
                                 <AdminPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/users"
+                        element={
+                            <ProtectedRoute requiredRole="admin">
+                                <UsersPage />
                             </ProtectedRoute>
                         }
                     />

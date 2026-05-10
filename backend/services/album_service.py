@@ -1,8 +1,10 @@
+import os
 import re
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from database.models import Album, AlbumStatus, ImageStatus
+from database.models import Album, AlbumStatus, Image, ImageMetadata, ImageStatus
+from config.config import UPLOAD_DIR
 
 
 HTML_TAG_PATTERN = re.compile(r"<\s*/?\s*[a-zA-Z!][^>]*>")
@@ -24,6 +26,7 @@ def _validate_album_description(description: str | None):
             detail="La descripción no puede contener JavaScript"
         )
 
+
 async def create_album(title: str, description: str, is_public: bool, owner_id: int, db: Session):
     _validate_album_description(description)
 
@@ -32,7 +35,7 @@ async def create_album(title: str, description: str, is_public: bool, owner_id: 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="La descripción es demasiado larga"
         )
-    
+
     album = Album(
         title=title,
         description=description,
@@ -40,11 +43,11 @@ async def create_album(title: str, description: str, is_public: bool, owner_id: 
         owner_id=owner_id,
         status=AlbumStatus.PENDING
     )
-    
+
     db.add(album)
     db.commit()
     db.refresh(album)
-    
+
     return {
         "id": album.id,
         "title": album.title,
@@ -52,6 +55,7 @@ async def create_album(title: str, description: str, is_public: bool, owner_id: 
         "status": album.status.value,
         "created_at": album.created_at
     }
+
 
 async def get_user_albums(user_id: int, db: Session):
     albums = db.query(Album).filter(Album.owner_id == user_id).all()
@@ -120,7 +124,8 @@ async def get_album_for_user(album_id: int, user_id: int, db: Session):
 
     images_query = album.images
     if album.owner_id != user_id:
-        images_query = [image for image in images_query if image.status == ImageStatus.APPROVED]
+        images_query = [
+            image for image in images_query if image.status == ImageStatus.APPROVED]
 
     return {
         "album": {
@@ -145,6 +150,7 @@ async def get_album_for_user(album_id: int, user_id: int, db: Session):
         ]
     }
 
+
 async def get_pending_albums(db: Session):
     albums = db.query(Album).filter(Album.status == AlbumStatus.PENDING).all()
     return [
@@ -158,19 +164,68 @@ async def get_pending_albums(db: Session):
         for album in albums
     ]
 
+
+async def get_admin_albums(db: Session):
+    albums = db.query(Album).order_by(Album.created_at.desc()).all()
+
+    return {
+        "albums": [
+            {
+                "id": album.id,
+                "title": album.title,
+                "description": album.description,
+                "status": album.status.value,
+                "is_public": album.is_public,
+                "owner": album.owner.username,
+                "reviewer": album.reviewer.username if album.reviewer else None,
+                "review_comment": album.review_comment,
+                "image_count": len(album.images),
+                "created_at": album.created_at.isoformat() if album.created_at else None,
+                "updated_at": album.updated_at.isoformat() if album.updated_at else None,
+            }
+            for album in albums
+        ]
+    }
+
+
 async def approve_album(album_id: int, approved: bool, comment: str, reviewer_id: int, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
-    
+
     if not album:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Álbum no encontrado"
         )
-    
+
     album.status = AlbumStatus.APPROVED if approved else AlbumStatus.REJECTED
     album.reviewer_id = reviewer_id
     album.review_comment = comment
-    
+
     db.commit()
-    
+
     return {"mensaje": f"Álbum {'aprobado' if approved else 'rechazado'} exitosamente"}
+
+
+async def delete_album(album_id: int, db: Session):
+    album = db.query(Album).filter(Album.id == album_id).first()
+
+    if not album:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Álbum no encontrado"
+        )
+
+    for image in list(album.images):
+        for metadata_record in list(image.metadata_records):
+            db.delete(metadata_record)
+
+        file_path = os.path.join(UPLOAD_DIR, image.filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        db.delete(image)
+
+    db.delete(album)
+    db.commit()
+
+    return {"mensaje": f"Álbum {album.title} eliminado exitosamente"}

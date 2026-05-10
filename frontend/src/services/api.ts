@@ -21,7 +21,8 @@ class ApiClient {
         this.client.interceptors.request.use((config) => {
             const token = localStorage.getItem('access_token');
             if (token) {
-                config.headers['Authorization'] = `Bearer ${token}`;            }
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
             return config;
         });
 
@@ -59,6 +60,23 @@ class ApiClient {
         return this.client.get('/auth/me');
     }
 
+    // Admin/Supervisor management endpoints
+    async createSupervisor(username: string, email: string, password: string) {
+        return this.client.post('/auth/supervisors', {
+            username,
+            email,
+            password
+        });
+    }
+
+    async deleteSupervisor(supervisorId: number) {
+        return this.client.delete(`/auth/supervisors/${supervisorId}`);
+    }
+
+    async deleteUser(userId: number) {
+        return this.client.delete(`/auth/users/${userId}`);
+    }
+
     // Album endpoints
     async getAlbums() {
         return this.client.get('/albums');
@@ -74,6 +92,10 @@ class ApiClient {
 
     async getPendingAlbums() {
         return this.client.get('/albums/pending');
+    }
+
+    async getAdminAlbums() {
+        return this.client.get('/albums/admin');
     }
 
     async createAlbum(title: string, description?: string, isPublic?: boolean) {
@@ -139,6 +161,14 @@ class ApiClient {
     // Health check
     async healthCheck() {
         return this.client.get('/health');
+    }
+
+    async getSupervisors() {
+        return this.client.get('/auth/supervisors');
+    }
+
+    async getUsers() {
+        return this.client.get('/auth/users');
     }
 }
 

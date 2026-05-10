@@ -1,19 +1,29 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-alembic==1.12.1
-psycopg2-binary==2.9.9
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
-pillow==10.1.0
-opencv-python==4.8.1.78
-numpy==1.24.3
-python-magic==0.4.27
-pydantic==2.4.2
-pydantic-settings==2.0.3
-slowapi==0.1.9
-aiofiles==23.2.1
-cryptography==41.0.7
-python-dotenv==1.0.0
+## Backend requirements
+# Relaxed version pins to improve chance of finding prebuilt wheels on macOS
+fastapi>=0.95,<0.105
+uvicorn[standard]>=0.22,<0.25
+sqlalchemy>=2.0,<2.1
+alembic>=1.10,<1.13
+psycopg2-binary>=2.9
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7
+argon2-cffi>=23.0
+python-multipart>=0.0.6
+# For image processing: allow a range so pip can pick compatible wheels
+Pillow>=9.5,<10.2
+opencv-python>=4.6,<4.9
+numpy>=1.23,<1.26
+python-magic>=0.4
+pydantic>=2.3,<2.5
+pydantic-settings>=2.0
+slowapi>=0.1.8
+aiofiles>=23.1
+cryptography>=40
+python-dotenv>=1.0
+email-validator>=1.3
+
+# Notes: On macOS you may need system libs for Pillow (libjpeg, zlib).
+# If pip still builds from source, install via Homebrew:
+#   brew install libjpeg libpng zlib freetype
+# Or use Python 3.11/3.10 where prebuilt wheels are more widely available.
 argon2-cffi==23.1.0

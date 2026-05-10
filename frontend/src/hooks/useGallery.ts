@@ -77,6 +77,16 @@ export const usePendingAlbums = () => {
     });
 };
 
+export const useAdminAlbums = () => {
+    return useQuery({
+        queryKey: ['albums', 'admin'],
+        queryFn: async () => {
+            const response = await api.getAdminAlbums();
+            return response.data;
+        },
+    });
+};
+
 export const useApproveAlbum = () => {
     const queryClient = useQueryClient();
 
@@ -85,6 +95,21 @@ export const useApproveAlbum = () => {
             api.approveAlbum(data.albumId, data.approved, data.comment),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['albums', 'pending'] });
+            queryClient.invalidateQueries({ queryKey: ['albums', 'admin'] });
+        },
+    });
+};
+
+export const useDeleteAlbum = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (albumId: number) => api.deleteAlbum(albumId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['albums', 'pending'] });
+            queryClient.invalidateQueries({ queryKey: ['albums', 'admin'] });
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery'] });
         },
     });
 };

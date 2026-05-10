@@ -4,7 +4,7 @@ import { Menu, X, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
 
 export const Navbar: React.FC = () => {
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, user, logout, isAdmin, isSupervisor } = useAuth();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -29,13 +29,25 @@ export const Navbar: React.FC = () => {
                     <div className="hidden md:flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
-                                <Link to="/gallery" className="text-gray-700 hover:text-primary-600">
-                                    Galería
-                                </Link>
-                                {user?.role !== 'user' && (
-                                    <Link to="/admin" className="text-gray-700 hover:text-primary-600">
-                                        Admin
+                                {!isAdmin && (
+                                    <Link to="/gallery" className="text-gray-700 hover:text-primary-600">
+                                        Galería
                                     </Link>
+                                )}
+                                {isSupervisor && (
+                                    <Link to="/admin" className="text-gray-700 hover:text-primary-600">
+                                        Panel
+                                    </Link>
+                                )}
+                                {isAdmin && (
+                                    <>
+                                        <Link to="/admin" className="text-gray-700 hover:text-primary-600">
+                                            Álbumes
+                                        </Link>
+                                        <Link to="/users" className="text-gray-700 hover:text-primary-600">
+                                            Usuarios
+                                        </Link>
+                                    </>
                                 )}
                                 <div className="flex items-center space-x-2">
                                     <User size={20} className="text-gray-600" />
@@ -83,43 +95,69 @@ export const Navbar: React.FC = () => {
                     <div className="md:hidden pb-4 space-y-2">
                         {isAuthenticated ? (
                             <>
-                                <Link
-                                    to="/gallery"
-                                    className="block text-gray-700 hover:text-primary-600 py-2"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Galería
-                                </Link>
-                                {user?.role !== 'user' && (
+                                {!isAdmin && (
+                                    <Link
+                                        to="/gallery"
+                                        className="block text-gray-700 hover:text-primary-600 py-2"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Galería
+                                    </Link>
+                                )}
+                                {isSupervisor && (
                                     <Link
                                         to="/admin"
                                         className="block text-gray-700 hover:text-primary-600 py-2"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Admin
+                                        Panel
                                     </Link>
                                 )}
-                                <div className="py-2 text-gray-700">{user?.username}</div>
+                                {isAdmin && (
+                                    <>
+                                        <Link
+                                            to="/admin"
+                                            className="block text-gray-700 hover:text-primary-600 py-2"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Álbumes
+                                        </Link>
+                                        <Link
+                                            to="/users"
+                                            className="block text-gray-700 hover:text-primary-600 py-2"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Usuarios
+                                        </Link>
+                                    </>
+                                )}
+                                <div
+                                    className="block text-gray-700 py-2"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    <User size={16} className="inline mr-2" />
+                                    {user?.username}
+                                </div>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+                                    className="block w-full text-left bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
                                 >
-                                    <LogOut size={18} />
-                                    <span>Salir</span>
+                                    <LogOut size={16} className="inline mr-2" />
+                                    Salir
                                 </button>
                             </>
                         ) : (
                             <>
                                 <Link
                                     to="/login"
-                                    className="block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
+                                    className="block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-center"
                                     onClick={() => setIsOpen(false)}
                                 >
                                     Iniciar Sesión
                                 </Link>
                                 <Link
                                     to="/register"
-                                    className="block border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md"
+                                    className="block border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-center"
                                     onClick={() => setIsOpen(false)}
                                 >
                                     Registrarse

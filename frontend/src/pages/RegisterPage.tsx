@@ -1,8 +1,16 @@
 import React from 'react';
 import { Navbar } from '@components/Navbar';
 import { RegisterForm } from '@components/RegisterForm';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@hooks/useAuth';
 
 export const RegisterPage: React.FC = () => {
+    const { isAuthenticated } = useAuth();
+
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+
     return (
         <>
             <Navbar />

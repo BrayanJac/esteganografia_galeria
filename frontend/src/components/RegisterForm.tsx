@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '@services/api';
+import { isValidEmail } from '@utils/helpers';
 
 export const RegisterForm: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -10,13 +11,13 @@ export const RegisterForm: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Use shared helper for consistent validation
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        if (!emailRegex.test(email.trim())) {
+        if (!isValidEmail(email.trim())) {
             setError('Ingresa un correo válido, por ejemplo usuario@dominio.com');
             return;
         }
