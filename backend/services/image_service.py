@@ -1,11 +1,14 @@
+import json
+import os
+
 from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.orm import Session
 from database.models import Image, ImageStatus, Album, AlbumStatus
 from security.steganography import analyze_image
-from config.config import *
+from config.config import MAX_FILE_SIZE, UPLOAD_DIR
 
 
-async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Session, ip_address: str):
+async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
     if not album or album.owner_id != user_id or album.status != AlbumStatus.APPROVED:
         raise HTTPException(
@@ -41,7 +44,8 @@ async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Sessio
     analysis_results = analyze_image(file_data['file_path'])
 
     image.steganography_score = analysis_results.get('overall_score', 0.0)
-    image.analysis_details = str(analysis_results)
+    image.analysis_details = json.dumps(
+        analysis_results, ensure_ascii=False, default=str)
 
     if analysis_results.get('is_suspicious', False):
         image.status = ImageStatus.QUARANTINED
@@ -59,25 +63,39 @@ async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Sessio
     }
 
 
-async def get_quarantined_images(db: Session):
+def get_quarantined_images(db: Session):
     images = db.query(Image).filter(
         Image.status == ImageStatus.QUARANTINED).all()
+
+    def _parse_analysis_details(raw_details: str | None):
+        if not raw_details:
+            return None
+
+        try:
+            return json.loads(raw_details)
+        except json.JSONDecodeError:
+            return {"raw": raw_details}
+
     return [
         {
             "id": image.id,
             "filename": image.filename,
             "original_filename": image.original_filename,
+            "mime_type": image.mime_type,
+            "file_size": image.file_size,
+            "file_hash": image.file_hash,
             "album": image.album.title,
             "uploader": image.uploader.username,
             "quarantine_reason": image.quarantine_reason,
             "steganography_score": image.steganography_score,
+            "analysis_details": _parse_analysis_details(image.analysis_details),
             "created_at": image.created_at
         }
         for image in images
     ]
 
 
-async def review_image(image_id: int, approved: bool, comment: str, reviewer_id: int, db: Session):
+def review_image(image_id: int, approved: bool, comment: str, reviewer_id: int, db: Session):
     image = db.query(Image).filter(Image.id == image_id).first()
 
     if not image or image.status != ImageStatus.QUARANTINED:
@@ -163,3 +181,28 @@ def create_image_record(filename: str, original_filename: str, mime_type: str,
     db.refresh(image)
 
     return image
+
+
+def delete_user_image(image_id: int, user_id: int, db: Session):
+    image = db.query(Image).filter(Image.id == image_id).first()
+
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Imagen no encontrada"
+        )
+
+    if image.uploader_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para eliminar esta imagen"
+        )
+
+    file_path = os.path.join(UPLOAD_DIR, image.filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    db.delete(image)
+    db.commit()
+
+    return {"mensaje": "Imagen eliminada exitosamente"}

@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,6 +9,7 @@ from config.config import UPLOAD_DIR
 
 
 HTML_TAG_PATTERN = re.compile(r"<\s*/?\s*[a-zA-Z!][^>]*>")
+ALBUM_NOT_FOUND_DETAIL = "Álbum no encontrado"
 
 
 def _validate_album_description(description: str | None):
@@ -27,7 +29,7 @@ def _validate_album_description(description: str | None):
         )
 
 
-async def create_album(title: str, description: str, is_public: bool, owner_id: int, db: Session):
+def create_album(title: str, description: str, is_public: bool, owner_id: int, db: Session):
     _validate_album_description(description)
 
     if description and len(description) > 2000:
@@ -57,25 +59,42 @@ async def create_album(title: str, description: str, is_public: bool, owner_id: 
     }
 
 
-async def get_user_albums(user_id: int, db: Session):
+def _serialize_album(album: Album):
+    return {
+        "id": album.id,
+        "title": album.title,
+        "description": album.description,
+        "status": album.status.value,
+        "is_public": album.is_public,
+        "owner_id": album.owner_id,
+        "owner": album.owner.username,
+        "reviewer": album.reviewer.username if album.reviewer else None,
+        "review_comment": album.review_comment,
+        "image_count": len(album.images),
+        "created_at": album.created_at.isoformat() if album.created_at else None,
+        "updated_at": album.updated_at.isoformat() if album.updated_at else None,
+    }
+
+
+def _append_review_comment(album: Album, reviewer_username: str, review_comment: str | None):
+    if not review_comment:
+        return
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+    entry = f"[{timestamp}] {reviewer_username}: {review_comment.strip()}"
+    album.review_comment = f"{album.review_comment}\n{entry}".strip(
+    ) if album.review_comment else entry
+
+
+def get_user_albums(user_id: int, db: Session):
     albums = db.query(Album).filter(Album.owner_id == user_id).all()
     return [
-        {
-            "id": album.id,
-            "title": album.title,
-            "description": album.description,
-            "status": album.status.value,
-            "is_public": album.is_public,
-            "owner_id": album.owner_id,
-            "owner": album.owner.username,
-            "image_count": len(album.images),
-            "created_at": album.created_at
-        }
+        _serialize_album(album)
         for album in albums
     ]
 
 
-async def get_accessible_albums(user_id: int, db: Session):
+def get_accessible_albums(user_id: int, db: Session):
     owned_albums = db.query(Album).filter(Album.owner_id == user_id).all()
     public_albums = db.query(Album).filter(
         Album.status == AlbumStatus.APPROVED,
@@ -86,28 +105,18 @@ async def get_accessible_albums(user_id: int, db: Session):
     albums = owned_albums + public_albums
 
     return [
-        {
-            "id": album.id,
-            "title": album.title,
-            "description": album.description,
-            "status": album.status.value,
-            "is_public": album.is_public,
-            "owner_id": album.owner_id,
-            "owner": album.owner.username,
-            "image_count": len(album.images),
-            "created_at": album.created_at
-        }
+        _serialize_album(album)
         for album in albums
     ]
 
 
-async def get_album_for_user(album_id: int, user_id: int, db: Session):
+def get_album_for_user(album_id: int, user_id: int, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
 
     if not album:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Álbum no encontrado"
+            detail=ALBUM_NOT_FOUND_DETAIL
         )
 
     if album.status != AlbumStatus.APPROVED:
@@ -144,6 +153,7 @@ async def get_album_for_user(album_id: int, user_id: int, db: Session):
                 "filename": image.filename,
                 "original_filename": image.original_filename,
                 "status": image.status.value,
+                "uploader_id": image.uploader_id,
                 "steganography_detected": image.status == ImageStatus.QUARANTINED,
             }
             for image in images_query
@@ -151,7 +161,7 @@ async def get_album_for_user(album_id: int, user_id: int, db: Session):
     }
 
 
-async def get_pending_albums(db: Session):
+def get_pending_albums(db: Session):
     albums = db.query(Album).filter(Album.status == AlbumStatus.PENDING).all()
     return [
         {
@@ -159,64 +169,144 @@ async def get_pending_albums(db: Session):
             "title": album.title,
             "description": album.description,
             "owner": album.owner.username,
-            "created_at": album.created_at
+            "created_at": album.created_at.isoformat() if album.created_at else None,
         }
         for album in albums
     ]
 
 
-async def get_admin_albums(db: Session):
+def get_admin_albums(db: Session):
     albums = db.query(Album).order_by(Album.created_at.desc()).all()
 
     return {
         "albums": [
-            {
-                "id": album.id,
-                "title": album.title,
-                "description": album.description,
-                "status": album.status.value,
-                "is_public": album.is_public,
-                "owner": album.owner.username,
-                "reviewer": album.reviewer.username if album.reviewer else None,
-                "review_comment": album.review_comment,
-                "image_count": len(album.images),
-                "created_at": album.created_at.isoformat() if album.created_at else None,
-                "updated_at": album.updated_at.isoformat() if album.updated_at else None,
-            }
+            _serialize_album(album)
             for album in albums
         ]
     }
 
 
-async def approve_album(album_id: int, approved: bool, comment: str, reviewer_id: int, db: Session):
+def update_album(album_id: int, owner_id: int, title: str | None, description: str | None, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
 
     if not album:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Álbum no encontrado"
+            detail=ALBUM_NOT_FOUND_DETAIL
+        )
+
+    if album.owner_id != owner_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para editar este álbum"
+        )
+
+    if album.status == AlbumStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes editar un álbum en estado pendiente"
+        )
+
+    if title is None and description is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Debes enviar al menos un campo para actualizar"
+        )
+
+    if title is not None:
+        album.title = title
+
+    if description is not None:
+        _validate_album_description(description)
+        album.description = description
+
+    db.commit()
+    db.refresh(album)
+
+    return _serialize_album(album)
+
+
+def update_album_review(
+    album_id: int,
+    reviewer_id: int,
+    reviewer_username: str,
+    approved: bool | None,
+    review_comment: str | None,
+    db: Session,
+):
+    album = db.query(Album).filter(Album.id == album_id).first()
+
+    if not album:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ALBUM_NOT_FOUND_DETAIL
+        )
+
+    if album.status == AlbumStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes editar un álbum en estado pendiente"
+        )
+
+    if approved is None and review_comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Debes enviar al menos un campo para actualizar"
+        )
+
+    if approved is not None:
+        album.status = AlbumStatus.APPROVED if approved else AlbumStatus.REJECTED
+
+    _append_review_comment(album, reviewer_username, review_comment)
+
+    album.reviewer_id = reviewer_id
+
+    db.commit()
+    db.refresh(album)
+
+    return _serialize_album(album)
+
+
+def approve_album(album_id: int, approved: bool, comment: str, reviewer_id: int, reviewer_username: str, db: Session):
+    album = db.query(Album).filter(Album.id == album_id).first()
+
+    if not album:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ALBUM_NOT_FOUND_DETAIL
         )
 
     album.status = AlbumStatus.APPROVED if approved else AlbumStatus.REJECTED
     album.reviewer_id = reviewer_id
-    album.review_comment = comment
+    _append_review_comment(album, reviewer_username, comment)
 
     db.commit()
 
     return {"mensaje": f"Álbum {'aprobado' if approved else 'rechazado'} exitosamente"}
 
 
-async def delete_album(album_id: int, db: Session):
+def get_reviewed_albums(db: Session):
+    albums = db.query(Album).filter(Album.status != AlbumStatus.PENDING).order_by(
+        Album.updated_at.desc().nullslast(), Album.created_at.desc()).all()
+    return {
+        "albums": [
+            _serialize_album(album)
+            for album in albums
+        ]
+    }
+
+
+def delete_album(album_id: int, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
 
     if not album:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Álbum no encontrado"
+            detail=ALBUM_NOT_FOUND_DETAIL
         )
 
-    for image in list(album.images):
-        for metadata_record in list(image.metadata_records):
+    for image in album.images:
+        for metadata_record in image.metadata_records:
             db.delete(metadata_record)
 
         file_path = os.path.join(UPLOAD_DIR, image.filename)

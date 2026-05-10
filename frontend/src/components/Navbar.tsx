@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
                     <div className="hidden md:flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
-                                {!isAdmin && (
+                                {!isAdmin && !isSupervisor && (
                                     <Link to="/gallery" className="text-gray-700 hover:text-primary-600">
                                         Galería
                                     </Link>
@@ -42,7 +42,7 @@ export const Navbar: React.FC = () => {
                                 {isAdmin && (
                                     <>
                                         <Link to="/admin" className="text-gray-700 hover:text-primary-600">
-                                            Álbumes
+                                            Panel
                                         </Link>
                                         <Link to="/users" className="text-gray-700 hover:text-primary-600">
                                             Usuarios
@@ -95,7 +95,7 @@ export const Navbar: React.FC = () => {
                     <div className="md:hidden pb-4 space-y-2">
                         {isAuthenticated ? (
                             <>
-                                {!isAdmin && (
+                                {!isAdmin && !isSupervisor && (
                                     <Link
                                         to="/gallery"
                                         className="block text-gray-700 hover:text-primary-600 py-2"
@@ -120,7 +120,7 @@ export const Navbar: React.FC = () => {
                                             className="block text-gray-700 hover:text-primary-600 py-2"
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            Álbumes
+                                            Panel
                                         </Link>
                                         <Link
                                             to="/users"

@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
+import { ImageLightbox } from '@components/ImageLightbox';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '@services/api';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
+import { useAuth } from '@hooks/useAuth';
+import { useDeleteImage } from '@hooks/useGallery';
 
 export const AlbumDetailPage: React.FC = () => {
     const { albumId } = useParams<{ albumId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const isPublicView = location.pathname.startsWith('/gallery/');
+    const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
+    const { user } = useAuth();
+    const deleteImage = useDeleteImage();
 
     const { data: album, isLoading, error } = useQuery({
-        queryKey: ['album', albumId],
+        queryKey: ['album', albumId, isPublicView ? 'public' : 'private'],
         queryFn: async () => {
             const response = isPublicView
                 ? await api.getGalleryAlbum(Number(albumId))
@@ -24,6 +30,16 @@ export const AlbumDetailPage: React.FC = () => {
             };
         },
     });
+
+    const handleDeleteImage = async (imageId: number) => {
+        if (confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
+            try {
+                await deleteImage.mutateAsync(imageId);
+            } catch (error) {
+                console.error('Error deleting image:', error);
+            }
+        }
+    };
 
     if (isLoading) {
         return (
@@ -76,8 +92,8 @@ export const AlbumDetailPage: React.FC = () => {
 
                         <div className="mt-4 flex space-x-4">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${album?.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                    album?.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-red-100 text-red-700'
+                                album?.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-red-100 text-red-700'
                                 }`}>
                                 {album?.status === 'approved' ? '✓ Aprobado' :
                                     album?.status === 'pending' ? '⏳ Pendiente' :
@@ -101,16 +117,22 @@ export const AlbumDetailPage: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {album.images.map((image: any) => (
                                     <div key={image.id} className="bg-white rounded-lg shadow overflow-hidden">
-                                        <div className="bg-gray-200 h-48 flex items-center justify-center">
-                                            <img
-                                                src={`/api/uploads/${image.filename}`}
-                                                alt={image.filename}
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
-                                            />
-                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedImage({ src: `/api/uploads/${image.filename}`, alt: image.filename })}
+                                            className="block w-full text-left"
+                                        >
+                                            <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
+                                                <img
+                                                    src={`/api/uploads/${image.filename}`}
+                                                    alt={image.filename}
+                                                    className="h-full w-full object-contain"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        </button>
 
                                         <div className="p-4">
                                             <p className="text-sm text-gray-600 mb-2 truncate">{image.filename}</p>
@@ -119,8 +141,8 @@ export const AlbumDetailPage: React.FC = () => {
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-sm text-gray-600">Estado:</span>
                                                     <span className={`px-2 py-1 rounded text-xs font-medium ${image.status === 'clean' ? 'bg-green-100 text-green-700' :
-                                                            image.status === 'quarantined' ? 'bg-red-100 text-red-700' :
-                                                                'bg-gray-100 text-gray-700'
+                                                        image.status === 'quarantined' ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
                                                         }`}>
                                                         {image.status === 'clean' ? '✓ Limpia' :
                                                             image.status === 'quarantined' ? '⚠️ Cuarentena' :
@@ -135,6 +157,17 @@ export const AlbumDetailPage: React.FC = () => {
                                                 )}
                                             </div>
 
+                                            {user?.id === image.uploader_id && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteImage(image.id)}
+                                                    disabled={deleteImage.isPending}
+                                                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <Trash2 size={16} />
+                                                    <span>{deleteImage.isPending ? 'Eliminando...' : 'Eliminar imagen'}</span>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -147,6 +180,13 @@ export const AlbumDetailPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <ImageLightbox
+                isOpen={!!selectedImage}
+                src={selectedImage?.src || ''}
+                alt={selectedImage?.alt || ''}
+                title={selectedImage?.alt}
+                onClose={() => setSelectedImage(null)}
+            />
         </>
     );
 };

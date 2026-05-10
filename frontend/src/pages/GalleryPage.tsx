@@ -1,26 +1,47 @@
 import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
-import { useLibraryAlbums, useUploadImage } from '@hooks/useGallery';
+import { useLibraryAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
 import { AlbumModal } from '@components/AlbumModal';
-import { Plus, Upload, Loader } from 'lucide-react';
+import { AlbumEditModal } from '@components/AlbumEditModal';
+import { Plus, Upload, Loader, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 
 export const GalleryPage: React.FC = () => {
     const { data: albums, isLoading } = useLibraryAlbums();
     const uploadImage = useUploadImage();
+    const updateAlbum = useUpdateAlbum();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [uploadingAlbumId, setUploadingAlbumId] = useState<number | null>(null);
-    const { user, isAdmin } = useAuth();
+    const [editingAlbum, setEditingAlbum] = useState<any | null>(null);
+    const [uploadError, setUploadError] = useState('');
+    const { user, isAdmin, isSupervisor } = useAuth();
+    const maxFileSize = 10 * 1024 * 1024;
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, albumId: number) => {
         const files = e.target.files;
         if (!files) return;
 
+        const selectedFiles = Array.from(files);
+        const validFiles = selectedFiles.filter((file) => file.size <= maxFileSize);
+        const oversizedFiles = selectedFiles.filter((file) => file.size > maxFileSize);
+
+        if (oversizedFiles.length > 0) {
+            setUploadError(
+                `Se omitieron ${oversizedFiles.length} imagen(es) que superan 10 MB. Las demás se subirán normalmente.`
+            );
+        } else {
+            setUploadError('');
+        }
+
+        if (validFiles.length === 0) {
+            return;
+        }
+
         setUploadingAlbumId(albumId);
         try {
-            for (let i = 0; i < files.length; i++) {
-                await uploadImage.mutateAsync({ albumId, file: files[i] });
+            for (let i = 0; i < validFiles.length; i++) {
+                await uploadImage.mutateAsync({ albumId, file: validFiles[i] });
             }
         } catch (error) {
             console.error('Error uploading images:', error);
@@ -29,14 +50,14 @@ export const GalleryPage: React.FC = () => {
         }
     };
 
-    if (isAdmin) {
+    if (isAdmin || isSupervisor) {
         return (
             <>
                 <Navbar />
                 <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-gray-800 mb-4">Acceso Denegado</h1>
-                        <p className="text-gray-600">Los administradores no pueden crear álbumes. Accede al panel de administración.</p>
+                        <p className="text-gray-600">Solo los usuarios pueden crear y administrar álbumes. Usa el panel si eres supervisor o administrador.</p>
                     </div>
                 </div>
             </>
@@ -48,6 +69,12 @@ export const GalleryPage: React.FC = () => {
             <Navbar />
             <div className="min-h-screen bg-gray-50 py-8">
                 <div className="max-w-7xl mx-auto px-4">
+                    {uploadError && (
+                        <div className="mb-6 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                            {uploadError}
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-800">Mi Galería</h1>
                         {!isAdmin && (
@@ -117,29 +144,60 @@ export const GalleryPage: React.FC = () => {
                                     )}
                                     {album.owner_id === user?.id && album.status === 'approved' && (
                                         <div className="p-4 border-t">
-                                            <label className="cursor-pointer">
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    accept="image/*"
-                                                    onChange={(e) => handleImageUpload(e, album.id)}
-                                                    className="hidden"
-                                                    disabled={uploadingAlbumId === album.id}
-                                                />
-                                                <div className="flex items-center justify-center space-x-2 bg-primary-50 hover:bg-primary-100 text-primary-600 px-4 py-2 rounded transition">
-                                                    {uploadingAlbumId === album.id ? (
-                                                        <>
-                                                            <Loader size={18} className="animate-spin" />
-                                                            <span>Subiendo...</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Upload size={18} />
-                                                            <span>Subir imagen</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </label>
+                                            <div className="space-y-3">
+                                                <label className="cursor-pointer block">
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        accept="image/*"
+                                                        onChange={(e) => handleImageUpload(e, album.id)}
+                                                        className="hidden"
+                                                        disabled={uploadingAlbumId === album.id}
+                                                    />
+                                                    <div className="flex items-center justify-center space-x-2 bg-primary-50 hover:bg-primary-100 text-primary-600 px-4 py-2 rounded transition">
+                                                        {uploadingAlbumId === album.id ? (
+                                                            <>
+                                                                <Loader size={18} className="animate-spin" />
+                                                                <span>Subiendo...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Upload size={18} />
+                                                                <span>Subir imágenes</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </label>
+                                                <p className="text-xs text-gray-500">Puedes seleccionar varias imágenes. Cada archivo debe pesar como máximo 10 MB.</p>
+
+                                                {album.status !== 'pending' && album.owner_id === user?.id && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setEditingAlbum(album)}
+                                                        className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                                    >
+                                                        <Pencil size={16} />
+                                                        <span>Editar álbum</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {album.owner_id === user?.id && album.status !== 'approved' && album.status !== 'pending' && (
+                                        <div className="p-4 border-t">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingAlbum(album)}
+                                                className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                            >
+                                                <Pencil size={16} />
+                                                <span>Editar álbum</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                    {album.owner_id === user?.id && album.status === 'rejected' && (
+                                        <div className="px-4 pb-4 text-xs text-gray-500">
+                                            Puedes corregir el álbum y volver a revisarlo.
                                         </div>
                                     )}
                                 </div>
@@ -162,7 +220,25 @@ export const GalleryPage: React.FC = () => {
                 </div>
             </div>
 
-            {!isAdmin && <AlbumModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />}
+            <AlbumModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <AlbumEditModal
+                isOpen={!!editingAlbum}
+                onClose={() => setEditingAlbum(null)}
+                album={editingAlbum}
+                mode="user"
+                isSubmitting={updateAlbum.isPending}
+                onSubmit={async (payload) => {
+                    if (!editingAlbum) {
+                        return;
+                    }
+
+                    await updateAlbum.mutateAsync({
+                        albumId: editingAlbum.id,
+                        title: payload.title,
+                        description: payload.description,
+                    });
+                }}
+            />
         </>
     );
 };

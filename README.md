@@ -98,7 +98,7 @@ Usuario              Navegador              Backend                Base de Datos
 
 **Ubicación:** `/frontend/`
 
-### 3. Base de Datos (PostgreSQL)
+### 3. Base de Datos (SQLite)
 
 **¿Qué es?** Almacena toda la información de manera organizada.
 
@@ -108,13 +108,25 @@ Usuario              Navegador              Backend                Base de Datos
 - Información de imágenes
 - Resultados de análisis
 
+> Nota: en esta versión el proyecto usa SQLite por defecto en local, así que no necesitas instalar PostgreSQL para ejecutar la app. Si cambias la variable `DATABASE_URL`, puedes apuntar a otra base de datos compatible.
+
+## Herramientas y Dependencias
+
+La aplicación está construida con estas tecnologías principales:
+
+- **Backend:** FastAPI, Uvicorn, SQLAlchemy, Pydantic, Python-JOSE, Passlib y SlowAPI
+- **Frontend:** React, TypeScript, Vite, TanStack Query, Axios, Zustand, Tailwind CSS y Lucide Icons
+- **Persistencia:** SQLite por defecto en desarrollo local
+
+Estas herramientas cubren autenticación, gestión de galerías, validación de formularios, consumo de APIs y renderizado de la interfaz.
+
 ---
 
 ## Requisitos Previos
 
 Antes de empezar, necesitas tener instalado:
 
-### 1. Python 3.8+
+### 1. Python 3.10+
 Lenguaje de programación para el backend.
 - [Descargar Python](https://www.python.org/downloads/)
 - **Verificar instalación:**
@@ -122,7 +134,7 @@ Lenguaje de programación para el backend.
   python --version
   ```
 
-### 2. Node.js 16+
+### 2. Node.js 18+
 Entorno para ejecutar JavaScript/TypeScript del frontend.
 - [Descargar Node.js](https://nodejs.org/)
 - **Verificar instalación:**
@@ -131,13 +143,10 @@ Entorno para ejecutar JavaScript/TypeScript del frontend.
   npm --version
   ```
 
-### 3. PostgreSQL 12+
-Base de datos donde se guardan todos los datos.
-- [Descargar PostgreSQL](https://www.postgresql.org/download/)
-- **Verificar instalación:**
-  ```bash
-  psql --version
-  ```
+### 3. SQLite
+No necesitas instalar nada extra para ejecutar el proyecto en local. La base de datos SQLite se crea automáticamente con el script de inicialización.
+
+Si quieres usar otra base de datos, puedes cambiar `DATABASE_URL` en el archivo `.env`.
 
 ### 4. Git (Opcional pero recomendado)
 Para clonar el repositorio.
@@ -164,25 +173,20 @@ cd esteganografia_galeria
 
 ### PASO 2: Configurar Base de Datos
 
-#### 2.1 Crear la base de datos
+#### 2.1 Crear o regenerar tablas
 
-Abre pgAdmin (interfaz gráfica de PostgreSQL) o la terminal:
-
-```bash
-# Abre la terminal de PostgreSQL
-psql -U postgres
-
-# En la terminal de PostgreSQL, escribe:
-CREATE DATABASE secure_gallery;
-\q
-```
-
-#### 2.2 Verificar conexión
+En desarrollo local no tienes que crear una base manualmente. Solo ejecuta el inicializador:
 
 ```bash
-psql -U postgres -d secure_gallery -c "SELECT 1;"
-# Debe mostrar: 1
+cd backend
+python -m database.init_db
 ```
+
+Si necesitas limpiar la tabla de intentos de acceso y volver a generar el esquema, ejecuta el mismo inicializador después de eliminar la tabla en tu base local.
+
+#### 2.2 Verificar la base de datos
+
+La app usa SQLite por defecto, así que el archivo local se crea automáticamente al iniciar el backend o al ejecutar el inicializador.
 
 ---
 
@@ -220,13 +224,13 @@ cp .env.example .env
 Abre el archivo `.env` con un editor de texto y edita:
 
 ```env
-DATABASE_URL=postgresql://postgres:tu_contraseña@localhost/secure_gallery
+DATABASE_URL=sqlite:///./test.db
 SECRET_KEY=cambia-esto-a-una-clave-segura-larga
 ```
 
 #### 3.5 Crear tablas en la base de datos
 ```bash
-python -c "from database.database import create_tables; create_tables()"
+python -m database.init_db
 ```
 
 #### 3.6 Iniciar el backend
@@ -376,12 +380,15 @@ USUARIO NORMAL:
 ├── Crear álbumes propios
 ├── Subir imágenes
 ├── Ver su galería
+├── Editar sus galerías aprobadas o rechazadas
 └── Ver galerías públicas
 
 SUPERVISOR:
 ├── Todo lo del usuario
 ├── Revisar imágenes en cuarentena
 ├── Aprobar/Rechazar álbumes
+├── Editar galerías aprobadas o rechazadas
+├── Agregar comentarios de revisión
 └── Ver panel de administración
 
 ADMIN:
@@ -476,6 +483,9 @@ python main.py
 # Ver logs en tiempo real
 python main.py --reload
 
+# Regenerar tablas locales
+python -m database.init_db
+
 # Acceder a documentación de API
 # Abre en el navegador: http://localhost:8000/docs
 ```
@@ -504,16 +514,14 @@ npm run lint
 
 ### "Error conectando a la base de datos"
 
-**Causa:** PostgreSQL no está ejecutándose o credenciales incorrectas.
+**Causa:** El archivo SQLite local no existe todavía, está corrupto o cambiaste `DATABASE_URL`.
 
 **Solución:**
 ```bash
-# Verificar que PostgreSQL está ejecutándose
-# Windows: Busca "Servicios" y asegúrate que PostgreSQL esté "Ejecutándose"
-# Mac: brew services list
-# Linux: sudo systemctl status postgresql
+cd backend
+python -m database.init_db
 
-# Verificar credenciales en .env
+# Verificar credenciales en .env si apuntaste a otra base de datos
 cat .env
 ```
 
@@ -607,6 +615,12 @@ Sí, cada usuario solo ve sus propios datos, excepto las galerías públicas.
 
 ### ¿Cuánto tiempo tarda el análisis de esteganografía?
 Típicamente 1-5 segundos dependiendo del tamaño de la imagen.
+
+### ¿Puedo editar mis galerías?
+Sí. Los usuarios pueden editar sus galerías si ya fueron aprobadas o rechazadas. Si una galería sigue pendiente, no se permite editarla.
+
+### ¿Qué puede hacer un supervisor con una galería?
+Puede editar galerías aprobadas o rechazadas y agregar comentarios de revisión desde el panel de administración.
 
 ### ¿Puedo usar la aplicación sin conexión?
 No, requiere una conexión porque utiliza un servidor.

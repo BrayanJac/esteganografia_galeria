@@ -3,67 +3,20 @@ import { Navbar } from '@components/Navbar';
 import { usePublicGallery } from '@hooks/useGallery';
 import { Link } from 'react-router-dom';
 import { Image as ImageIcon } from 'lucide-react';
-import { useAuth } from '@hooks/useAuth';
 
 export const HomePage: React.FC = () => {
     const { data: gallery, isLoading, error } = usePublicGallery();
-    const { isAuthenticated, isAdmin, isSupervisor } = useAuth();
-
-    const getPrimaryDestination = () => {
-        if (isAdmin) {
-            return '/users';
-        }
-
-        if (isSupervisor) {
-            return '/admin';
-        }
-
-        return '/gallery';
-    };
 
     return (
         <>
             <Navbar />
             <div className="min-h-screen bg-gray-50">
-                {/* Hero Section */}
-                <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-12">
-                    <div className="max-w-7xl mx-auto px-4 text-center">
-                        <h1 className="text-4xl font-bold mb-4">🖼️ SecureGallery</h1>
-                        <p className="text-lg mb-6">Galería multimedia segura con detección de esteganografía</p>
-                        {isAuthenticated ? (
-                            <div className="space-y-4">
-                                <p className="text-base text-primary-50">
-                                    Ya iniciaste sesión. Continúa en tu panel o revisa la galería.
-                                </p>
-                                <Link
-                                    to={getPrimaryDestination()}
-                                    className="inline-block bg-white text-primary-600 px-6 py-2 rounded-md font-medium hover:bg-gray-100"
-                                >
-                                    Ir a mi panel
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="space-x-4">
-                                <Link
-                                    to="/login"
-                                    className="inline-block bg-white text-primary-600 px-6 py-2 rounded-md font-medium hover:bg-gray-100"
-                                >
-                                    Iniciar Sesión
-                                </Link>
-                                <Link
-                                    to="/register"
-                                    className="inline-block border border-white text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700"
-                                >
-                                    Registrarse
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
                 {/* Gallery Section */}
                 <div className="max-w-7xl mx-auto px-4 py-12">
-                    <h2 className="text-3xl font-bold mb-8 text-gray-800">Galería Pública</h2>
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold text-gray-900">Galería Pública</h1>
+                        <p className="mt-2 text-gray-600">Explora los álbumes públicos aprobados por la comunidad.</p>
+                    </div>
 
                     {isLoading ? (
                         <div className="flex justify-center">
@@ -81,14 +34,24 @@ export const HomePage: React.FC = () => {
                                     to={`/gallery/${album.id}`}
                                     className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
                                 >
-                                    <div className="bg-primary-100 h-48 flex items-center justify-center">
-                                        <ImageIcon size={64} className="text-primary-400" />
+                                    <div className="bg-primary-100 h-48 overflow-hidden">
+                                        {album.cover_image_filename ? (
+                                            <img
+                                                src={`/api/uploads/${album.cover_image_filename}`}
+                                                alt={album.title}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center">
+                                                <ImageIcon size={64} className="text-primary-400" />
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="p-4">
                                         <h3 className="font-bold text-lg mb-2">{album.title}</h3>
                                         <p className="text-gray-600 text-sm mb-3">{album.description}</p>
                                         <div className="text-xs text-gray-500">
-                                            {album.images?.length || 0} imágenes
+                                            {album.image_count || 0} imágenes
                                         </div>
                                     </div>
                                 </Link>

@@ -34,7 +34,7 @@ MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", "10485760"))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 
 # Steganography Detection
-STEGANOGRAPHY_THRESHOLD = float(os.getenv("STEGANOGRAPHY_THRESHOLD", "0.7"))
+STEGANOGRAPHY_THRESHOLD = float(os.getenv("STEGANOGRAPHY_THRESHOLD", "0.4"))
 ENABLE_LSB_ANALYSIS = os.getenv(
     "ENABLE_LSB_ANALYSIS", "true").lower() == "true"
 ENABLE_HISTOGRAM_ANALYSIS = os.getenv(

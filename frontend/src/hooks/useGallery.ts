@@ -54,6 +54,19 @@ export const useCreateAlbum = () => {
     });
 };
 
+export const useUpdateAlbum = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { albumId: number; title?: string; description?: string }) =>
+            api.updateAlbum(data.albumId, { title: data.title, description: data.description }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        },
+    });
+};
+
 export const useUploadImage = () => {
     const queryClient = useQueryClient();
 
@@ -87,6 +100,26 @@ export const useAdminAlbums = () => {
     });
 };
 
+export const useReviewedAlbums = () => {
+    return useQuery({
+        queryKey: ['albums', 'reviewed'],
+        queryFn: async () => {
+            const response = await api.getReviewedAlbums();
+            return response.data;
+        },
+    });
+};
+
+export const useQuarantinedImages = () => {
+    return useQuery({
+        queryKey: ['images', 'quarantined'],
+        queryFn: async () => {
+            const response = await api.getQuarantinedImages();
+            return response.data;
+        },
+    });
+};
+
 export const useApproveAlbum = () => {
     const queryClient = useQueryClient();
 
@@ -96,6 +129,7 @@ export const useApproveAlbum = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['albums', 'pending'] });
             queryClient.invalidateQueries({ queryKey: ['albums', 'admin'] });
+            queryClient.invalidateQueries({ queryKey: ['albums', 'reviewed'] });
         },
     });
 };
@@ -108,6 +142,50 @@ export const useDeleteAlbum = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['albums', 'pending'] });
             queryClient.invalidateQueries({ queryKey: ['albums', 'admin'] });
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        },
+    });
+};
+
+export const useReviewImage = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { imageId: number; approved: boolean; comment?: string }) =>
+            api.reviewImage(data.imageId, data.approved, data.comment),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['images', 'quarantined'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery'] });
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['albums', 'reviewed'] });
+        },
+    });
+};
+
+export const useUpdateAlbumReview = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { albumId: number; approved?: boolean; reviewComment?: string }) =>
+            api.updateAlbumReview(data.albumId, {
+                approved: data.approved,
+                reviewComment: data.reviewComment,
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['albums'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        },
+    });
+};
+
+export const useDeleteImage = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (imageId: number) => api.deleteImage(imageId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['images'] });
             queryClient.invalidateQueries({ queryKey: ['albums'] });
             queryClient.invalidateQueries({ queryKey: ['gallery'] });
         },

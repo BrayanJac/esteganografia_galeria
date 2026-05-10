@@ -98,6 +98,10 @@ class ApiClient {
         return this.client.get('/albums/admin');
     }
 
+    async getReviewedAlbums() {
+        return this.client.get('/albums/reviewed');
+    }
+
     async createAlbum(title: string, description?: string, isPublic?: boolean) {
         return this.client.post('/albums', {
             title,
@@ -106,8 +110,15 @@ class ApiClient {
         });
     }
 
-    async updateAlbum(albumId: number, data: any) {
+    async updateAlbum(albumId: number, data: { title?: string; description?: string }) {
         return this.client.put(`/albums/${albumId}`, data);
+    }
+
+    async updateAlbumReview(albumId: number, data: { approved?: boolean; reviewComment?: string }) {
+        return this.client.put(`/albums/${albumId}/review`, {
+            approved: data.approved,
+            review_comment: data.reviewComment,
+        });
     }
 
     async deleteAlbum(albumId: number) {
@@ -133,6 +144,14 @@ class ApiClient {
 
     async deleteImage(imageId: number) {
         return this.client.delete(`/images/${imageId}`);
+    }
+
+    async deleteUserImage(imageId: number) {
+        return this.client.delete(`/images/${imageId}`);
+    }
+
+    async getQuarantinedImages() {
+        return this.client.get('/images/quarantined');
     }
 
     async approveAlbum(albumId: number, approved: boolean, comment?: string) {
