@@ -6,6 +6,18 @@ from config.config import UPLOAD_DIR
 import os
 
 
+def _get_latest_visible_image(album: Album):
+    visible_images = [
+        image for image in album.images
+        if image.status in (ImageStatus.CLEAN, ImageStatus.APPROVED)
+    ]
+
+    if not visible_images:
+        return None
+
+    return max(visible_images, key=lambda image: ((image.created_at or image.id), image.id))
+
+
 def get_public_gallery(db: Session):
     albums = db.query(Album).filter(
         Album.status == AlbumStatus.APPROVED,
@@ -22,14 +34,8 @@ def get_public_gallery(db: Session):
                 image for image in album.images
                 if image.status in (ImageStatus.CLEAN, ImageStatus.APPROVED)
             ]),
-            "cover_image_filename": next(
-                (
-                    image.filename
-                    for image in sorted(album.images, key=lambda image: (image.created_at or image.id, image.id))
-                    if image.status in (ImageStatus.CLEAN, ImageStatus.APPROVED)
-                ),
-                None,
-            ),
+            "cover_image_filename": (_get_latest_visible_image(album).filename if _get_latest_visible_image(album) else None),
+            "latest_image_filename": (_get_latest_visible_image(album).filename if _get_latest_visible_image(album) else None),
             "created_at": album.created_at
         }
         for album in albums
@@ -61,7 +67,8 @@ def get_album_images(album_id: int, db: Session):
             "description": album.description,
             "owner": album.owner.username,
             "status": album.status.value,
-            "is_public": album.is_public
+            "is_public": album.is_public,
+            "cover_image_filename": (_get_latest_visible_image(album).filename if _get_latest_visible_image(album) else None)
         },
         "images": [
             {

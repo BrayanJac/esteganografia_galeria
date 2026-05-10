@@ -60,6 +60,10 @@ class ApiClient {
         return this.client.get('/auth/me');
     }
 
+    async logout() {
+        return this.client.post('/auth/logout');
+    }
+
     // Admin/Supervisor management endpoints
     async createSupervisor(username: string, email: string, password: string) {
         return this.client.post('/auth/supervisors', {
@@ -110,13 +114,14 @@ class ApiClient {
         });
     }
 
-    async updateAlbum(albumId: number, data: { title?: string; description?: string }) {
+    async updateAlbum(albumId: number, data: { title?: string; description?: string; is_public?: boolean }) {
         return this.client.put(`/albums/${albumId}`, data);
     }
 
-    async updateAlbumReview(albumId: number, data: { approved?: boolean; reviewComment?: string }) {
+    async updateAlbumReview(albumId: number, data: { approved?: boolean; isPublic?: boolean; reviewComment?: string }) {
         return this.client.put(`/albums/${albumId}/review`, {
             approved: data.approved,
+            is_public: data.isPublic,
             review_comment: data.reviewComment,
         });
     }
@@ -188,6 +193,10 @@ class ApiClient {
 
     async getUsers() {
         return this.client.get('/auth/users');
+    }
+
+    async getAdminStats() {
+        return this.client.get('/admin/stats');
     }
 }
 

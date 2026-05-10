@@ -1,7 +1,26 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from database.models import User, UserRole
+from database.models import User, UserRole, SecurityLog
 from security.auth import *
+
+
+def _log_security_event(
+    db: Session,
+    event_type: str,
+    description: str,
+    user_id: int | None,
+    ip_address: str,
+    user_agent: str,
+    severity: str = "INFO",
+):
+    db.add(SecurityLog(
+        event_type=event_type,
+        description=description,
+        user_id=user_id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        severity=severity,
+    ))
 
 
 async def register_user(username: str, email: str, password: str, db: Session, ip_address: str):
@@ -51,6 +70,17 @@ async def authenticate_user(username: str, password: str, db: Session, ip_addres
 
     access_token = crear_token_acceso(data={"sub": usuario.username})
 
+    _log_security_event(
+        db,
+        event_type="AUTH_LOGIN",
+        description="Inicio de sesión exitoso",
+        user_id=usuario.id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        severity="INFO",
+    )
+    db.commit()
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -61,6 +91,21 @@ async def authenticate_user(username: str, password: str, db: Session, ip_addres
             "role": usuario.role.value
         }
     }
+
+
+async def logout_user(user: User, db: Session, ip_address: str, user_agent: str):
+    _log_security_event(
+        db,
+        event_type="AUTH_LOGOUT",
+        description="Cierre de sesión",
+        user_id=user.id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        severity="INFO",
+    )
+    db.commit()
+
+    return {"mensaje": "Sesión cerrada exitosamente"}
 
 
 async def create_supervisor(username: str, email: str, password: str, db: Session):

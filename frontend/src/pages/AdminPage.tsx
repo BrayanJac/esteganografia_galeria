@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Navbar } from '@components/Navbar';
 import { ImageLightbox } from '@components/ImageLightbox';
+import { AlbumDetailsModal } from '@components/AlbumDetailsModal';
 import { useAuth } from '@hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApproveAlbum, useDeleteAlbum, usePendingAlbums, useQuarantinedImages, useReviewedAlbums, useReviewImage } from '@hooks/useGallery';
@@ -28,6 +29,7 @@ export const AdminPage: React.FC = () => {
     const [activeView, setActiveView] = useState<'pending' | 'reviewed' | 'quarantine'>('pending');
     const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; title?: string } | null>(null);
     const [expandedAnalysisImageId, setExpandedAnalysisImageId] = useState<number | null>(null);
+    const [selectedAlbum, setSelectedAlbum] = useState<any | null>(null);
 
     useEffect(() => {
         const tab = new URLSearchParams(location.search).get('tab');
@@ -189,28 +191,50 @@ export const AdminPage: React.FC = () => {
                                     <Loader className="animate-spin text-primary-600" size={32} />
                                 </div>
                             ) : pendingAlbums && pendingAlbums.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                                     {pendingAlbums.map((album: any) => (
-                                        <div key={album.id} className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
-                                            <div className="mb-4">
-                                                <div className="flex justify-between items-start mb-2 gap-4">
-                                                    <div className="flex-1">
-                                                        <h3 className="text-lg font-bold text-gray-800">{album.title}</h3>
-                                                        <p className="text-sm text-gray-600 mt-1">{album.description}</p>
-                                                        <div className="text-xs text-gray-500 mt-2">
-                                                            <span className="font-medium">Creado por:</span> <strong>{album.owner}</strong>
+                                        <div key={album.id} className="flex h-full flex-col rounded-xl border border-yellow-200 bg-yellow-50 p-3 shadow-sm">
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedAlbum(album)}
+                                                className="mb-3 block w-full overflow-hidden rounded-lg border border-yellow-200 bg-white text-left shadow-sm"
+                                            >
+                                                <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100">
+                                                    {album.cover_image_filename ? (
+                                                        <img
+                                                            src={`/api/uploads/${album.cover_image_filename}`}
+                                                            alt={album.title}
+                                                            className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-full items-center justify-center text-gray-400">
+                                                            <ShieldAlert size={28} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="p-3">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex-1">
+                                                            <h3 className="text-base font-bold text-gray-800 line-clamp-1">{album.title}</h3>
+                                                            <p className="mt-1 text-xs text-gray-600 line-clamp-2">{album.description}</p>
+                                                            <div className="mt-2 text-[11px] text-gray-500">
+                                                                <span className="font-medium">Creado por:</span> <strong>{album.owner}</strong>
+                                                            </div>
+                                                        </div>
+                                                        {renderStatusBadge('pending')}
+                                                    </div>
+                                                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-500">
+                                                        <div>
+                                                            <span className="font-medium">Fotos:</span> {album.image_count || 0}
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-medium">Última actualización:</span> {album.updated_at ? new Date(album.updated_at).toLocaleString() : 'N/A'}
                                                         </div>
                                                     </div>
-                                                    {renderStatusBadge('pending')}
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mt-3">
-                                                    <div>
-                                                        <span className="font-medium">Fecha:</span> {new Date(album.created_at).toLocaleDateString()}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            </button>
 
-                                            <div className="space-y-3">
+                                            <div className="mt-auto space-y-3">
                                                 <textarea
                                                     placeholder="Añade un comentario (opcional)"
                                                     value={approvalComment[album.id] || ''}
@@ -261,29 +285,45 @@ export const AdminPage: React.FC = () => {
                                     <Loader className="animate-spin text-primary-600" size={32} />
                                 </div>
                             ) : reviewedAlbumList.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                                     {reviewedAlbumList.map((album: any) => {
                                         const currentStatus = album.status as 'pending' | 'approved' | 'rejected';
                                         const nextApproved = currentStatus !== 'approved';
                                         const toggleLabel = currentStatus === 'approved' ? 'Rechazar' : 'Aprobar';
 
                                         return (
-                                            <div key={album.id} className="border rounded-lg p-4 bg-gray-50">
-                                                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex flex-wrap items-center gap-3">
-                                                            <h3 className="text-lg font-bold text-gray-800">{album.title}</h3>
+                                            <div key={album.id} className="flex h-full flex-col rounded-xl border bg-gray-50 p-3 shadow-sm">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedAlbum(album)}
+                                                    className="mb-3 block w-full overflow-hidden rounded-lg border bg-white text-left shadow-sm"
+                                                >
+                                                    <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100">
+                                                        {album.cover_image_filename ? (
+                                                            <img
+                                                                src={`/api/uploads/${album.cover_image_filename}`}
+                                                                alt={album.title}
+                                                                className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex h-full items-center justify-center text-gray-400">
+                                                                <ShieldAlert size={28} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="p-3">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h3 className="text-base font-bold text-gray-800">{album.title}</h3>
                                                             {renderStatusBadge(currentStatus)}
                                                             {album.is_public && (
-                                                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                                                                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                                                                     🌐 Público
                                                                 </span>
                                                             )}
                                                         </div>
 
-                                                        <p className="text-sm text-gray-600">{album.description || 'Sin descripción'}</p>
-
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                                                        <p className="mt-2 text-xs text-gray-600 line-clamp-2">{album.description || 'Sin descripción'}</p>
+                                                        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-gray-600">
                                                             <div>
                                                                 <span className="font-medium">Creado por:</span> {album.owner}
                                                             </div>
@@ -291,57 +331,59 @@ export const AdminPage: React.FC = () => {
                                                                 <span className="font-medium">Imágenes:</span> {album.image_count || 0}
                                                             </div>
                                                             <div>
-                                                                <span className="font-medium">Revisor:</span> {album.reviewer || 'N/A'}
+                                                                <span className="font-medium">Último revisor:</span> {album.reviewer || 'N/A'}
                                                             </div>
                                                             <div>
                                                                 <span className="font-medium">Fecha:</span>{' '}
                                                                 {album.created_at ? new Date(album.created_at).toLocaleDateString() : 'N/A'}
                                                             </div>
                                                         </div>
-
-                                                        {album.review_comment && getLastComment(album.review_comment) && (
-                                                            <div className="text-sm text-gray-700 bg-white border rounded-md p-3">
-                                                                <span className="font-medium">Último comentario:</span>
-                                                                <div className="mt-2 text-gray-600">{getLastComment(album.review_comment)}</div>
-                                                            </div>
-                                                        )}
                                                     </div>
+                                                </button>
 
-                                                    <div className="w-full lg:w-80 space-y-3">
-                                                        <textarea
-                                                            placeholder="Añade un comentario de revisión (opcional)"
-                                                            value={approvalComment[album.id] || ''}
-                                                            onChange={(event) =>
-                                                                setApprovalComment((previousComments) => ({
-                                                                    ...previousComments,
-                                                                    [album.id]: event.target.value,
-                                                                }))
-                                                            }
-                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
-                                                            rows={3}
-                                                        />
-
-                                                        <div className="flex flex-col gap-2">
-                                                            <button
-                                                                onClick={() => handleApprove(album.id, nextApproved)}
-                                                                disabled={approveAlbum.isPending || deleteAlbum.isPending}
-                                                                className={`w-full px-4 py-2 rounded-md text-white font-medium flex items-center justify-center gap-2 ${currentStatus === 'approved' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} disabled:opacity-50`}
-                                                            >
-                                                                {currentStatus === 'approved' ? <XCircle size={18} /> : <CheckCircle size={18} />}
-                                                                <span>{approveAlbum.isPending ? 'Procesando...' : toggleLabel}</span>
-                                                            </button>
-
-                                                            {isAdmin && (
-                                                                <button
-                                                                    onClick={() => handleDeleteAlbum(album.id)}
-                                                                    disabled={deleteAlbum.isPending || approveAlbum.isPending}
-                                                                    className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2"
-                                                                >
-                                                                    <Trash2 size={18} />
-                                                                    <span>{deleteAlbum.isPending ? 'Eliminando...' : 'Eliminar'}</span>
-                                                                </button>
-                                                            )}
+                                                <div className="mt-auto space-y-2">
+                                                    {album.review_comment && getLastComment(album.review_comment) && (
+                                                        <div className="rounded-md border bg-white p-2 text-xs text-gray-700">
+                                                            <span className="font-medium">Último comentario:</span>
+                                                            <div className="mt-1 text-gray-600">{getLastComment(album.review_comment)}</div>
                                                         </div>
+                                                    )}
+
+                                                    <textarea
+                                                        placeholder="Añade un comentario de revisión (opcional)"
+                                                        value={approvalComment[album.id] || ''}
+                                                        onChange={(event) =>
+                                                            setApprovalComment((previousComments) => ({
+                                                                ...previousComments,
+                                                                [album.id]: event.target.value,
+                                                            }))
+                                                        }
+                                                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
+                                                        rows={2}
+                                                    />
+
+                                                    <div className="flex flex-col gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleApprove(album.id, nextApproved)}
+                                                            disabled={approveAlbum.isPending || deleteAlbum.isPending}
+                                                            className={`flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white ${currentStatus === 'approved' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} disabled:opacity-50`}
+                                                        >
+                                                            {currentStatus === 'approved' ? <XCircle size={18} /> : <CheckCircle size={18} />}
+                                                            <span>{approveAlbum.isPending ? 'Procesando...' : toggleLabel}</span>
+                                                        </button>
+
+                                                        {isAdmin && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleDeleteAlbum(album.id)}
+                                                                disabled={deleteAlbum.isPending || approveAlbum.isPending}
+                                                                className="flex w-full items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                                                            >
+                                                                <Trash2 size={18} />
+                                                                <span>{deleteAlbum.isPending ? 'Eliminando...' : 'Eliminar'}</span>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -489,6 +531,11 @@ export const AdminPage: React.FC = () => {
                     )}
                 </div>
             </div>
+            <AlbumDetailsModal
+                isOpen={!!selectedAlbum}
+                onClose={() => setSelectedAlbum(null)}
+                album={selectedAlbum}
+            />
             <ImageLightbox
                 isOpen={!!selectedImage}
                 src={selectedImage?.src || ''}

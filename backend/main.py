@@ -22,8 +22,15 @@ try:
 except Exception as e:
     gallery_router = None
     print(f"Advertencia: no se pudo cargar router de galería: {e}")
-    
+
+try:
+    from routers.admin_router import router as admin_router
+except Exception as e:
+    admin_router = None
+    print(f"Advertencia: no se pudo cargar router de estado: {e}")
+
 from security.middleware import setup_cors_middleware, setup_trusted_host_middleware, setup_security_middleware
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,7 +38,8 @@ async def lifespan(app: FastAPI):
     try:
         create_tables()
     except Exception as e:
-        print(f"Advertencia: no se pudieron crear las tablas en el arranque: {e}")
+        print(
+            f"Advertencia: no se pudieron crear las tablas en el arranque: {e}")
     yield
     # Shutdown (if needed)
 
@@ -55,14 +63,17 @@ if image_router is not None:
     app.include_router(image_router, prefix="/api/images", tags=["imágenes"])
 if gallery_router is not None:
     app.include_router(gallery_router, prefix="/api", tags=["galería"])
+if admin_router is not None:
+    app.include_router(admin_router, prefix="/api/admin", tags=["estado"])
+
 
 @app.get("/health")
 async def health_check():
     from database.database import test_connection
-    
+
     db_status = "conectada" if test_connection() else "error"
     return {
-        "estado": "saludable", 
+        "estado": "saludable",
         "timestamp": datetime.utcnow(),
         "database": db_status
     }

@@ -2,13 +2,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
+import api from '@services/api';
 
 export const Navbar: React.FC = () => {
-    const { isAuthenticated, user, logout, isAdmin, isSupervisor } = useAuth();
+    const { isAuthenticated, user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await api.logout();
+        } catch {
+            // Si el token ya expiró, cerramos sesión localmente de todos modos.
+        }
+
         logout();
         navigate('/login');
         setIsOpen(false);
@@ -29,12 +36,12 @@ export const Navbar: React.FC = () => {
                     <div className="hidden md:flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
-                                {!isAdmin && !isSupervisor && (
+                                {!isAdmin && user?.role === 'user' && (
                                     <Link to="/gallery" className="text-gray-700 hover:text-primary-600">
                                         Galería
                                     </Link>
                                 )}
-                                {isSupervisor && (
+                                {user?.role === 'supervisor' && (
                                     <Link to="/admin" className="text-gray-700 hover:text-primary-600">
                                         Panel
                                     </Link>
@@ -43,6 +50,9 @@ export const Navbar: React.FC = () => {
                                     <>
                                         <Link to="/admin" className="text-gray-700 hover:text-primary-600">
                                             Panel
+                                        </Link>
+                                        <Link to="/state" className="text-gray-700 hover:text-primary-600">
+                                            Estado
                                         </Link>
                                         <Link to="/users" className="text-gray-700 hover:text-primary-600">
                                             Usuarios
@@ -95,7 +105,7 @@ export const Navbar: React.FC = () => {
                     <div className="md:hidden pb-4 space-y-2">
                         {isAuthenticated ? (
                             <>
-                                {!isAdmin && !isSupervisor && (
+                                {!isAdmin && user?.role === 'user' && (
                                     <Link
                                         to="/gallery"
                                         className="block text-gray-700 hover:text-primary-600 py-2"
@@ -104,7 +114,7 @@ export const Navbar: React.FC = () => {
                                         Galería
                                     </Link>
                                 )}
-                                {isSupervisor && (
+                                {user?.role === 'supervisor' && (
                                     <Link
                                         to="/admin"
                                         className="block text-gray-700 hover:text-primary-600 py-2"
@@ -121,6 +131,13 @@ export const Navbar: React.FC = () => {
                                             onClick={() => setIsOpen(false)}
                                         >
                                             Panel
+                                        </Link>
+                                        <Link
+                                            to="/state"
+                                            className="block text-gray-700 hover:text-primary-600 py-2"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Estado
                                         </Link>
                                         <Link
                                             to="/users"

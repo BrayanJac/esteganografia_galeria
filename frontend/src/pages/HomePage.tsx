@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from '@components/Navbar';
 import { usePublicGallery } from '@hooks/useGallery';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,41 @@ import { Image as ImageIcon } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
     const { data: gallery, isLoading, error } = usePublicGallery();
+    const [featuredIndex, setFeaturedIndex] = useState(0);
+    const [isFading, setIsFading] = useState(false);
+    const rotationDelayMs = 30000;
+
+    useEffect(() => {
+        if (!gallery?.length) {
+            setFeaturedIndex(0);
+        } else if (featuredIndex >= gallery.length) {
+            setFeaturedIndex(0);
+        }
+    }, [gallery?.length, featuredIndex]);
+
+    useEffect(() => {
+        if (!gallery?.length || gallery.length < 2) {
+            return;
+        }
+
+        let timeoutId: number | undefined;
+        const intervalId = window.setInterval(() => {
+            setIsFading(true);
+            timeoutId = window.setTimeout(() => {
+                setFeaturedIndex((currentIndex) => (currentIndex + 1) % gallery.length);
+                setIsFading(false);
+            }, 450);
+        }, rotationDelayMs);
+
+        return () => {
+            window.clearInterval(intervalId);
+            if (timeoutId) {
+                window.clearTimeout(timeoutId);
+            }
+        };
+    }, [gallery]);
+
+    const featuredAlbum = gallery?.length ? gallery[featuredIndex % gallery.length] : null;
 
     return (
         <>
@@ -17,6 +52,44 @@ export const HomePage: React.FC = () => {
                         <h1 className="text-4xl font-bold text-gray-900">Galería Pública</h1>
                         <p className="mt-2 text-gray-600">Explora los álbumes públicos aprobados por la comunidad.</p>
                     </div>
+
+                    {featuredAlbum && (
+                        <Link
+                            to={`/gallery/${featuredAlbum.id}`}
+                            className={`mb-10 block overflow-hidden rounded-3xl border bg-white shadow-lg transition duration-500 ${isFading ? 'opacity-70 scale-[0.995]' : 'opacity-100'}`}
+                        >
+                            <div className="grid md:grid-cols-[1.15fr_0.85fr]">
+                                <div className="relative min-h-[260px] bg-gray-900">
+                                    {featuredAlbum.cover_image_filename ? (
+                                        <img
+                                            src={`/api/uploads/${featuredAlbum.cover_image_filename}`}
+                                            alt={featuredAlbum.title}
+                                            className="h-full w-full object-cover transition duration-700"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full min-h-[260px] items-center justify-center bg-gradient-to-br from-primary-200 to-primary-400">
+                                            <ImageIcon size={72} className="text-white/80" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                </div>
+                                <div className="flex flex-col justify-center gap-4 p-8">
+                                    <span className="inline-flex w-fit rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+                                        Destacado en rotación
+                                    </span>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-gray-900">{featuredAlbum.title}</h2>
+                                        <p className="mt-3 text-gray-600">{featuredAlbum.description}</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                        <span>Por: <strong>{featuredAlbum.owner}</strong></span>
+                                        <span>{featuredAlbum.image_count || 0} imágenes</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-primary-700">La portada cambia automáticamente cada 30 segundos con una transición suave.</p>
+                                </div>
+                            </div>
+                        </Link>
+                    )}
 
                     {isLoading ? (
                         <div className="flex justify-center">

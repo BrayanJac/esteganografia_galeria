@@ -58,8 +58,8 @@ export const useUpdateAlbum = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: { albumId: number; title?: string; description?: string }) =>
-            api.updateAlbum(data.albumId, { title: data.title, description: data.description }),
+        mutationFn: (data: { albumId: number; title?: string; description?: string; isPublic?: boolean }) =>
+            api.updateAlbum(data.albumId, { title: data.title, description: data.description, is_public: data.isPublic }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['albums'] });
             queryClient.invalidateQueries({ queryKey: ['gallery'] });
@@ -167,9 +167,10 @@ export const useUpdateAlbumReview = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: { albumId: number; approved?: boolean; reviewComment?: string }) =>
+        mutationFn: (data: { albumId: number; approved?: boolean; isPublic?: boolean; reviewComment?: string }) =>
             api.updateAlbumReview(data.albumId, {
                 approved: data.approved,
+                isPublic: data.isPublic,
                 reviewComment: data.reviewComment,
             }),
         onSuccess: () => {

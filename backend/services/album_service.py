@@ -12,6 +12,68 @@ HTML_TAG_PATTERN = re.compile(r"<\s*/?\s*[a-zA-Z!][^>]*>")
 ALBUM_NOT_FOUND_DETAIL = "Álbum no encontrado"
 
 
+def _image_sort_key(image: Image):
+    created_at = image.created_at or datetime.min.replace(tzinfo=timezone.utc)
+    return (created_at, image.id)
+
+
+def _latest_image(album: Album, visible_only: bool = False):
+    images = album.images
+
+    if visible_only:
+        images = [
+            image for image in images
+            if image.status in (ImageStatus.CLEAN, ImageStatus.APPROVED)
+        ]
+
+    if not images:
+        return None
+
+    return max(images, key=_image_sort_key)
+
+
+def _serialize_image(image: Image):
+    return {
+        "id": image.id,
+        "filename": image.filename,
+        "original_filename": image.original_filename,
+        "status": image.status.value,
+        "uploader_id": image.uploader_id,
+        "uploader": image.uploader.username if image.uploader else None,
+        "reviewer_id": image.reviewer_id,
+        "review_comment": image.review_comment,
+        "created_at": image.created_at.isoformat() if image.created_at else None,
+        "updated_at": image.updated_at.isoformat() if image.updated_at else None,
+    }
+
+
+def _serialize_album(album: Album, include_visible_cover: bool = False):
+    latest_image = _latest_image(album, visible_only=include_visible_cover)
+
+    return {
+        "id": album.id,
+        "title": album.title,
+        "description": album.description,
+        "status": album.status.value,
+        "is_public": album.is_public,
+        "owner_id": album.owner_id,
+        "owner": album.owner.username,
+        "reviewer_id": album.reviewer_id,
+        "reviewer": album.reviewer.username if album.reviewer else None,
+        "review_comment": album.review_comment,
+        "image_count": len(album.images),
+        "cover_image_filename": latest_image.filename if latest_image else None,
+        "latest_image_filename": latest_image.filename if latest_image else None,
+        "latest_image_created_at": latest_image.created_at.isoformat() if latest_image and latest_image.created_at else None,
+        "created_at": album.created_at.isoformat() if album.created_at else None,
+        "updated_at": album.updated_at.isoformat() if album.updated_at else None,
+        "images": [
+            _serialize_image(image)
+            for image in sorted(album.images, key=_image_sort_key, reverse=False)
+        ],
+    }
+
+
 def _validate_album_description(description: str | None):
     if description is None:
         return
@@ -59,23 +121,6 @@ def create_album(title: str, description: str, is_public: bool, owner_id: int, d
     }
 
 
-def _serialize_album(album: Album):
-    return {
-        "id": album.id,
-        "title": album.title,
-        "description": album.description,
-        "status": album.status.value,
-        "is_public": album.is_public,
-        "owner_id": album.owner_id,
-        "owner": album.owner.username,
-        "reviewer": album.reviewer.username if album.reviewer else None,
-        "review_comment": album.review_comment,
-        "image_count": len(album.images),
-        "created_at": album.created_at.isoformat() if album.created_at else None,
-        "updated_at": album.updated_at.isoformat() if album.updated_at else None,
-    }
-
-
 def _append_review_comment(album: Album, reviewer_username: str, review_comment: str | None):
     if not review_comment:
         return
@@ -105,7 +150,7 @@ def get_accessible_albums(user_id: int, db: Session):
     albums = owned_albums + public_albums
 
     return [
-        _serialize_album(album)
+        _serialize_album(album, include_visible_cover=True)
         for album in albums
     ]
 
@@ -145,15 +190,15 @@ def get_album_for_user(album_id: int, user_id: int, db: Session):
             "is_public": album.is_public,
             "owner_id": album.owner_id,
             "owner": album.owner.username,
-            "created_at": album.created_at
+            "reviewer": album.reviewer.username if album.reviewer else None,
+            "review_comment": album.review_comment,
+            "created_at": album.created_at.isoformat() if album.created_at else None,
+            "updated_at": album.updated_at.isoformat() if album.updated_at else None,
+            "latest_image_filename": _latest_image(album).filename if _latest_image(album) else None,
         },
         "images": [
             {
-                "id": image.id,
-                "filename": image.filename,
-                "original_filename": image.original_filename,
-                "status": image.status.value,
-                "uploader_id": image.uploader_id,
+                **_serialize_image(image),
                 "steganography_detected": image.status == ImageStatus.QUARANTINED,
             }
             for image in images_query
@@ -161,16 +206,22 @@ def get_album_for_user(album_id: int, user_id: int, db: Session):
     }
 
 
+def get_album_details_for_admin(album_id: int, db: Session):
+    album = db.query(Album).filter(Album.id == album_id).first()
+
+    if not album:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ALBUM_NOT_FOUND_DETAIL
+        )
+
+    return _serialize_album(album)
+
+
 def get_pending_albums(db: Session):
     albums = db.query(Album).filter(Album.status == AlbumStatus.PENDING).all()
     return [
-        {
-            "id": album.id,
-            "title": album.title,
-            "description": album.description,
-            "owner": album.owner.username,
-            "created_at": album.created_at.isoformat() if album.created_at else None,
-        }
+        _serialize_album(album)
         for album in albums
     ]
 
@@ -186,7 +237,7 @@ def get_admin_albums(db: Session):
     }
 
 
-def update_album(album_id: int, owner_id: int, title: str | None, description: str | None, db: Session):
+def update_album(album_id: int, owner_id: int, title: str | None, description: str | None, is_public: bool | None, db: Session):
     album = db.query(Album).filter(Album.id == album_id).first()
 
     if not album:
@@ -220,6 +271,9 @@ def update_album(album_id: int, owner_id: int, title: str | None, description: s
         _validate_album_description(description)
         album.description = description
 
+    if is_public is not None:
+        album.is_public = is_public
+
     db.commit()
     db.refresh(album)
 
@@ -231,6 +285,7 @@ def update_album_review(
     reviewer_id: int,
     reviewer_username: str,
     approved: bool | None,
+    is_public: bool | None,
     review_comment: str | None,
     db: Session,
 ):
@@ -256,6 +311,9 @@ def update_album_review(
 
     if approved is not None:
         album.status = AlbumStatus.APPROVED if approved else AlbumStatus.REJECTED
+
+    if is_public is not None:
+        album.is_public = is_public
 
     _append_review_comment(album, reviewer_username, review_comment)
 

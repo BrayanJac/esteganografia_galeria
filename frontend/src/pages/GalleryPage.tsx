@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
-import { useLibraryAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
+import { useDeleteImage, useLibraryAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
 import { AlbumModal } from '@components/AlbumModal';
 import { AlbumEditModal } from '@components/AlbumEditModal';
 import { Plus, Upload, Loader, Pencil } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useAuth } from '@hooks/useAuth';
 export const GalleryPage: React.FC = () => {
     const { data: albums, isLoading } = useLibraryAlbums();
     const uploadImage = useUploadImage();
+    const deleteImage = useDeleteImage();
     const updateAlbum = useUpdateAlbum();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [uploadingAlbumId, setUploadingAlbumId] = useState<number | null>(null);
@@ -95,12 +96,22 @@ export const GalleryPage: React.FC = () => {
                     ) : albums && albums.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {albums.map((album: any) => (
-                                <div key={album.id} className="bg-white rounded-lg shadow hover:shadow-lg transition">
-                                    {album.status === 'approved' ? (
-                                        <Link to={`/album/${album.id}`} className="block">
-                                            <div className="bg-gradient-to-br from-primary-100 to-primary-200 h-40 flex items-center justify-center">
+                                <div key={album.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                                    <div className="bg-gray-100 h-44 overflow-hidden">
+                                        {album.cover_image_filename ? (
+                                            <img
+                                                src={`/api/uploads/${album.cover_image_filename}`}
+                                                alt={album.title}
+                                                className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="h-full w-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
                                                 <span className="text-4xl">📷</span>
                                             </div>
+                                        )}
+                                    </div>
+                                    {album.status === 'approved' ? (
+                                        <Link to={`/album/${album.id}`} className="block">
                                             <div className="p-4">
                                                 <h3 className="font-bold text-lg mb-2">{album.title}</h3>
                                                 <p className="text-gray-600 text-sm mb-2">{album.description}</p>
@@ -120,9 +131,6 @@ export const GalleryPage: React.FC = () => {
                                         </Link>
                                     ) : (
                                         <div className="block opacity-75 cursor-default">
-                                            <div className="bg-gradient-to-br from-primary-100 to-primary-200 h-40 flex items-center justify-center">
-                                                <span className="text-4xl">🔒</span>
-                                            </div>
                                             <div className="p-4">
                                                 <h3 className="font-bold text-lg mb-2">{album.title}</h3>
                                                 <p className="text-gray-600 text-sm mb-2">{album.description}</p>
@@ -236,8 +244,12 @@ export const GalleryPage: React.FC = () => {
                         albumId: editingAlbum.id,
                         title: payload.title,
                         description: payload.description,
+                                isPublic: payload.isPublic,
                     });
                 }}
+                        onDeleteImage={async (imageId) => {
+                            await deleteImage.mutateAsync(imageId);
+                        }}
             />
         </>
     );

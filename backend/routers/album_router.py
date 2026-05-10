@@ -5,7 +5,7 @@ from database.database import get_db
 from database.models import User
 from security.auth import get_current_user, require_supervisor_or_admin, require_exact_role
 from database.models import UserRole
-from services.album_service import create_album, get_user_albums, get_accessible_albums, get_album_for_user, get_pending_albums, get_admin_albums, get_reviewed_albums, approve_album, delete_album, update_album, update_album_review
+from services.album_service import create_album, get_user_albums, get_accessible_albums, get_album_for_user, get_album_details_for_admin, get_pending_albums, get_admin_albums, get_reviewed_albums, approve_album, delete_album, update_album, update_album_review
 from schemas.album_schemas import CreateAlbumRequest, ApproveAlbumRequest, UpdateAlbumRequest, UpdateAlbumReviewRequest
 
 router = APIRouter()
@@ -69,6 +69,15 @@ async def get_album_endpoint(
     return get_album_for_user(album_id, current_user.id, db)
 
 
+@router.get("/{album_id}/details")
+async def get_album_details_endpoint(
+    album_id: int,
+    current_user: Annotated[User, Depends(require_supervisor_or_admin)],
+    db: Annotated[Session, Depends(get_db)]
+):
+    return get_album_details_for_admin(album_id, db)
+
+
 @router.post("/{album_id}/approve")
 async def approve_album_endpoint(
     album_id: int,
@@ -86,7 +95,7 @@ async def update_album_endpoint(
     current_user: Annotated[User, Depends(require_exact_role(UserRole.USER))],
     db: Annotated[Session, Depends(get_db)]
 ):
-    return update_album(album_id, current_user.id, data.title, data.description, db)
+    return update_album(album_id, current_user.id, data.title, data.description, data.is_public, db)
 
 
 @router.put("/{album_id}/review")
@@ -96,7 +105,7 @@ async def update_album_review_endpoint(
     current_user: Annotated[User, Depends(require_supervisor_or_admin)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    return update_album_review(album_id, current_user.id, current_user.username, data.approved, data.review_comment, db)
+    return update_album_review(album_id, current_user.id, current_user.username, data.approved, data.is_public, data.review_comment, db)
 
 
 @router.delete("/{album_id}")

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import User, UserRole
 from security.auth import get_current_user, require_supervisor_or_admin, require_exact_role
-from services.auth_service import register_user, authenticate_user, create_supervisor, delete_supervisor, delete_user, get_supervisors, get_users
+from services.auth_service import register_user, authenticate_user, logout_user, create_supervisor, delete_supervisor, delete_user, get_supervisors, get_users
 from schemas.auth_schemas import RegisterRequest, LoginRequest, CreateSupervisorRequest, DeleteUserRequest
 
 router = APIRouter()
@@ -33,6 +33,20 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         "role": current_user.role.value,
         "is_active": current_user.is_active
     }
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return await logout_user(
+        current_user,
+        db,
+        get_remote_address(request),
+        request.headers.get("user-agent", ""),
+    )
 
 
 @router.post("/supervisors")

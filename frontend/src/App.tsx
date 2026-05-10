@@ -10,6 +10,7 @@ import { RegisterPage } from '@pages/RegisterPage';
 import { GalleryPage } from '@pages/GalleryPage';
 import { AdminPage } from '@pages/AdminPage';
 import { UsersPage } from '@pages/UsersPage';
+import { StatusPage } from '@pages/StatusPage';
 import { AlbumDetailPage } from '@pages/AlbumDetailPage';
 
 const queryClient = new QueryClient();
@@ -80,6 +81,15 @@ function App() {
                         element={
                             <ProtectedRoute requiredRole="admin">
                                 <UsersPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/state"
+                        element={
+                            <ProtectedRoute requiredRole="admin">
+                                <StatusPage />
                             </ProtectedRoute>
                         }
                     />
