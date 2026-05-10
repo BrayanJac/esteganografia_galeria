@@ -131,9 +131,122 @@ DELETE /api/images/{id}        - Eliminar imagen
 
 GET    /api/gallery            - Galería pública
 GET    /api/gallery/{id}       - Imágenes de álbum público
+
+GET    /api/admin/stats        - Estadísticas administrativas
+GET    /api/admin/users        - Lista de usuarios
+GET    /api/admin/albums       - Lista de álbumes
+GET    /api/admin/events       - Eventos de seguridad
+GET    /api/admin/users/{id}/activity - Actividad del usuario
+PUT    /api/images/{id}/comment - Guardar comentario de imagen
 ```
 
-## 🎨 Customización de Temas
+---
+
+## ✨ Cambios Recientes (Mayo 2026)
+
+### 📊 Panel Administrativo "Estado" - Totalmente Interactivo
+Se ha implementado un panel administrativo completo con capacidad de **drill-down interactivo**:
+
+**Ubicación**: `pages/StatusPage.tsx`
+
+**Características**:
+- 🎯 **Tiles Clickables**: Usuarios, Supervisores, Ingresos (LOGIN), Salidas (LOGOUT), Álbumes
+- 📋 **Modales de Detalle**: Cada tile abre un modal mostrando datos filtrados
+- 👥 **Separación por Rol**: Los eventos se separan automáticamente por rol (usuarios, supervisores, admins)
+- 📅 **Última Actividad**: Se muestra el último acceso de cada usuario
+- 🌍 **Zona Horaria Ecuador**: Todas las fechas se convierten a `America/Guayaquil`
+
+**Componentes**:
+- Modal reutilizable para mostrar drill-down data
+- Helper `formatDate(iso: string)` para conversión de zona horaria
+- Event grouping por rol en el modal de eventos
+
+### ⌨️ Envío Rápido de Comentarios
+Se ha mejorado la experiencia en el panel administrativo (AdminPage):
+
+**Funcionalidad**:
+- ✅ **Presionar Enter** en campo de comentarios: Envía automáticamente
+- ✅ **Shift+Enter**: Permite agregar nuevas líneas
+- ✅ Se aplica en: Álbumes pendientes, álbumes revisados, imágenes en cuarentena
+
+**Comportamiento**:
+```typescript
+onKeyDown={(e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    // Submit comment
+  }
+}}
+```
+
+### 🌍 Corrección de Zona Horaria (Ecuador)
+Todas las fechas en la aplicación ahora se muestran correctamente para Ecuador:
+
+**Implementación**: Helper `formatDate()` en varias páginas
+```typescript
+const formatDate = (iso: string) => {
+  return new Date(iso).toLocaleString(undefined, {
+    timeZone: 'America/Guayaquil'
+  });
+};
+```
+
+**Áreas Afectadas**:
+- 📊 StatusPage: Timestamps de usuarios, supervisores, eventos
+- 🛡️ AdminPage: Fechas en todas las pestañas (pendientes, revisados, cuarentena)
+- 🏠 HomePage: Rotación de álbumes destacados
+- 📷 Gallery/Album Views: Fechas de imágenes y comentarios
+
+### 🎬 Rotación Automática de Galería Pública
+La galería pública ahora muestra álbumes destacados con rotación automática:
+
+**Ubicación**: `pages/HomePage.tsx`
+
+**Características**:
+- 🔄 Rotación cada 30 segundos (configurable)
+- ✨ Transición CSS con fade effect
+- 🖼️ Muestra imagen de portada del álbum
+- 🎨 Efecto hover con escala y gradiente
+
+**Implementación**:
+```typescript
+useEffect(() => {
+  const interval = setInterval(() => {
+    setFeaturedIndex((prev) => (prev + 1) % featured.length);
+  }, 30000); // 30 segundos
+  return () => clearInterval(interval);
+}, [featured.length]);
+```
+
+### 📝 Módulos de Servicios Administrativos
+
+**Nuevo**: `src/services/api.ts` métodos adicionales
+```typescript
+getAdminUsers()                         // GET /admin/users
+getAdminAlbums()                        // GET /admin/albums
+getAdminEvents(direction?: string)      // GET /admin/events
+getAdminUserActivity(userId: number)    // GET /admin/users/{userId}/activity
+updateImageComment(imageId, comment)    // PUT /images/{imageId}/comment
+```
+
+**Uso en Componentes**:
+- Queries de React Query para cacheo automático
+- Invalidación de cache después de actualizaciones
+- Manejo de errores con feedback al usuario
+
+### 🎨 Componentes Mejorados
+
+**AdminPage.tsx**:
+- Tres vistas: Pendientes, Revisados, Cuarentena
+- Comentarios con entrada Enter
+- Formateo de fechas con timezone Ecuador
+
+**StatusPage.tsx**:
+- Modal component para drill-down
+- Event grouping por rol
+- Timestamps en zona horaria local
+
+---
 
 Los colores se pueden personalizar en `tailwind.config.js`:
 

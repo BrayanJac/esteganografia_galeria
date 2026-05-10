@@ -8,6 +8,8 @@ from database.models import User
 from security.auth import get_current_user, require_supervisor_or_admin
 from services.image_service import upload_image, get_quarantined_images, review_image
 from schemas.image_schemas import ReviewImageRequest
+from services.image_service import update_image_comment
+from pydantic import BaseModel
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
@@ -39,6 +41,20 @@ async def review_image_endpoint(
     db: Annotated[Session, Depends(get_db)]
 ):
     return review_image(image_id, data.approved, data.comment, current_user.id, db)
+
+
+class UpdateImageCommentRequest(BaseModel):
+    comment: str
+
+
+@router.put("/{image_id}/comment")
+async def update_image_comment_endpoint(
+    image_id: int,
+    data: UpdateImageCommentRequest,
+    current_user: Annotated[User, Depends(require_supervisor_or_admin)],
+    db: Annotated[Session, Depends(get_db)]
+):
+    return update_image_comment(image_id, data.comment, current_user.id, db)
 
 
 @router.delete("/{image_id}")

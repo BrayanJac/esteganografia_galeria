@@ -98,10 +98,6 @@ class ApiClient {
         return this.client.get('/albums/pending');
     }
 
-    async getAdminAlbums() {
-        return this.client.get('/albums/admin');
-    }
-
     async getReviewedAlbums() {
         return this.client.get('/albums/reviewed');
     }
@@ -197,6 +193,26 @@ class ApiClient {
 
     async getAdminStats() {
         return this.client.get('/admin/stats');
+    }
+
+    async getAdminUsers() {
+        return this.client.get('/admin/users');
+    }
+
+    async getAdminAlbums() {
+        return this.client.get('/admin/albums');
+    }
+
+    async getAdminEvents(direction?: string) {
+        return this.client.get(`/admin/events${direction ? `?direction=${direction}` : ''}`);
+    }
+
+    async getAdminUserActivity(userId: number) {
+        return this.client.get(`/admin/users/${userId}/activity`);
+    }
+
+    async updateImageComment(imageId: number, comment: string) {
+        return this.client.put(`/images/${imageId}/comment`, { comment });
     }
 }
 

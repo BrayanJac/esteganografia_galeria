@@ -223,6 +223,55 @@ Eliminar una imagen (propietario de la imagen).
 
 ---
 
+### 📊 Panel Administrativo (`/api/admin`) ⭐
+
+#### `GET /api/admin/stats`
+Obtener estadísticas generales del sistema (Solo ADMIN).
+- **Response**:
+```json
+{
+  "total_users": "integer",
+  "total_supervisors": "integer",
+  "pending_albums": "integer",
+  "quarantined_images": "integer",
+  "users_list": ["array of users"],
+  "supervisors_list": ["array of supervisors"],
+  "recent_events": ["array of recent login/logout events"]
+}
+```
+
+#### `GET /api/admin/users`
+Obtener lista de todos los usuarios con información de acceso (Solo ADMIN).
+- **Response**: Array de usuarios con `username`, `email`, `role`, `last_login_attempt`
+
+#### `GET /api/admin/albums`
+Obtener lista de todos los álbumes con estado de aprobación (Solo ADMIN).
+- **Response**: Array de álbumes con `title`, `owner`, `status`, `image_count`, `created_at`, `updated_at`
+
+#### `GET /api/admin/events?direction={ingress|egress}`
+Obtener eventos de seguridad (ingresos/salidas) separados por rol (Solo ADMIN).
+- **Query Parameters**:
+  - `direction`: `ingress` (LOGIN), `egress` (LOGOUT), o sin especificar (todos)
+- **Response**: Array de eventos con `event_type`, `description`, `username`, `role`, `timestamp`
+
+#### `GET /api/admin/users/{user_id}/activity`
+Obtener actividad detallada de un usuario específico (Solo ADMIN).
+- **Response**:
+```json
+{
+  "albums": {
+    "approved": "integer",
+    "rejected": "integer",
+    "pending": "integer"
+  },
+  "recent_logs": ["array of security logs"],
+  "last_action": "album|image|log",
+  "last_action_at": "ISO timestamp"
+}
+```
+
+---
+
 ### 🌐 Galería Pública (`/api`)
 
 #### `GET /api/gallery`
@@ -420,4 +469,69 @@ Por defecto se permiten: `jpg`, `jpeg`, `png`, `gif`, `bmp`, `webp`
 
 ### Tamaño Máximo de Archivo
 Configurado en el servicio de imágenes (por defecto: 10MB)
+
+---
+
+## ✨ Cambios Recientes (Mayo 2026)
+
+### 📊 Panel Administrativo "Estado" - Totalmente Interactivo
+Se ha implementado un panel administrativo completo en el frontend con capacidad de **drill-down interactivo**:
+
+- **Tiles Clickables**: Usuarios, Supervisores, Ingresos (ingress), Salidas (egress), Álbumes
+- **Modales de Detalle**: Cada tile abre un modal mostrando datos filtrados
+- **Separación por Rol**: Los eventos se separan automáticamente por rol (usuarios, supervisores, admins)
+- **Últimos Accesos**: Se muestran los últimos intentos de login de cada usuario
+
+**Endpoints Backend Relacionados**:
+- `GET /api/admin/stats` - Estadísticas generales
+- `GET /api/admin/users` - Lista de usuarios
+- `GET /api/admin/albums` - Lista de álbumes
+- `GET /api/admin/events?direction={ingress|egress}` - Eventos separados por rol
+- `GET /api/admin/users/{user_id}/activity` - Actividad por usuario
+
+### ⌨️ Envío de Comentarios con Enter
+Se ha mejorado la experiencia de usuario en el panel administrativo:
+
+- **Álbumes Pendientes**: Presionar Enter en el campo de comentarios envía el comentario automáticamente
+- **Álbumes Revisados**: Enter actualiza el comentario de revisión sin necesidad de hacer click en Aprobar/Rechazar
+- **Imágenes en Cuarentena**: Enter guarda el comentario (nuevo endpoint: `PUT /api/images/{id}/comment`)
+
+**Nuevo Endpoint Backend**:
+- `PUT /api/images/{image_id}/comment` - Guardar comentario sin cambiar estado
+
+**Servicios Actualizados**:
+- `image_service.py` - Nueva función `update_image_comment()`
+- `image_router.py` - Nuevo endpoint para actualizar comentarios
+
+### 🌍 Corrección de Zona Horaria (Ecuador)
+Todas las fechas y horas ahora se muestran en la zona horaria de Ecuador (**America/Guayaquil**):
+
+- **StatusPage**: Todos los timestamps de usuarios, supervisores y eventos
+- **AdminPage**: Fechas en todas las pestañas (pendientes, revisados, cuarentena)
+- **Formato**: Utiliza `toLocaleString()` con conversión a zona horaria local
+
+Esta corrección afecta a:
+- Último acceso de usuarios
+- Timestamps de eventos (ingresos/salidas)
+- Fechas de creación y actualización de álbumes
+- Timestamps de comentarios
+
+### 📋 Servicios Administrativos Mejorados
+
+**Nuevo archivo**: `backend/services/admin_service.py`
+
+Funciones principales:
+- `get_admin_statistics(db)` - Resumen de estadísticas con listas de usuarios/supervisores/eventos
+- `get_users_list(db)` - Lista completa de usuarios con último acceso
+- `get_albums_list(db)` - Lista de álbumes con estado de aprobación
+- `get_events(db, direction)` - Eventos filtrados por ingreso/salida y agrupados por rol
+- `get_user_activity(db, user_id)` - Actividad detallada por usuario
+
+Todas estas funciones incluyen:
+- Filtrado por rol
+- Ordenamiento por timestamp más reciente
+- Serialización de fechas en formato ISO
+- Manejo de casos sin datos
+
+---
 

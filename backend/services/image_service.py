@@ -206,3 +206,19 @@ def delete_user_image(image_id: int, user_id: int, db: Session):
     db.commit()
 
     return {"mensaje": "Imagen eliminada exitosamente"}
+
+
+def update_image_comment(image_id: int, comment: str, reviewer_id: int, db: Session):
+    image = db.query(Image).filter(Image.id == image_id).first()
+
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Imagen no encontrada"
+        )
+
+    image.review_comment = comment
+    image.reviewer_id = reviewer_id
+    db.commit()
+
+    return {"mensaje": "Comentario de imagen actualizado"}

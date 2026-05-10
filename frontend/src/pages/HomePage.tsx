@@ -85,7 +85,7 @@ export const HomePage: React.FC = () => {
                                         <span>Por: <strong>{featuredAlbum.owner}</strong></span>
                                         <span>{featuredAlbum.image_count || 0} imágenes</span>
                                     </div>
-                                    <p className="text-sm font-medium text-primary-700">La portada cambia automáticamente cada 30 segundos con una transición suave.</p>
+                                    <p className="text-sm font-medium text-primary-700">Álbumes destacados de la semana.</p>
                                 </div>
                             </div>
                         </Link>

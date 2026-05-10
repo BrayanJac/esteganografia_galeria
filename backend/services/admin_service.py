@@ -141,3 +141,128 @@ def get_admin_statistics(db: Session):
         "supervisors": supervisors_payload,
         "recent_events": recent_events,
     }
+
+
+def get_users_list(db: Session):
+    users = db.query(User).order_by(User.created_at.desc().nullslast()).all()
+    result = []
+    for user in users:
+        result.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role.value,
+            "is_active": user.is_active,
+            "created_at": _serialize_datetime(user.created_at),
+            "last_login_attempt": _serialize_datetime(user.last_login_attempt),
+        })
+    return result
+
+
+def get_albums_list(db: Session):
+    albums = db.query(Album).order_by(Album.created_at.desc()).all()
+    result = []
+    for album in albums:
+        result.append({
+            "id": album.id,
+            "title": album.title,
+            "owner_id": album.owner_id,
+            "owner": album.owner.username if album.owner else None,
+            "status": album.status.value,
+            "is_public": album.is_public,
+            "image_count": len(album.images),
+            "created_at": _serialize_datetime(album.created_at),
+            "updated_at": _serialize_datetime(album.updated_at),
+        })
+    return result
+
+
+def get_events(db: Session, direction: str | None = None):
+    # direction: 'ingress' => AUTH_LOGIN, 'egress' => AUTH_LOGOUT, None => all
+    q = db.query(SecurityLog).order_by(SecurityLog.created_at.desc())
+    if direction == 'ingress':
+        q = q.filter(SecurityLog.event_type == 'AUTH_LOGIN')
+    if direction == 'egress':
+        q = q.filter(SecurityLog.event_type == 'AUTH_LOGOUT')
+
+    events = q.limit(200).all()
+    out = []
+    for event in events:
+        out.append({
+            "id": event.id,
+            "event_type": event.event_type,
+            "description": event.description,
+            "user_id": event.user_id,
+            "username": event.user.username if event.user else None,
+            "role": event.user.role.value if event.user else None,
+            "ip_address": event.ip_address,
+            "created_at": _serialize_datetime(event.created_at),
+        })
+    return out
+
+
+def get_user_activity(db: Session, user_id: int):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    # recent security logs for the user
+    logs = db.query(SecurityLog).filter(SecurityLog.user_id == user_id).order_by(
+        SecurityLog.created_at.desc()).limit(50).all()
+    logs_payload = [{
+        "id": l.id,
+        "event_type": l.event_type,
+        "description": l.description,
+        "created_at": _serialize_datetime(l.created_at),
+    } for l in logs]
+
+    # albums by status
+    albums = db.query(Album).filter(Album.owner_id == user_id).all()
+    albums_payload = [{
+        "id": a.id,
+        "title": a.title,
+        "status": a.status.value,
+        "created_at": _serialize_datetime(a.created_at),
+        "updated_at": _serialize_datetime(a.updated_at),
+        "image_count": len(a.images)
+    } for a in albums]
+
+    # last action: look at latest between security log, album/image create/update timestamps
+    last_album_time = max([(a.updated_at or a.created_at)
+                          for a in albums] or [None])
+    images = [img for a in albums for img in a.images]
+    last_image_time = max([(i.updated_at or i.created_at)
+                          for i in images] or [None])
+    last_log_time = max([l.created_at for l in logs] or [None])
+
+    last_action_time = _max_timestamp(
+        [last_album_time, last_image_time, last_log_time])
+
+    # determine last action type by inspecting latest record
+    last_action = None
+    candidates = []
+    if last_album_time:
+        candidates.append(('album', last_album_time))
+    if last_image_time:
+        candidates.append(('image', last_image_time))
+    if last_log_time:
+        candidates.append(('log', last_log_time))
+
+    if candidates:
+        candidates.sort(key=lambda x: x[1], reverse=True)
+        last_action = candidates[0][0]
+
+    return {
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role.value,
+            "created_at": _serialize_datetime(user.created_at),
+            "last_login_attempt": _serialize_datetime(user.last_login_attempt),
+        },
+        "albums": albums_payload,
+        "recent_logs": logs_payload,
+        "last_action": last_action,
+        "last_action_at": _serialize_datetime(last_action_time),
+    }

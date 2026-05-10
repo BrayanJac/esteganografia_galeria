@@ -7,6 +7,7 @@ import { useAuth } from '@hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApproveAlbum, useDeleteAlbum, usePendingAlbums, useQuarantinedImages, useReviewedAlbums, useReviewImage } from '@hooks/useGallery';
 import { CheckCircle, Loader, Trash2, XCircle, ShieldAlert } from 'lucide-react';
+import api from '@services/api';
 
 const getLastComment = (commentString: string | null | undefined): string | null => {
     if (!commentString) return null;
@@ -38,6 +39,15 @@ export const AdminPage: React.FC = () => {
             setActiveView(tab);
         }
     }, [location.search]);
+
+    const formatDate = (iso?: string | null) => {
+        if (!iso) return 'N/A';
+        try {
+            return new Date(iso).toLocaleString(undefined, { timeZone: 'America/Guayaquil' });
+        } catch {
+            return new Date(iso).toLocaleString();
+        }
+    };
 
     if (!isSupervisor) {
         return (
@@ -228,7 +238,7 @@ export const AdminPage: React.FC = () => {
                                                             <span className="font-medium">Fotos:</span> {album.image_count || 0}
                                                         </div>
                                                         <div>
-                                                            <span className="font-medium">Última actualización:</span> {album.updated_at ? new Date(album.updated_at).toLocaleString() : 'N/A'}
+                                                            <span className="font-medium">Última actualización:</span> {album.updated_at ? formatDate(album.updated_at) : 'N/A'}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -244,6 +254,22 @@ export const AdminPage: React.FC = () => {
                                                             [album.id]: event.target.value,
                                                         }))
                                                     }
+                                                    onKeyDown={async (e) => {
+                                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            const comment = approvalComment[album.id] || '';
+                                                            try {
+                                                                await api.updateAlbumReview(album.id, { reviewComment: comment });
+                                                                setApprovalComment((previousComments) => {
+                                                                    const nextComments = { ...previousComments };
+                                                                    delete nextComments[album.id];
+                                                                    return nextComments;
+                                                                });
+                                                            } catch (err) {
+                                                                // ignore
+                                                            }
+                                                        }
+                                                    }}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
                                                     rows={2}
                                                 />
@@ -335,7 +361,7 @@ export const AdminPage: React.FC = () => {
                                                             </div>
                                                             <div>
                                                                 <span className="font-medium">Fecha:</span>{' '}
-                                                                {album.created_at ? new Date(album.created_at).toLocaleDateString() : 'N/A'}
+                                                                {album.created_at ? formatDate(album.created_at) : 'N/A'}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -358,6 +384,20 @@ export const AdminPage: React.FC = () => {
                                                                 [album.id]: event.target.value,
                                                             }))
                                                         }
+                                                        onKeyDown={async (e) => {
+                                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                                e.preventDefault();
+                                                                const comment = approvalComment[album.id] || '';
+                                                                try {
+                                                                    await api.updateAlbumReview(album.id, { reviewComment: comment });
+                                                                    setApprovalComment((previousComments) => {
+                                                                        const nextComments = { ...previousComments };
+                                                                        delete nextComments[album.id];
+                                                                        return nextComments;
+                                                                    });
+                                                                } catch (err) {}
+                                                            }
+                                                        }}
                                                         className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
                                                         rows={2}
                                                     />
@@ -448,7 +488,7 @@ export const AdminPage: React.FC = () => {
                                                         <div><span className="font-medium">Tipo:</span> {image.mime_type || 'N/A'}</div>
                                                         <div><span className="font-medium">Tamaño:</span> {typeof image.file_size === 'number' ? `${(image.file_size / (1024 * 1024)).toFixed(2)} MB` : 'N/A'}</div>
                                                         <div><span className="font-medium">Score:</span> {typeof image.steganography_score === 'number' ? image.steganography_score.toFixed(3) : 'N/A'}</div>
-                                                        <div><span className="font-medium">Fecha:</span> {image.created_at ? new Date(image.created_at).toLocaleDateString() : 'N/A'}</div>
+                                                        <div><span className="font-medium">Fecha:</span> {image.created_at ? formatDate(image.created_at) : 'N/A'}</div>
                                                     </div>
 
                                                     {image.quarantine_reason && (
@@ -496,6 +536,22 @@ export const AdminPage: React.FC = () => {
                                                                 [image.id]: event.target.value,
                                                             }))
                                                         }
+                                                        onKeyDown={async (e) => {
+                                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                                e.preventDefault();
+                                                                const comment = imageComment[image.id] || '';
+                                                                try {
+                                                                    await api.updateImageComment(image.id, comment);
+                                                                    setImageComment((previousComments) => {
+                                                                        const nextComments = { ...previousComments };
+                                                                        delete nextComments[image.id];
+                                                                        return nextComments;
+                                                                    });
+                                                                } catch (err) {
+                                                                    // ignore
+                                                                }
+                                                            }
+                                                        }}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
                                                         rows={3}
                                                     />
