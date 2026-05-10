@@ -384,7 +384,6 @@ USUARIO NORMAL:
 └── Ver galerías públicas
 
 SUPERVISOR:
-├── Todo lo del usuario
 ├── Revisar imágenes en cuarentena
 ├── Aprobar/Rechazar álbumes
 ├── Editar galerías aprobadas o rechazadas
@@ -596,7 +595,7 @@ JPG, PNG, GIF, BMP, WebP y otros formatos estándar.
 No, se guardan en su tamaño original.
 
 ### ¿Puedo cambiar mi contraseña?
-Sí, en el panel de usuario (próxima versión).
+Por el momento no, pero en próximas versiones.
 
 ### ¿Qué es "Cuarentena"?
 Es cuando una imagen es marcada como sospechosa por el análisis y se aísla. Un supervisor debe revisar si realmente contiene esteganografía.
@@ -651,9 +650,9 @@ Este proyecto está bajo licencia MIT. Eres libre de usarlo, modificarlo y distr
 
 ---
 
-## Autor
+## Autores
 
-Desarrollado por: **Brayan Jac**
+Desarrollado por: **Jacome Brayan** , **Raura Andrea** , **Toscano Jossue**
 
 ---
 
