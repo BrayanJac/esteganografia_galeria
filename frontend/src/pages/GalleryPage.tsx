@@ -3,6 +3,7 @@ import { Navbar } from '@components/Navbar';
 import { useDeleteImage, useLibraryAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
 import { AlbumModal } from '@components/AlbumModal';
 import { AlbumEditModal } from '@components/AlbumEditModal';
+import { UploadProgressDialog } from '@components/UploadProgressDialog';
 import { Plus, Upload, Loader, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
@@ -16,6 +17,17 @@ export const GalleryPage: React.FC = () => {
     const [uploadingAlbumId, setUploadingAlbumId] = useState<number | null>(null);
     const [editingAlbum, setEditingAlbum] = useState<any | null>(null);
     const [uploadError, setUploadError] = useState('');
+    const [uploadProgressDialog, setUploadProgressDialog] = useState<{
+        isOpen: boolean;
+        currentFileName: string;
+        currentFileIndex: number;
+        totalFiles: number;
+    }>({
+        isOpen: false,
+        currentFileName: '',
+        currentFileIndex: 0,
+        totalFiles: 0
+    });
     const { user, isAdmin, isSupervisor } = useAuth();
     const maxFileSize = 10 * 1024 * 1024;
 
@@ -39,15 +51,37 @@ export const GalleryPage: React.FC = () => {
             return;
         }
 
+        // Mostrar diálogo de progreso
+        setUploadProgressDialog({
+            isOpen: true,
+            currentFileName: validFiles[0].name,
+            currentFileIndex: 1,
+            totalFiles: validFiles.length
+        });
+
         setUploadingAlbumId(albumId);
         try {
             for (let i = 0; i < validFiles.length; i++) {
+                // Actualizar el diálogo con el archivo actual
+                setUploadProgressDialog(prev => ({
+                    ...prev,
+                    currentFileName: validFiles[i].name,
+                    currentFileIndex: i + 1
+                }));
+
                 await uploadImage.mutateAsync({ albumId, file: validFiles[i] });
             }
         } catch (error) {
             console.error('Error uploading images:', error);
         } finally {
             setUploadingAlbumId(null);
+            // Cerrar diálogo de progreso
+            setUploadProgressDialog({
+                isOpen: false,
+                currentFileName: '',
+                currentFileIndex: 0,
+                totalFiles: 0
+            });
         }
     };
 
@@ -250,6 +284,13 @@ export const GalleryPage: React.FC = () => {
                         onDeleteImage={async (imageId) => {
                             await deleteImage.mutateAsync(imageId);
                         }}
+            />
+            <UploadProgressDialog
+                isOpen={uploadProgressDialog.isOpen}
+                currentFileName={uploadProgressDialog.currentFileName}
+                currentFileIndex={uploadProgressDialog.currentFileIndex}
+                totalFiles={uploadProgressDialog.totalFiles}
+                showCancelButton={false}
             />
         </>
     );

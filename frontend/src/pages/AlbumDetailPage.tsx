@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
 import { ImageLightbox } from '@components/ImageLightbox';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@services/api';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useAuth } from '@hooks/useAuth';
@@ -14,8 +15,13 @@ export const AlbumDetailPage: React.FC = () => {
     const location = useLocation();
     const isPublicView = location.pathname.startsWith('/gallery/');
     const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
+    const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{ isOpen: boolean; imageId: number | null }>({
+        isOpen: false,
+        imageId: null
+    });
     const { user } = useAuth();
     const deleteImage = useDeleteImage();
+    const queryClient = useQueryClient();
 
     const { data: album, isLoading, error } = useQuery({
         queryKey: ['album', albumId, isPublicView ? 'public' : 'private'],
@@ -31,14 +37,27 @@ export const AlbumDetailPage: React.FC = () => {
         },
     });
 
-    const handleDeleteImage = async (imageId: number) => {
-        if (confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
+    const handleDeleteImage = (imageId: number) => {
+        setDeleteConfirmDialog({ isOpen: true, imageId });
+    };
+
+    const confirmDeleteImage = async () => {
+        if (deleteConfirmDialog.imageId) {
             try {
-                await deleteImage.mutateAsync(imageId);
+                await deleteImage.mutateAsync(deleteConfirmDialog.imageId);
+                queryClient.invalidateQueries({
+                    queryKey: ['album', albumId, isPublicView ? 'public' : 'private']
+                });
             } catch (error) {
                 console.error('Error deleting image:', error);
+            } finally {
+                setDeleteConfirmDialog({ isOpen: false, imageId: null });
             }
         }
+    };
+
+    const cancelDeleteImage = () => {
+        setDeleteConfirmDialog({ isOpen: false, imageId: null });
     };
 
     if (isLoading) {
@@ -186,6 +205,16 @@ export const AlbumDetailPage: React.FC = () => {
                 alt={selectedImage?.alt || ''}
                 title={selectedImage?.alt}
                 onClose={() => setSelectedImage(null)}
+            />
+            <ConfirmDialog
+                isOpen={deleteConfirmDialog.isOpen}
+                title="Eliminar Imagen"
+                message="¿Estás seguro de que deseas eliminar esta imagen? Esta acción no se puede deshacer."
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                onConfirm={confirmDeleteImage}
+                onCancel={cancelDeleteImage}
+                type="danger"
             />
         </>
     );
