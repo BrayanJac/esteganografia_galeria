@@ -9,6 +9,7 @@ export const RegisterForm: React.FC = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     // Use shared helper for consistent validation
@@ -16,6 +17,7 @@ export const RegisterForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
 
         if (!isValidEmail(email.trim())) {
             setError('Ingresa un correo válido, por ejemplo usuario@dominio.com');
@@ -35,8 +37,13 @@ export const RegisterForm: React.FC = () => {
         setLoading(true);
 
         try {
-            await api.register(username, email, password);
-            navigate('/login', { state: { message: 'Registro exitoso. Por favor inicia sesión' } });
+            const response = await api.register(username, email, password);
+            const successMessage = response.data?.mensaje || 'Usuario registrado exitosamente';
+            setSuccess(successMessage);
+
+            setTimeout(() => {
+                navigate('/login', { state: { message: `${successMessage}. Por favor inicia sesión` } });
+            }, 2200);
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Error al registrarse');
         } finally {
@@ -46,6 +53,12 @@ export const RegisterForm: React.FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            {success && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                    {success}
+                </div>
+            )}
+
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                     {error}
