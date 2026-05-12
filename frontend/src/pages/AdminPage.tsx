@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 import { Navbar } from '@components/Navbar';
 import { ImageLightbox } from '@components/ImageLightbox';
 import { AlbumDetailsModal } from '@components/AlbumDetailsModal';
+import { MetadataModal } from '@components/MetadataModal';
 import { useAuth } from '@hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApproveAlbum, useDeleteAlbum, usePendingAlbums, useQuarantinedImages, useReviewedAlbums, useReviewImage } from '@hooks/useGallery';
-import { CheckCircle, Loader, Trash2, XCircle, ShieldAlert } from 'lucide-react';
+import { CheckCircle, Loader, Trash2, XCircle, ShieldAlert, Eye } from 'lucide-react';
 import api from '@services/api';
 
 const getLastComment = (commentString: string | null | undefined): string | null => {
@@ -31,6 +32,7 @@ export const AdminPage: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; title?: string } | null>(null);
     const [expandedAnalysisImageId, setExpandedAnalysisImageId] = useState<number | null>(null);
     const [selectedAlbum, setSelectedAlbum] = useState<any | null>(null);
+    const [selectedMetadataImage, setSelectedMetadataImage] = useState<any | null>(null);
 
     useEffect(() => {
         const tab = new URLSearchParams(location.search).get('tab');
@@ -498,13 +500,23 @@ export const AdminPage: React.FC = () => {
                                                     )}
 
                                                     <div className="rounded-md border border-red-200 bg-white p-3 text-sm text-gray-700">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setExpandedAnalysisImageId((currentId) => currentId === image.id ? null : image.id)}
-                                                            className="font-medium text-primary-600 hover:text-primary-700"
-                                                        >
-                                                            {expandedAnalysisImageId === image.id ? 'Ocultar metadatos técnicos' : 'Ver metadatos técnicos'}
-                                                        </button>
+                                                        <div className="space-y-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setSelectedMetadataImage(image)}
+                                                                className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md font-medium flex items-center justify-center gap-2 transition-colors border border-blue-200"
+                                                            >
+                                                                <Eye size={16} />
+                                                                Ver metadatos mejorados
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setExpandedAnalysisImageId((currentId) => currentId === image.id ? null : image.id)}
+                                                                className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-2 rounded-md font-medium transition-colors border border-gray-200"
+                                                            >
+                                                                {expandedAnalysisImageId === image.id ? 'Ocultar metadatos técnicos' : 'Ver metadatos técnicos (JSON)'}
+                                                            </button>
+                                                        </div>
 
                                                         {expandedAnalysisImageId === image.id && (
                                                             <div className="mt-3 space-y-3">
@@ -598,6 +610,11 @@ export const AdminPage: React.FC = () => {
                 alt={selectedImage?.alt || ''}
                 title={selectedImage?.title}
                 onClose={() => setSelectedImage(null)}
+            />
+            <MetadataModal
+                isOpen={!!selectedMetadataImage}
+                onClose={() => setSelectedMetadataImage(null)}
+                image={selectedMetadataImage}
             />
         </>
     );
