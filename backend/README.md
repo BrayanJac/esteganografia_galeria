@@ -1,25 +1,25 @@
-# 🔒 SecureGallery Backend
+# SecureGallery Backend
 
 API REST segura con FastAPI para gestión de galerías multimedia y detección avanzada de esteganografía.
 
-## 🚀 Características
+## Características
 
-✅ **Autenticación Segura** - JWT + Argon2 hashing con prevención de brute force  
-✅ **Detección de Esteganografía** - 4 algoritmos: LSB, Histogram, EOF, Frequency Domain  
-✅ **Gestión de Álbumes** - Flujo de aprobación con supervisores  
-✅ **Sistema de Cuarentena** - Aislamiento automático de imágenes sospechosas  
-✅ **Control de Roles** - Usuario, Supervisor, Admin con permisos granulares  
-✅ **Rate Limiting** - Protección contra ataques por fuerza bruta  
-✅ **Auditoría Completa** - Logging de eventos y trazabilidad  
-✅ **Documentación API** - Swagger/OpenAPI interactivo  
+- Autenticación Segura - JWT + Argon2 hashing con prevención de brute force  
+- Detección de Esteganografía - 4 algoritmos: LSB, Histogram, EOF, Frequency Domain  
+- Gestión de Álbumes - Flujo de aprobación con supervisores  
+- Sistema de Cuarentena - Aislamiento automático de imágenes sospechosas  
+- Control de Roles - Usuario, Supervisor, Admin con permisos granulares  
+- Rate Limiting - Protección contra ataques por fuerza bruta  
+- Auditoría Completa - Logging de eventos y trazabilidad  
+- Documentación API - Swagger/OpenAPI interactivo  
 
-## 📋 Requisitos
+## Requisitos
 
 - Python 3.14+
 - SQLite (incluido) o PostgreSQL (producción)
 - pip (gestor de paquetes Python)
 
-## 🛠️ Instalación
+## Instalación
 
 ### 1. Clonar y Navegar
 ```bash
@@ -86,7 +86,7 @@ python main.py
 
 ✅ Backend disponible en `http://localhost:8000`
 
-## 📚 Documentación API
+## Documentación API
 
 Una vez iniciada la aplicación, accede a:
 
@@ -94,7 +94,7 @@ Una vez iniciada la aplicación, accede a:
 - **ReDoc (Alternativo):** `http://localhost:8000/redoc`
 - **OpenAPI JSON Schema:** `http://localhost:8000/openapi.json`
 
-## 🔑 Autenticación
+## Autenticación
 
 ### JWT Tokens
 ```python
@@ -123,7 +123,7 @@ Authorization: Bearer <token>
 - ✅ Número obligatorio (0-9)
 - ✅ Carácter especial obligatorio (!@#$%^&*)
 
-## 🎭 Detección de Esteganografía
+## Detección de Esteganografía
 
 ### 4 Algoritmos Complementarios
 
@@ -169,7 +169,7 @@ Resultado:
 - overall_score < threshold → CLEAN
 ```
 
-## 🔐 Seguridad Implementada
+## Seguridad Implementada
 
 ### Autenticación
 - ✅ JWT con expiración (30 minutos)
@@ -195,20 +195,20 @@ Resultado:
 - ✅ Trazabilidad de acciones por usuario
 - ✅ Identificación de patrones sospechosos
 
-## 📂 Estructura de Carpetas
+## Estructura de Carpetas
 
 ```
 backend/
-├── main.py                    # 🚀 Punto de entrada
+├── main.py                    # Punto de entrada
 ├── requirements.txt           # Dependencias
 ├── .env                       # Configuración local
 ├── config/
 │   └── config.py             # Variables de configuración
 ├── database/
 │   ├── database.py           # Conexión SQLAlchemy
-│   ├── models.py             # 🗂️ Modelos ORM
+│   ├── models.py             # Modelos ORM
 │   └── init_db.py            # Inicializador BD
-├── routers/                   # 🔗 Endpoints API
+├── routers/                   # Endpoints API
 │   ├── auth_router.py        # Login, Register, JWT
 │   ├── album_router.py       # CRUD Álbumes
 │   ├── image_router.py       # Upload, Análisis
@@ -220,18 +220,18 @@ backend/
 │   ├── image_service.py
 │   ├── gallery_service.py
 │   └── admin_service.py
-├── schemas/                   # ✔️ Validación Pydantic
+├── schemas/                   # Validación Pydantic
 │   ├── auth_schemas.py
 │   ├── album_schemas.py
 │   └── image_schemas.py
-├── security/                  # 🔐 Autenticación & Análisis
+├── security/                  # Autenticación # 🔐 Autenticación & Análisis Análisis
 │   ├── auth.py               # JWT, hashing
-│   ├── steganography.py      # 🎭 Detección esteganografía
+│   ├── steganography.py      # Detección esteganografía
 │   └── middleware.py         # CORS, Rate Limiting
 └── uploads/                   # 📁 Almacenamiento imágenes
 ```
 
-## 🎯 Endpoints Principales
+## Endpoints Principales
 
 ### Autenticación
 ```
@@ -297,7 +297,7 @@ curl -X POST http://localhost:8000/api/auth/login \
   }'
 ```
 
-## 📦 Dependencias Principales
+## Dependencias Principales
 
 ```
 fastapi==0.104.1              # Framework web
@@ -315,7 +315,7 @@ scipy==1.11.3                 # Análisis científico
 python-dotenv==1.0.0          # Configuración
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Producción con Gunicorn
 ```bash
@@ -442,7 +442,7 @@ Eliminar un álbum (Solo ADMIN).
 
 ---
 
-### 🖼️ Imágenes (`/api/images`)
+### Imágenes (`/api/images`)
 
 #### `POST /api/images/upload`
 Subir una imagen a un álbum.
@@ -469,7 +469,7 @@ Eliminar una imagen (propietario de la imagen).
 
 ---
 
-### 📊 Panel Administrativo (`/api/admin`) ⭐
+### Panel Administrativo (`/api/admin`) ⭐
 
 #### `GET /api/admin/stats`
 Obtener estadísticas generales del sistema (Solo ADMIN).
@@ -531,7 +531,7 @@ Servir archivos de imagen estáticos.
 
 ---
 
-### 🔍 Sistema
+### Sistema
 
 #### `GET /health`
 Verificar el estado de la API y la conexión a la base de datos.
@@ -549,7 +549,7 @@ Obtener lista de tablas de la base de datos (endpoint interno).
 
 ---
 
-## 🛡️ Roles de Usuario
+## Roles de Usuario
 
 - **USER**: Usuario básico, puede crear álbumes y subir imágenes
 - **SUPERVISOR**: Puede revisar imágenes y álbumes en cuarentena
@@ -557,7 +557,7 @@ Obtener lista de tablas de la base de datos (endpoint interno).
 
 ⭐ = Requiere rol elevado (SUPERVISOR o ADMIN)
 
-## 🛡️ Seguridad
+## Seguridad
 
 ### Detección de Esteganografía
 El sistema implementa tres técnicas de análisis automáticas:
@@ -658,7 +658,7 @@ curl -X POST "http://localhost:8000/api/images/upload" \
   -F "file=@/ruta/a/tu/imagen.jpg"
 ```
 
-##  🔍 Monitoreo y Logs
+## Monitoreo y Logs
 
 La aplicación incluye logging automático de:
 - **Eventos de seguridad**: Accesos, cambios de rol, etc.
@@ -683,7 +683,7 @@ La API devuelve respuestas HTTP consistentes:
 - `500` - Error interno del servidor
 
 #
-## 🚀 Gestión de Base de Datos
+## Gestión de Base de Datos
 
 ### Crear o Regenerar Tablas
 El proyecto utiliza SQLAlchemy para la gestión de tablas.
@@ -702,7 +702,7 @@ Para cambios en el esquema de base de datos:
 2. Ejecutar el script de inicialización
 3. **ADVERTENCIA**: Esto puede perder datos existentes
 
-## 🔧 Configuración Avanzada
+## Configuración Avanzada
 
 ### Rate Limiting Personalizado
 Los límites se configuran en los decoradores `@limiter.limit()` de cada endpoint:
@@ -720,7 +720,7 @@ Configurado en el servicio de imágenes (por defecto: 10MB)
 
 ## ✨ Cambios Recientes (Mayo 2026)
 
-### 📊 Panel Administrativo "Estado" - Totalmente Interactivo
+### Panel Administrativo "Estado" - Totalmente Interactivo
 Se ha implementado un panel administrativo completo en el frontend con capacidad de **drill-down interactivo**:
 
 - **Tiles Clickables**: Usuarios, Supervisores, Ingresos (ingress), Salidas (egress), Álbumes
@@ -735,7 +735,7 @@ Se ha implementado un panel administrativo completo en el frontend con capacidad
 - `GET /api/admin/events?direction={ingress|egress}` - Eventos separados por rol
 - `GET /api/admin/users/{user_id}/activity` - Actividad por usuario
 
-### ⌨️ Envío de Comentarios con Enter
+### Envío de Comentarios con Enter
 Se ha mejorado la experiencia de usuario en el panel administrativo:
 
 - **Álbumes Pendientes**: Presionar Enter en el campo de comentarios envía el comentario automáticamente

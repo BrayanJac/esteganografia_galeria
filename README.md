@@ -1,4 +1,4 @@
-# 🖼️ SecureGallery - Galería Multimedia Segura
+# SecureGallery - Galería Multimedia Segura
 
 Una aplicación web completa y segura para gestionar galerías de imágenes con **detección avanzada de esteganografía**, **autenticación robusta** y **sistema de roles granular**.
 
@@ -28,14 +28,14 @@ Una aplicación web completa y segura para gestionar galerías de imágenes con 
 
 ### Características Principales
 
-✅ **Gestión de Galerías** - Crear, editar, compartir y organizar álbumes de fotos  
-✅ **Autenticación Segura** - JWT + Argon2 hashing con prevención de brute force  
-✅ **Detección de Esteganografía** - 4 algoritmos complementarios (LSB, Histogram, EOF, FFT/DCT)  
-✅ **Sistema de Cuarentena** - Aislamiento automático de imágenes sospechosas  
-✅ **Control de Acceso** - Roles: Usuario, Supervisor, Admin  
-✅ **Auditoría de Seguridad** - Logging de eventos y intentos de acceso  
-✅ **Rate Limiting** - Protección contra ataques por fuerza bruta  
-✅ **Galería Pública** - Compartir álbumes públicos de forma segura  
+GESTIONAMIENTO DE GALERÍAS - Crear, editar, compartir y organizar álbumes de fotos  
+AUTENTICACIÓN SEGURA - JWT + Argon2 hashing con prevención de brute force  
+DETECCIÓN DE ESTEGANOGRAFÍA - 4 algoritmos complementarios (LSB, Histogram, EOF, FFT/DCT)  
+SISTEMA DE CUARENTENA - Aislamiento automático de imágenes sospechosas  
+CONTROL DE ACCESO - Roles: Usuario, Supervisor, Admin  
+AUDITORÍA DE SEGURIDAD - Logging de eventos y intentos de acceso  
+RATE LIMITING - Protección contra ataques por fuerza bruta  
+GALERÍA PÚBLICA - Compartir álbumes públicos de forma segura  
 
 ### ¿Qué es la Esteganografía?
 
@@ -54,7 +54,7 @@ La **esteganografía** es la técnica de ocultar información dentro de otros ar
 
 ---
 
-## 🛠️ Tecnología Stack
+## Tecnología Stack
 
 ### Backend
 | Componente | Tecnología | Versión |
@@ -223,7 +223,7 @@ Abre tu navegador en: `http://localhost:5173`
 
 ---
 
-## ✨ Primeros Pasos
+## Primeros Pasos
 
 ### 1. Registrarse
 
@@ -257,224 +257,224 @@ Abre tu navegador en: `http://localhost:5173`
 - Click en **"Subir Imagen"**
 - Selecciona archivo (máx 10MB)
 - Espera análisis
-- Resultado: ✅ **Limpia** o ⚠️ **Sospechosa**
+- Resultado: LIMPIA o SOSPECHOSA
 
 Si es sospechosa → pasa a cuarentena para revisión de supervisor
 
 ---
 
-## 🏗️ Arquitectura Detallada
+## Arquitectura Detallada
 
 ### Estructura Completa del Proyecto
 
 ```
 esteganografia_galeria/
 │
-├── backend/                               [🐍 FastAPI REST API]
-│   ├── main.py                            ⭐ Punto de entrada
-│   ├── requirements.txt                   📦 Dependencias Python
-│   ├── .env                               🔐 Configuración
+├── backend/                               (FastAPI REST API)
+│   ├── main.py                            Punto de entrada
+│   ├── requirements.txt                   Dependencias Python
+│   ├── .env                               Configuración
 │   │
 │   ├── config/
-│   │   └── config.py                      ⚙️ Variables de configuración
+│   │   └── config.py                      Variables de configuración
 │   │
 │   ├── database/
-│   │   ├── database.py                    🔌 Conexión SQLAlchemy
-│   │   ├── models.py                      📊 Modelos ORM
-│   │   └── init_db.py                     🗄️ Inicialización BD
+│   │   ├── database.py                    Conexión SQLAlchemy
+│   │   ├── models.py                      Modelos ORM
+│   │   └── init_db.py                     Inicialización BD
 │   │
 │   ├── routers/
-│   │   ├── auth_router.py                 🔑 Endpoints: Registro/Login
-│   │   ├── album_router.py                📁 Endpoints: Álbumes
-│   │   ├── image_router.py                🖼️ Endpoints: Subir/Analizar
-│   │   └── gallery_router.py              🎞️ Endpoints: Galería pública
+│   │   ├── auth_router.py                 Endpoints: Registro/Login
+│   │   ├── album_router.py                Endpoints: Álbumes
+│   │   ├── image_router.py                Endpoints: Subir/Analizar
+│   │   └── gallery_router.py              Endpoints: Galería pública
 │   │
 │   ├── services/
-│   │   ├── auth_service.py                🛡️ Lógica autenticación
-│   │   ├── album_service.py               💼 Lógica álbumes
-│   │   ├── image_service.py               🔍 Lógica imágenes
-│   │   └── gallery_service.py             📸 Lógica galería
+│   │   ├── auth_service.py                Lógica autenticación
+│   │   ├── album_service.py               Lógica álbumes
+│   │   ├── image_service.py               Lógica imágenes
+│   │   └── gallery_service.py             Lógica galería
 │   │
 │   ├── security/
-│   │   ├── auth.py                        🔐 JWT + Hashing
-│   │   ├── middleware.py                  🛡️ CORS + Headers + Rate Limit
-│   │   └── steganography.py               🔎 4 algoritmos detección
+│   │   ├── auth.py                        JWT + Hashing
+│   │   ├── middleware.py                  CORS + Headers + Rate Limit
+│   │   └── steganography.py               4 algoritmos detección
 │   │
-│   ├── uploads/                           📁 Imágenes almacenadas
-│   └── test.db                            🗄️ Base de datos SQLite
+│   ├── uploads/                           Imágenes almacenadas
+│   └── test.db                            Base de datos SQLite
 │
-├── frontend/                              [⚛️ React + TypeScript]
+├── frontend/                              (React + TypeScript)
 │   ├── src/
-│   │   ├── components/                    🧩 Componentes React
-│   │   │   ├── Navbar.tsx                 🎬 Barra de navegación
-│   │   │   ├── LoginForm.tsx              📝 Formulario login
-│   │   │   ├── AlbumModal.tsx             🎨 Modal crear álbum
-│   │   │   ├── ImageLightbox.tsx          🎞️ Visor de imágenes
-│   │   │   └── ProtectedRoute.tsx         🔐 Rutas protegidas
+│   │   ├── components/                    Componentes React
+│   │   │   ├── Navbar.tsx                 Barra de navegación
+│   │   │   ├── LoginForm.tsx              Formulario login
+│   │   │   ├── AlbumModal.tsx             Modal crear álbum
+│   │   │   ├── ImageLightbox.tsx          Visor de imágenes
+│   │   │   └── ProtectedRoute.tsx         Rutas protegidas
 │   │   │
-│   │   ├── pages/                         📄 Páginas principales
-│   │   │   ├── HomePage.tsx               🏠 Página inicio
-│   │   │   ├── LoginPage.tsx              🔑 Página login
-│   │   │   ├── GalleryPage.tsx            🎞️ Mi galería
-│   │   │   ├── AlbumDetailPage.tsx        📁 Detalle álbum
-│   │   │   └── AdminPage.tsx              🛠️ Panel admin
+│   │   ├── pages/                         Páginas principales
+│   │   │   ├── HomePage.tsx               Página inicio
+│   │   │   ├── LoginPage.tsx              Página login
+│   │   │   ├── GalleryPage.tsx            Mi galería
+│   │   │   ├── AlbumDetailPage.tsx        Detalle álbum
+│   │   │   └── AdminPage.tsx              Panel admin
 │   │   │
 │   │   ├── services/
-│   │   │   └── api.ts                     🔗 Cliente HTTP (Axios)
+│   │   │   └── api.ts                     Cliente HTTP (Axios)
 │   │   │
 │   │   ├── hooks/
-│   │   │   ├── useAuth.ts                 🔐 Hook autenticación
-│   │   │   ├── useGallery.ts              🎨 Hook galería
-│   │   │   └── useUser.ts                 👤 Hook usuario
+│   │   │   ├── useAuth.ts                 Hook autenticación
+│   │   │   ├── useGallery.ts              Hook galería
+│   │   │   └── useUser.ts                 Hook usuario
 │   │   │
 │   │   ├── store/
-│   │   │   └── authStore.ts               🏪 Estado global (Zustand)
+│   │   │   └── authStore.ts               Estado global (Zustand)
 │   │   │
 │   │   ├── types/
-│   │   │   └── index.ts                   📘 Tipos TypeScript
+│   │   │   └── index.ts                   Tipos TypeScript
 │   │   │
 │   │   ├── utils/
-│   │   │   └── helpers.ts                 🧰 Funciones auxiliares
+│   │   │   └── helpers.ts                 Funciones auxiliares
 │   │   │
-│   │   ├── App.tsx                        🎯 Componente raíz
-│   │   ├── main.tsx                       ⚡ Punto entrada Vite
-│   │   └── index.css                      🎨 Tailwind CSS
+│   │   ├── App.tsx                        Componente raíz
+│   │   ├── main.tsx                       Punto entrada Vite
+│   │   └── index.css                      Tailwind CSS
 │   │
-│   ├── package.json                       📦 Dependencias Node
-│   ├── tsconfig.json                      ⚙️ Config TypeScript
-│   ├── vite.config.ts                     ⚙️ Config Vite
-│   ├── tailwind.config.js                 🎨 Config Tailwind
-│   ├── postcss.config.js                  🎨 Config PostCSS
-│   └── .env                               🔐 Variables entorno
+│   ├── package.json                       Dependencias Node
+│   ├── tsconfig.json                      Config TypeScript
+│   ├── vite.config.ts                     Config Vite
+│   ├── tailwind.config.js                 Config Tailwind
+│   ├── postcss.config.js                  Config PostCSS
+│   └── .env                               Variables entorno
 │
-├── README.md                              📖 Este archivo
-├── QUICKSTART.md                          ⚡ Inicio rápido
-├── API_ADMIN_REFERENCE.md                 📚 Referencia API
-├── PROJECT_STATUS.md                      📊 Estado proyecto
-├── FEATURES.md                            ✨ Características
-├── CHANGELOG.md                           📝 Historial versiones
-└── .git/                                  🔄 Control de versiones
+├── README.md                              Este archivo
+├── QUICKSTART.md                          Inicio rápido
+├── API_ADMIN_REFERENCE.md                 Referencia API
+├── PROJECT_STATUS.md                      Estado proyecto
+├── FEATURES.md                            Características
+├── CHANGELOG.md                           Historial versiones
+└── .git/                                  Control de versiones
 ```
 
 ### Flujo de Datos
 
 ```
 USUARIO
-  ↓
+  |
 [Frontend - React]
-  ├─→ Componentes UI (React)
-  ├─→ Validación local
-  ├─→ Zustand (Estado global)
-  └─→ Axios (HTTP Client)
-        ↓
+  |-- Componentes UI (React)
+  |-- Validación local
+  |-- Zustand (Estado global)
+  |-- Axios (HTTP Client)
+        |
   [Backend - FastAPI]
-    ├─→ Middleware (CORS, Rate Limit, Security)
-    ├─→ Router (Validación)
-    ├─→ Service (Lógica negocio)
-    ├─→ Database (SQLAlchemy ORM)
-    │   └─→ SQLite
-    └─→ Security (JWT, Hashing, Steganography)
-        ↓
+    |-- Middleware (CORS, Rate Limit, Security)
+    |-- Router (Validación)
+    |-- Service (Lógica negocio)
+    |-- Database (SQLAlchemy ORM)
+    |   |-- SQLite
+    |-- Security (JWT, Hashing, Steganography)
+        |
     [Response con estado]
-        ↓
+        |
   [Frontend - Actualiza UI]
-    └─→ Usuario ve resultado
+    |-- Usuario ve resultado
 ```
 
 ### Ciclo de Vida: Subida de Imagen
 
 ```
-1️⃣ Usuario selecciona imagen
-   ├─ Frontend valida: ¿Max 10MB?
-   └─ ¿Formato válido?
+1. Usuario selecciona imagen
+   - Frontend valida: ¿Max 10MB?
+   - ¿Formato válido?
 
-2️⃣ Frontend envía POST /api/images/upload
-   ├─ Headers: Authorization: Bearer {JWT}
-   ├─ Body: FormData con imagen
+2. Frontend envía POST /api/images/upload
+   - Headers: Authorization: Bearer {JWT}
+   - Body: FormData con imagen
 
-3️⃣ Backend recibe en image_router.py
-   ├─ Middleware valida: ¿Token válido?
-   ├─ ¿IP dentro de rate limit?
-   └─ Service guarda archivo en uploads/
+3. Backend recibe en image_router.py
+   - Middleware valida: ¿Token válido?
+   - ¿IP dentro de rate limit?
+   - Service guarda archivo en uploads/
 
-4️⃣ Backend ejecuta steganography.py
-   ├─ Algoritmo 1: LSB Analysis (25%)
-   ├─ Algoritmo 2: Histogram (20%)
-   ├─ Algoritmo 3: EOF Detection (15%)
-   └─ Algoritmo 4: Frequency Domain (40%)
+4. Backend ejecuta steganography.py
+   - Algoritmo 1: LSB Analysis (25%)
+   - Algoritmo 2: Histogram (20%)
+   - Algoritmo 3: EOF Detection (15%)
+   - Algoritmo 4: Frequency Domain (40%)
 
-5️⃣ Backend calcula score
-   ├─ score < 0.4 → CLEAN ✅
-   └─ score > 0.4 → QUARANTINE ⚠️
+5. Backend calcula score
+   - score < 0.4 - CLEAN (SEGURA)
+   - score > 0.4 - QUARANTINE (CUARENTENA)
 
-6️⃣ Backend guarda en Base de Datos
-   ├─ Image: metadata, filename, owner
-   ├─ ImageMetadata: análisis, score
-   └─ SecurityLog: auditoria
+6. Backend guarda en Base de Datos
+   - Image: metadata, filename, owner
+   - ImageMetadata: análisis, score
+   - SecurityLog: auditoria
 
-7️⃣ Frontend recibe respuesta
-   ├─ Actualiza UI
-   └─ Muestra estado: ✅ o ⚠️
+7. Frontend recibe respuesta
+   - Actualiza UI
+   - Muestra estado: LIMPIA o SOSPECHOSA
 ```
 
 ---
 
-## 🔐 Seguridad Implementada (8 Capas)
+## Seguridad Implementada (8 Capas)
 
 ### Capa 1: Autenticación
-- ✅ JWT con expiración 30 minutos
-- ✅ Argon2 para hashing de contraseñas (GPU-resistant)
-- ✅ Contraseñas validadas: 12+ chars, mayús, minús, número, símbolo
-- ✅ Token en localStorage (frontend)
+- JWT con expiración 30 minutos
+- Argon2 para hashing de contraseñas (GPU-resistant)
+- Contraseñas validadas: 12+ chars, mayús, minús, número, símbolo
+- Token en localStorage (frontend)
 
 ### Capa 2: Autorización
-- ✅ Roles: Usuario, Supervisor, Admin
-- ✅ Endpoints protegidos por get_current_user()
-- ✅ Validación granular por endpoint
-- ✅ Album owner check antes de editar
+- Roles: Usuario, Supervisor, Admin
+- Endpoints protegidos por get_current_user()
+- Validación granular por endpoint
+- Album owner check antes de editar
 
 ### Capa 3: Rate Limiting
-- ✅ SlowAPI: 100 req/min por IP por defecto
-- ✅ Login: 5 intentos / 15 minutos
-- ✅ Upload: 10 imágenes / hora
-- ✅ Bloqueo temporal después de límite
+- SlowAPI: 100 req/min por IP por defecto
+- Login: 5 intentos / 15 minutos
+- Upload: 10 imágenes / hora
+- Bloqueo temporal después de límite
 
 ### Capa 4: CORS & Headers
-- ✅ CORS: Solo localhost:5173 en desarrollo
-- ✅ X-Frame-Options: DENY (anti-clickjacking)
-- ✅ X-Content-Type-Options: nosniff
-- ✅ Strict-Transport-Security (HTTPS en producción)
-- ✅ Content-Security-Policy
+- CORS: Solo localhost:5173 en desarrollo
+- X-Frame-Options: DENY (anti-clickjacking)
+- X-Content-Type-Options: nosniff
+- Strict-Transport-Security (HTTPS en producción)
+- Content-Security-Policy
 
 ### Capa 5: Input Validation
-- ✅ Validación de tipos en todos los endpoints
-- ✅ Sanitización de strings
-- ✅ File type checking (magic bytes)
-- ✅ Size limits (10MB por imagen)
-- ✅ Pydantic models para validación automática
+- Validación de tipos en todos los endpoints
+- Sanitización de strings
+- File type checking (magic bytes)
+- Size limits (10MB por imagen)
+- Pydantic models para validación automática
 
 ### Capa 6: SQL Injection Prevention
-- ✅ SQLAlchemy ORM (prepared statements)
-- ✅ Parametrized queries
-- ✅ No SQL raw strings interpoladas
-- ✅ Type-safe queries
+- SQLAlchemy ORM (prepared statements)
+- Parametrized queries
+- No SQL raw strings interpoladas
+- Type-safe queries
 
 ### Capa 7: Detection & Logging
-- ✅ SecurityLog table para auditoria
-- ✅ Detección de patrones maliciosos:
+- SecurityLog table para auditoria
+- Detección de patrones maliciosos:
   - SQL injection attempts
   - XSS payloads
   - Path traversal
   - Common attack tools
-- ✅ IP logging en intentos fallidos
+- IP logging en intentos fallidos
 
 ### Capa 8: Steganography Detection
-- ✅ LSB (Least Significant Bit) Analysis
-- ✅ Histogram Discontinuity Detection
-- ✅ EOF (End-of-File) Analysis
-- ✅ Frequency Domain Analysis (FFT/DCT)
-- ✅ Weighted scoring system
-- ✅ Automatic quarantine > 0.4 score
+- LSB (Least Significant Bit) Analysis
+- Histogram Discontinuity Detection
+- EOF (End-of-File) Analysis
+- Frequency Domain Analysis (FFT/DCT)
+- Weighted scoring system
+- Automatic quarantine > 0.4 score
 
 ---
 
@@ -530,7 +530,7 @@ npm run lint
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### "Error conectando a la base de datos"
 ```bash
@@ -567,7 +567,7 @@ VITE_API_URL=http://localhost:8000/api
 
 ---
 
-## ❓ Preguntas Frecuentes
+## Preguntas Frecuentes
 
 **¿Cuántas imágenes puedo subir?**
 - Límite de 10MB por imagen (configurable en `.env`)
@@ -598,7 +598,7 @@ VITE_API_URL=http://localhost:8000/api
 
 ---
 
-## 📚 Documentación Adicional
+## Documentación Adicional
 
 - **[QUICKSTART.md](QUICKSTART.md)** - Guía de inicio rápido (5 minutos)
 - **[API_ADMIN_REFERENCE.md](API_ADMIN_REFERENCE.md)** - Referencia endpoints administrativos
@@ -610,22 +610,22 @@ VITE_API_URL=http://localhost:8000/api
 
 ---
 
-## 🎓 Propósito Educativo
+## Propósito Educativo
 
-Este proyecto fue desarrollado con **fines educativos** para aprender:
+Este proyecto fue desarrollado con fines educativos para aprender:
 
-✅ Desarrollo Full Stack (Python + React)  
-✅ Autenticación y Autorización JWT  
-✅ Procesamiento y análisis de imágenes  
-✅ Algoritmos criptográficos y detección  
-✅ Diseño de APIs REST seguras  
-✅ Gestión de bases de datos  
-✅ Buenas prácticas de seguridad  
-✅ Arquitectura de aplicaciones web  
+- Desarrollo Full Stack (Python + React)
+- Autenticación y Autorización JWT
+- Procesamiento y análisis de imágenes
+- Algoritmos criptográficos y detección
+- Diseño de APIs REST seguras
+- Gestión de bases de datos
+- Buenas prácticas de seguridad
+- Arquitectura de aplicaciones web  
 
 ---
 
-## 🤝 Contribuciones
+## Contribuciones
 
 Las contribuciones son bienvenidas. Para cambios significativos:
 
@@ -637,13 +637,13 @@ Las contribuciones son bienvenidas. Para cambios significativos:
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto está bajo licencia MIT. Ver archivo [LICENSE](LICENSE) para detalles.
 
 ---
 
-## 📞 Contacto & Soporte
+## Contacto & Soporte
 
 - **Reportar Bugs:** Abre un [issue en GitHub](https://github.com/BrayanJac/esteganografia_galeria/issues)
 - **Sugerencias:** Discusiones en GitHub
@@ -651,7 +651,7 @@ Este proyecto está bajo licencia MIT. Ver archivo [LICENSE](LICENSE) para detal
 
 ---
 
-## 🙏 Agradecimientos
+## Agradecimientos
 
 Gracias a todos los contribuyentes y usuarios de esta plataforma.
 
@@ -661,8 +661,8 @@ Gracias a todos los contribuyentes y usuarios de esta plataforma.
 
 **Versión:** 1.0.0
 
-**Estado:** ✅ Producción
+**Estado:** Producción
 
 ---
 
-¡Disfruta usando **SecureGallery**! 🎉
+¡Disfruta usando SecureGallery!

@@ -1,26 +1,26 @@
-# ⚛️ SecureGallery Frontend
+# SecureGallery Frontend
 
 Interfaz moderna de React para galería segura con detección de esteganografía.
 
-## 🚀 Características
+## Características
 
-⚡ **Vite** - Bundler ultra rápido con hot module replacement  
-⚛️ **React 18** - Interfaz moderna y reactiva  
-📘 **TypeScript** - Type safety completo  
-🎨 **Tailwind CSS** - Estilos utilitarios responsivos  
-🔐 **JWT Authentication** - Sistema seguro de autenticación  
-🔄 **React Query** - Gestión de estado del servidor  
-🎯 **React Router** - Enrutamiento moderna  
-📦 **Zustand** - State management ligero  
-🚀 **Vite Proxy** - Desarrollo sin problemas CORS  
+- **Vite** - Bundler ultra rápido con hot module replacement  
+- **React 18** - Interfaz moderna y reactiva  
+- **TypeScript** - Type safety completo  
+- **Tailwind CSS** - Estilos utilitarios responsivos  
+- **JWT Authentication** - Sistema seguro de autenticación  
+- **React Query** - Gestión de estado del servidor  
+- **React Router** - Enrutamiento moderna  
+- **Zustand** - State management ligero  
+- **Vite Proxy** - Desarrollo sin problemas CORS  
 
-## 📋 Requisitos
+## Requisitos
 
 - Node.js 18+
 - npm 9+ o yarn
 - Backend corriendo en `http://localhost:8000`
 
-## 🛠️ Instalación
+## Instalación
 
 ### 1. Clonar y Navegar
 ```bash
@@ -52,7 +52,7 @@ npm run dev
 
 ✅ Frontend disponible en `http://localhost:5173`
 
-## 💻 Comandos Disponibles
+## Comandos Disponibles
 
 ### Desarrollo
 ```bash
@@ -104,7 +104,7 @@ src/
 │   ├── UsersPage.tsx          # Gestión usuarios
 │   └── StatusPage.tsx         # Dashboard estadísticas
 │
-├── services/                   # 🔗 Cliente HTTP
+├── services/                   # Cliente HTTP
 │   └── api.ts                 # Axios + interceptores JWT
 │
 ├── hooks/                      # 🪝 Custom React Hooks
@@ -112,21 +112,21 @@ src/
 │   ├── useGallery.ts          # Galerías e imágenes
 │   └── useUser.ts             # Gestión usuario
 │
-├── store/                      # 🏪 State Management (Zustand)
+├── store/                      # State Management (Zustand)
 │   └── authStore.ts           # Estado de autenticación
 │
-├── types/                      # 📘 TypeScript Types
+├── types/                      # TypeScript Types
 │   └── index.ts               # Interfaces compartidas
 │
-├── utils/                      # 🛠️ Utilidades
+├── utils/                      # Utilidades
 │   └── helpers.ts             # Funciones auxiliares
 │
 ├── App.tsx                     # 🌳 Componente raíz
-├── main.tsx                    # 🚀 Punto de entrada
-└── index.css                   # 🎨 Estilos globales
+├── main.tsx                    # Punto de entrada
+└── index.css                   # Estilos globales
 ```
 
-## 🔐 Autenticación
+## Autenticación
 
 El frontend implementa autenticación JWT:
 
@@ -166,7 +166,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 <GuestRoute path="/login" element={<LoginPage />} />
 ```
 
-## 🔗 Integración Backend
+## Integración Backend
 
 Configuración en `src/services/api.ts`:
 
@@ -219,7 +219,7 @@ GET    /gallery               # Galerías públicas
 GET    /gallery/{id}          # Imágenes galería pública
 ```
 
-## 🎨 Temas y Estilos
+## Temas y Estilos
 
 ### Tailwind CSS
 ```
@@ -235,7 +235,7 @@ GET    /gallery/{id}          # Imágenes galería pública
 // Documentación en: tailwindcss.com/docs/dark-mode
 ```
 
-## 📦 Dependencias Principales
+## Dependencias Principales
 
 ```json
 {
@@ -260,7 +260,7 @@ GET    /gallery/{id}          # Imágenes galería pública
 }
 ```
 
-## 🚀 Build para Producción
+## Build para Producción
 
 ### Compilar
 ```bash
@@ -279,7 +279,7 @@ npm run preview           # Previsualiza localmente
 # O deployment en servidor web (nginx, Apache, etc)
 ```
 
-## 🛠️ Desarrollo
+## Desarrollo
 
 ### Hot Module Replacement (HMR)
 Vite proporciona reload automático:
@@ -337,7 +337,7 @@ proxy: {
 - Gráficos de actividad
 - Análisis de seguridad
 
-## 🔄 State Management
+## State Management
 
 ### Zustand Auth Store
 ```typescript
@@ -400,7 +400,7 @@ Comportamiento: Redirige a /login automáticamente
 El interceptor detecta 401 y limpia token
 ```
 
-## 📚 Recursos
+## Recursos
 
 - [Vite Docs](https://vitejs.dev/)
 - [React Docs](https://react.dev/)
@@ -416,7 +416,7 @@ El interceptor detecta 401 y limpia token
 └── index.css           # Estilos globales
 ```
 
-## 🔐 Autenticación
+## Autenticación
 
 El frontend maneja la autenticación mediante:
 - **JWT tokens** almacenados en localStorage
@@ -424,7 +424,7 @@ El frontend maneja la autenticación mediante:
 - **Routes protegidas** que requieren autenticación
 - **Roles** para acceso basado en permisos (user, supervisor, admin)
 
-## 🔗 Integración con Backend
+## Integración con Backend
 
 El frontend se comunica con el backend FastAPI mediante:
 
@@ -457,15 +457,15 @@ PUT    /api/images/{id}/comment - Guardar comentario de imagen
 
 ## ✨ Cambios Recientes (Mayo 2026)
 
-### 📊 Panel Administrativo "Estado" - Totalmente Interactivo
+### Panel Administrativo "Estado" - Totalmente Interactivo
 Se ha implementado un panel administrativo completo con capacidad de **drill-down interactivo**:
 
 **Ubicación**: `pages/StatusPage.tsx`
 
 **Características**:
-- 🎯 **Tiles Clickables**: Usuarios, Supervisores, Ingresos (LOGIN), Salidas (LOGOUT), Álbumes
+- **Tiles Clickables**: Usuarios, Supervisores, Ingresos (LOGIN), Salidas (LOGOUT), Álbumes
 - 📋 **Modales de Detalle**: Cada tile abre un modal mostrando datos filtrados
-- 👥 **Separación por Rol**: Los eventos se separan automáticamente por rol (usuarios, supervisores, admins)
+- **Separación por Rol**: Los eventos se separan automáticamente por rol (usuarios, supervisores, admins)
 - 📅 **Última Actividad**: Se muestra el último acceso de cada usuario
 - 🌍 **Zona Horaria Ecuador**: Todas las fechas se convierten a `America/Guayaquil`
 
@@ -474,7 +474,7 @@ Se ha implementado un panel administrativo completo con capacidad de **drill-dow
 - Helper `formatDate(iso: string)` para conversión de zona horaria
 - Event grouping por rol en el modal de eventos
 
-### ⌨️ Envío Rápido de Comentarios
+### Envío Rápido de Comentarios
 Se ha mejorado la experiencia en el panel administrativo (AdminPage):
 
 **Funcionalidad**:
@@ -505,8 +505,8 @@ const formatDate = (iso: string) => {
 ```
 
 **Áreas Afectadas**:
-- 📊 StatusPage: Timestamps de usuarios, supervisores, eventos
-- 🛡️ AdminPage: Fechas en todas las pestañas (pendientes, revisados, cuarentena)
+- StatusPage: Timestamps de usuarios, supervisores, eventos
+- AdminPage: Fechas en todas las pestañas (pendientes, revisados, cuarentena)
 - 🏠 HomePage: Rotación de álbumes destacados
 - 📷 Gallery/Album Views: Fechas de imágenes y comentarios
 
@@ -516,10 +516,10 @@ La galería pública ahora muestra álbumes destacados con rotación automática
 **Ubicación**: `pages/HomePage.tsx`
 
 **Características**:
-- 🔄 Rotación cada 30 segundos (configurable)
+- Rotación cada 30 segundos (configurable)
 - ✨ Transición CSS con fade effect
-- 🖼️ Muestra imagen de portada del álbum
-- 🎨 Efecto hover con escala y gradiente
+- Muestra imagen de portada del álbum
+- Efecto hover con escala y gradiente
 
 **Implementación**:
 ```typescript
@@ -547,7 +547,7 @@ updateImageComment(imageId, comment)    // PUT /images/{imageId}/comment
 - Invalidación de cache después de actualizaciones
 - Manejo de errores con feedback al usuario
 
-### 🎨 Componentes Mejorados
+### Componentes Mejorados
 
 **AdminPage.tsx**:
 - Tres vistas: Pendientes, Revisados, Cuarentena
@@ -573,7 +573,7 @@ theme: {
 }
 ```
 
-## 📦 Dependencias Principales
+## Dependencias Principales
 
 - **react** - Librería de UI
 - **react-router-dom** - Enrutamiento
@@ -583,7 +583,7 @@ theme: {
 - **tailwindcss** - Framework CSS
 - **lucide-react** - Iconos SVG
 
-## 🚀 Despliegue
+## Despliegue
 
 ### Vercel (Recomendado)
 ```bash
@@ -603,7 +603,7 @@ npm run build
 # Sirve la carpeta `dist` con tu servidor web
 ```
 
-## 🔒 Variables de Entorno de Producción
+## Variables de Entorno de Producción
 
 ```env
 VITE_API_URL=https://tu-api-produccion.com/api
@@ -630,7 +630,7 @@ VITE_API_URL=https://tu-api-produccion.com/api
 - Asegúrate que el backend tenga acceso a la carpeta `uploads`
 - Verifica que la URL de la imagen sea correcta
 
-## 📚 Referencias
+## Referencias
 
 - [React Documentation](https://react.dev)
 - [Vite Documentation](https://vitejs.dev)
