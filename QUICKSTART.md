@@ -1,349 +1,187 @@
-# ⚡ Quick Start Guide
+# 🚀 Guía de Inicio Rápido - SecureGallery Frontend
 
-**Inicia el proyecto en 5 minutos** 🚀
+## 1️⃣ Requisitos Previos
 
----
+Asegúrate de tener instalado:
+- **Node.js** 16+ ([descargar](https://nodejs.org))
+- **npm** (incluido con Node.js)
+- **Backend corriendo** en `http://localhost:8000`
 
-## 📦 Requisitos Previos
+## 2️⃣ Instalación (5 minutos)
 
 ```bash
-# Verificar versiones
-node --version    # v16+
-python --version  # 3.8+
-git --version     # Cualquier versión
-```
-
-Si no tienes instalados, descarga desde:
-- [Node.js](https://nodejs.org/)
-- [Python](https://www.python.org/)
-
----
-
-## 🚀 Setup en 1-2-3
-
-### 1️⃣ Clonar Repositorio
-```bash
-git clone https://github.com/BrayanJac/esteganografia_galeria.git
-cd esteganografia_galeria
-```
-
-### 2️⃣ Backend Setup (Terminal 1)
-```bash
-cd backend
-python -m venv venv
-
-# macOS/Linux
-source venv/bin/activate
-
-# Windows
-venv\Scripts\activate
-
-pip install -r requirements.txt
-python main.py
-```
-
-✅ Backend listo en: `http://localhost:8000`
-
-### 3️⃣ Frontend Setup (Terminal 2)
-```bash
+# 1. Entra en la carpeta del frontend
 cd frontend
+
+# 2. Instala las dependencias
 npm install
+
+# 3. Copia el archivo de configuración
+cp .env.example .env
+
+# 4. Inicia el servidor de desarrollo
 npm run dev
 ```
 
-✅ Frontend listo en: `http://localhost:5173`
+## 3️⃣ Acceder a la Aplicación
 
----
-
-## 🔑 Test Credentials
-
-### Admin Account
+Abre tu navegador en:
 ```
-Username: admin
-Password: admin123
+http://localhost:5173
 ```
 
-### Supervisor Account
-```
-Username: supervisor
-Password: supervisor123
-```
+## 📱 Primeros Pasos
 
-### Regular User
-```
-Username: user
-Password: user123
-```
+### 1. Registrarse
+- Click en "Registrarse"
+- Completa el formulario (contraseña mínimo 12 caracteres)
+- Confirma que aceptas los términos
 
-> **Note**: Si no existen, usa el formulario de registro para crear nuevos usuarios.
+### 2. Iniciar Sesión
+- Usa las credenciales que acabas de crear
+- Serás redirigido a tu galería personal
 
----
+### 3. Crear un Álbum
+- Click en "Nuevo Álbum"
+- Dale un título y descripción
+- Marca como público o privado
+- Click en "Crear"
 
-## 📚 Primeros Pasos
+### 4. Subir Imágenes
+- En el álbum, click en "Subir imagen"
+- Selecciona las imágenes de tu computadora
+- Las imágenes se analizarán automáticamente
 
-### 1. Abrir la App
-- Abre [http://localhost:5173](http://localhost:5173) en tu navegador
+### 5. Revisar Análisis
+- Las imágenes mostrarán su estado:
+  - ✓ **Limpia** - Sin esteganografía
+  - ⚠️ **Cuarentena** - Esteganografía detectada
+  - 🔄 **Analizando** - En proceso
 
-### 2. Login
-- Click "Ingresar"
-- Usa credenciales de arriba
-- ✅ Autenticado
+## 🛠️ Comandos Útiles
 
-### 3. Como Usuario Normal
-- **Home**: Ver galería pública
-- **Mis Álbumes**: Crear/editar álbumes
-- **Subir Imagen**: Agregar fotos a un álbum
-- **Perfil**: Ver info personal
-
-### 4. Como Supervisor
-- **Panel**: Ver álbumes pendientes
-- **Cuarentena**: Ver imágenes sospechosas
-- **Revisar**: Click en álbum/imagen
-- **Comentar**: Escribir + Enter para guardar
-- **Aprobar**: Click Aprobar o Rechazar
-
-### 5. Como Administrador
-- **Todas las features de Supervisor**
-- **Estado**: Ver dashboard administrativo
-- **Usuarios**: Click en tiles para ver detalles
-- **Eventos**: Separados por ingreso/salida
-- **Actividad**: Ver qué hizo cada usuario
-
----
-
-## 🔧 Comandos Útiles
-
-### Backend
 ```bash
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Ejecutar servidor
-python main.py
-
-# Ver documentación API
-# Abre: http://localhost:8000/docs
-
-# Recrear base de datos
-python -m database.init_db
-```
-
-### Frontend
-```bash
-# Instalar dependencias
-npm install
-
-# Desarrollo
+# Desarrollo (con hot reload)
 npm run dev
 
 # Build para producción
 npm run build
 
-# Ver build (preview)
+# Ver build de producción localmente
 npm run preview
 
-# Linting
+# Verificar tipos TypeScript
+npm run type-check
+
+# Linter para detectar errores
 npm run lint
 ```
 
----
+## 🔧 Configuración
 
-## 📋 Archivos Importantes
-
-```
-esteganografia_galeria/
-├── README.md                 # Documentación principal
-├── CHANGELOG.md             # Historial de cambios
-├── FEATURES.md              # Lista de características
-├── PROJECT_STATUS.md        # Estado del proyecto
-├── API_ADMIN_REFERENCE.md   # Quick reference de admin API
-│
-├── backend/
-│   ├── main.py              # Punto de entrada
-│   ├── requirements.txt      # Dependencias Python
-│   ├── config/config.py      # Configuración
-│   └── README.md            # Docs backend
-│
-└── frontend/
-    ├── src/
-    │   ├── pages/
-    │   │   ├── StatusPage.tsx   # Admin Estado (nuevo)
-    │   │   └── AdminPage.tsx    # Supervisor panel
-    │   └── services/api.ts      # API client
-    ├── package.json             # Dependencias Node
-    └── README.md               # Docs frontend
+### Variables de Entorno (.env)
+```env
+# URL del backend (por defecto: http://localhost:8000/api)
+VITE_API_URL=http://localhost:8000/api
 ```
 
----
-
-## 🐛 Troubleshooting
-
-### Backend no inicia
-```bash
-# Verificar Python
-python --version
-
-# Activar venv correctamente
-source venv/bin/activate  # macOS/Linux
-# o
-venv\Scripts\activate  # Windows
-
-# Reinstalar dependencias
-pip install -r requirements.txt --upgrade
-
-# Ver puerto 8000 en uso
-lsof -i :8000  # macOS/Linux
-netstat -ano | findstr :8000  # Windows
+### Cambiar la URL del Backend
+Si tu backend está en otro puerto, edita `.env`:
+```env
+VITE_API_URL=http://localhost:8001/api  # ejemplo: puerto 8001
 ```
 
-### Frontend error "API connection failed"
-```bash
-# Verificar backend esté corriendo
-curl http://localhost:8000/health
+## 📁 Estructura Principal
 
-# Revisar VITE_API_URL en .env
-cat frontend/.env
-# Debe ser: VITE_API_URL=http://localhost:8000/api
+```
+frontend/
+├── src/
+│   ├── components/       # Componentes reutilizables
+│   ├── pages/           # Páginas principales
+│   ├── services/        # Comunicación con API
+│   ├── hooks/           # Lógica personalizada
+│   ├── store/           # Estado global
+│   └── types/           # Definiciones TypeScript
+├── index.html           # HTML principal
+├── package.json         # Dependencias
+└── vite.config.ts       # Configuración de Vite
 ```
 
-### Module not found errors
-```bash
-# Frontend
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
+## 🔗 Rutas Principales
 
-# Backend
-cd backend
-source venv/bin/activate  # o activate.bat en Windows
-pip install -r requirements.txt
-```
+| Ruta | Descripción | Requiere Login |
+|------|-------------|---|
+| `/` | Página de inicio | No |
+| `/login` | Iniciar sesión | No |
+| `/register` | Registrarse | No |
+| `/gallery` | Mi galería | ✅ |
+| `/album/:id` | Detalles del álbum | ✅ |
+| `/admin` | Panel admin | ✅ (Admin/Supervisor) |
 
-### Puerto ya en uso
-```bash
-# Cambiar puerto backend
-# En backend/main.py cambiar:
-# uvicorn.run(..., port=8001)
+## 🐛 Problemas Comunes
 
-# Cambiar puerto frontend
-# npm run dev -- --port 5174
-```
+### "Cannot GET /api/..."
+❌ **Problema:** El backend no está corriendo
+✅ **Solución:** Inicia el backend en otra terminal con `python main.py`
 
----
+### "CORS error"
+❌ **Problema:** El backend y frontend no se comunican
+✅ **Solución:** 
+- Verifica que el backend esté en `http://localhost:8000`
+- Revisa que el CORS esté habilitado en el backend
 
-## 📸 Características por rol
+### Las imágenes no se cargan
+❌ **Problema:** La carpeta `uploads` no existe
+✅ **Solución:** El backend crea la carpeta automáticamente al subir la primera imagen
 
-### 👤 User
-- Crear/editar álbumes
-- Subir imágenes
-- Ver galería pública
-- Dejar comentarios (next version)
+### TypeError: Cannot read property...
+❌ **Problema:** Tipo de dato incorrecto
+✅ **Solución:** Comprueba con `npm run type-check`
 
-### 👮 Supervisor
-- Todo de User
-- Revisar álbumes pendientes
-- Revisar imágenes en cuarentena
-- Aprobar/rechazar
-- Comentarios rápidos (Enter-key)
+## 📚 Documentación Importante
 
-### 👨‍💼 Admin
-- Todo de Supervisor
-- Dashboard "Estado"
-- Ver usuarios/eventos/actividad
-- Gestionar usuarios
-- Estadísticas completas
+- [Documentación del Backend](../backend/README.md)
+- [Tipos TypeScript](./src/types/index.ts)
+- [Servicios de API](./src/services/api.ts)
+- [Hooks Personalizados](./src/hooks/)
 
----
+## 🚀 Siguientes Pasos
 
-## 🔒 Seguridad Básica
+### Desarrollo
+1. Lee el [README completo](./README.md)
+2. Explora la estructura en `src/`
+3. Comprende cómo funciona el flujo de autenticación
 
-- ✅ Tokens JWT expiran en 30 minutos
-- ✅ Passwords hasheados
-- ✅ CORS configurado
-- ✅ Validación en servidor y cliente
-- ✅ Detección de esteganografía automática
+### Producción
+1. Build: `npm run build`
+2. Sube la carpeta `dist/` a tu servidor
+3. Configura las variables de entorno correctas
 
----
+## 🤝 Contribución
+
+Para contribuir al proyecto:
+1. Crea una rama: `git checkout -b feature/nueva-funcionalidad`
+2. Haz tus cambios
+3. Commit: `git commit -am 'Añade nueva funcionalidad'`
+4. Push: `git push origin feature/nueva-funcionalidad`
+5. Abre un Pull Request
+
+## 📞 Soporte
+
+Si encuentras problemas:
+1. Revisa los [problemas comunes](#-problemas-comunes)
+2. Lee la documentación completa
+3. Crea un issue en GitHub
 
 ## 💡 Tips
 
-1. **Usar API Swagger**: `http://localhost:8000/docs`
-   - Ver todos los endpoints
-   - Probar requests directamente
-   - Ver modelos de datos
-
-2. **Console del navegador** (F12)
-   - Ver requests/responses de API
-   - Debugging de errores frontend
-
-3. **Logs del backend**
-   - Ver en terminal donde corre `python main.py`
-   - Útil para debugging
-
-4. **React DevTools**
-   - Instalar extensión [React DevTools](https://react-devtools-tutorial.vercel.app/)
-   - Inspeccionar componentes y estado
+- 🔍 Abre DevTools (F12) para ver errores
+- 📊 Usa React DevTools para debuggear componentes
+- 🌐 Prueba en incógnito si hay problemas de cache
+- 💾 Guarda archivos para hot reload automático
 
 ---
 
-## 📚 Documentación Detallada
+¡Listo! 🎉 Ya puedes empezar a trabajar con SecureGallery.
 
-| Documento | Contenido |
-|-----------|-----------|
-| [README.md](README.md) | Overview principal del proyecto |
-| [backend/README.md](backend/README.md) | Documentación API backend |
-| [frontend/README.md](frontend/README.md) | Documentación frontend |
-| [CHANGELOG.md](CHANGELOG.md) | Historial completo de cambios |
-| [FEATURES.md](FEATURES.md) | Lista completa de características |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Estado actual del proyecto |
-| [API_ADMIN_REFERENCE.md](API_ADMIN_REFERENCE.md) | Quick reference de admin API |
-
----
-
-## 🚀 Próximos Pasos
-
-1. ✅ Backend corriendo
-2. ✅ Frontend corriendo
-3. ✅ Login funcionando
-4. **Ahora**:
-   - Explorar features según tu rol
-   - Revisar documentación específica
-   - Crear tickets de issues/features
-   - Contribuir al proyecto
-
----
-
-## 🆘 Necesitas Ayuda?
-
-1. **Revisa los READMEs**
-   - Responden la mayoría de preguntas
-
-2. **Busca en CHANGELOG**
-   - Ver cambios recientes
-   - Entender cómo funcionan features
-
-3. **Abre una issue**
-   - Describe el problema
-   - Incluye pasos para reproducir
-   - Adjunta screenshots si es posible
-
-4. **Revisa el código**
-   - Los componentes tienen comentarios
-   - Functions tienen docstrings
-
----
-
-## ✨ Happy Coding! 
-
-```
-     ___
-    / __) 
-   ( (__
-    \__) Security & Steganography Gallery
-```
-
-**Versión**: 1.1.0  
-**Última actualización**: Mayo 10, 2026  
-**Estado**: ✅ Producción
-
-Para más info: Ver [PROJECT_STATUS.md](PROJECT_STATUS.md)
+Para dudas técnicas: Revisa el README completo o la documentación del backend.

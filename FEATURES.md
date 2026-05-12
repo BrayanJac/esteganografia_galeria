@@ -74,11 +74,6 @@
 - ✅ Tracking de ingresos/salidas
 - ✅ Revisión de imágenes en cuarentena
 
-### 🌍 Localización
-- ✅ Zona horaria automática (America/Guayaquil - Ecuador)
-- ✅ Conversión de timestamps a zona local
-- ✅ Soporte para múltiples idiomas (base preparada)
-
 ### 🛡️ Seguridad
 - ✅ JWT Authentication con firmado
 - ✅ Password hashing con bcrypt
@@ -91,13 +86,6 @@
 - ✅ Session management
 - ✅ Role-based access control
 
-### 📚 Documentación
-- ✅ README completo (backend y frontend)
-- ✅ API Swagger/OpenAPI integrado
-- ✅ CHANGELOG con historial de cambios
-- ✅ PROJECT_STATUS con estado actual
-- ✅ API_ADMIN_REFERENCE con quick reference
-- ✅ Esta guía de características
 
 ### 💻 Stack Técnico
 - ✅ Frontend: React 18, TypeScript, Vite, Tailwind CSS
@@ -253,21 +241,6 @@
 - ✅ Validación de entrada en todos los endpoints
 - ✅ Autorización por rol verificada
 - ✅ Logs de auditoría implementados
-
----
-
-## 🚀 Próximas Mejoras Potenciales
-
-- [ ] Autenticación con redes sociales (OAuth)
-- [ ] Email notifications
-- [ ] Two-factor authentication (2FA)
-- [ ] Búsqueda avanzada de imágenes/álbumes
-- [ ] Tags y categorías
-- [ ] Comentarios en imágenes
-- [ ] Compartir álbumes con usuarios específicos
-- [ ] Exportar datos
-- [ ] API webhook events
-- [ ] Integración con storage externo (S3, etc.)
 
 ---
 
