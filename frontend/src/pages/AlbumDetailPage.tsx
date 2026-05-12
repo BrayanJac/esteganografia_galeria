@@ -118,9 +118,13 @@ export const AlbumDetailPage: React.FC = () => {
                                     album?.status === 'pending' ? '⏳ Pendiente' :
                                         '✗ Rechazado'}
                             </span>
-                            {album?.is_public && (
+                            {album?.is_public ? (
                                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
                                     🌐 Público
+                                </span>
+                            ):(
+                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                                    🔒  Privado
                                 </span>
                             )}
                         </div>

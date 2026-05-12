@@ -122,8 +122,8 @@ export const AlbumEditModal: React.FC<AlbumEditModalProps> = ({
     if (!isOpen || !album) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
-            <div className="w-full max-w-4xl rounded-xl bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 px-4 py-6">
+            <div className="mx-auto w-full max-w-4xl rounded-xl bg-white shadow-2xl max-h-[calc(100vh-3rem)] flex flex-col">
                 <div className="flex items-center justify-between border-b px-6 py-4">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Editar álbum</h2>
@@ -134,7 +134,7 @@ export const AlbumEditModal: React.FC<AlbumEditModalProps> = ({
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5 px-6 py-5">
+                <form onSubmit={handleSubmit} className="space-y-5 px-6 py-5 overflow-y-auto">
                     {errorMessage && (
                         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                             {errorMessage}

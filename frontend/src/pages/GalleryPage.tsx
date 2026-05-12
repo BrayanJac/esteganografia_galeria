@@ -31,6 +31,14 @@ export const GalleryPage: React.FC = () => {
     const { user, isAdmin, isSupervisor } = useAuth();
     const maxFileSize = 10 * 1024 * 1024;
 
+    const renderVisibilityBadge = (isPublic?: boolean) => {
+        if (isPublic) {
+            return <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">🌐 Público</span>;
+        }
+
+        return <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">🔒 Privado</span>;
+    };
+
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, albumId: number) => {
         const files = e.target.files;
         if (!files) return;
@@ -147,38 +155,44 @@ export const GalleryPage: React.FC = () => {
                                     {album.status === 'approved' ? (
                                         <Link to={`/album/${album.id}`} className="block">
                                             <div className="p-4">
-                                                <h3 className="font-bold text-lg mb-2">{album.title}</h3>
-                                                <p className="text-gray-600 text-sm mb-2">{album.description}</p>
+                                                <div className="flex items-start justify-between gap-3 mb-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="font-bold text-lg truncate">{album.title}</h3>
+                                                        <p className="text-gray-600 text-sm mt-1 line-clamp-2">{album.description}</p>
+                                                    </div>
+                                                    <div className="flex shrink-0 flex-col items-end gap-2">
+                                                        <span className="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-medium">✅ Aprobado</span>
+                                                        {renderVisibilityBadge(album.is_public)}
+                                                    </div>
+                                                </div>
                                                 <div className="text-xs text-gray-500 mb-3">
                                                     <span>Creado por: <strong>{album.owner}</strong></span>
                                                 </div>
-                                                <div className="flex justify-between items-center text-sm text-gray-500">
+                                                <div className="flex justify-between items-center text-sm text-gray-500 gap-3">
                                                     <span>{album.image_count ?? album.images?.length ?? 0} imágenes</span>
-                                                    <span className={`px-2 py-1 rounded ${album.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                                        album.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
-                                                        }`}>
-                                                        ✅ Aprobado
-                                                    </span>
                                                 </div>
                                             </div>
                                         </Link>
                                     ) : (
                                         <div className="block opacity-75 cursor-default">
                                             <div className="p-4">
-                                                <h3 className="font-bold text-lg mb-2">{album.title}</h3>
-                                                <p className="text-gray-600 text-sm mb-2">{album.description}</p>
+                                                <div className="flex items-start justify-between gap-3 mb-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="font-bold text-lg truncate">{album.title}</h3>
+                                                        <p className="text-gray-600 text-sm mt-1 line-clamp-2">{album.description}</p>
+                                                    </div>
+                                                    <div className="flex shrink-0 flex-col items-end gap-2">
+                                                        <span className={`px-2 py-1 rounded text-xs font-medium ${album.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {album.status === 'pending' ? '⏳ Pendiente' : '❌ Rechazado'}
+                                                        </span>
+                                                        {renderVisibilityBadge(album.is_public)}
+                                                    </div>
+                                                </div>
                                                 <div className="text-xs text-gray-500 mb-3">
                                                     <span>Creado por: <strong>{album.owner}</strong></span>
                                                 </div>
-                                                <div className="flex justify-between items-center text-sm text-gray-500">
+                                                <div className="flex justify-between items-center text-sm text-gray-500 gap-3">
                                                     <span>{album.image_count ?? album.images?.length ?? 0} imágenes</span>
-                                                    <span className={`px-2 py-1 rounded ${album.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                                        album.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
-                                                        }`}>
-                                                        {album.status === 'pending' ? '⏳ Pendiente' : '❌ Rechazado'}
-                                                    </span>
                                                 </div>
                                                 <p className="mt-3 text-xs text-gray-500">Disponible cuando sea aprobado</p>
                                             </div>

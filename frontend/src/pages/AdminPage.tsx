@@ -16,6 +16,14 @@ const getLastComment = (commentString: string | null | undefined): string | null
     return lines.length > 0 ? lines[lines.length - 1] : null;
 };
 
+const renderVisibilityBadge = (isPublic?: boolean) => {
+    if (isPublic) {
+        return <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">🌐 Público</span>;
+    }
+
+    return <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">🔒 Privado</span>;
+};
+
 export const AdminPage: React.FC = () => {
     const { user, isSupervisor, isAdmin } = useAuth();
     const location = useLocation();
@@ -30,9 +38,9 @@ export const AdminPage: React.FC = () => {
     const [imageComment, setImageComment] = useState<Record<number, string>>({});
     const [activeView, setActiveView] = useState<'pending' | 'reviewed' | 'quarantine'>('pending');
     const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; title?: string } | null>(null);
-    const [expandedAnalysisImageId, setExpandedAnalysisImageId] = useState<number | null>(null);
     const [selectedAlbum, setSelectedAlbum] = useState<any | null>(null);
     const [selectedMetadataImage, setSelectedMetadataImage] = useState<any | null>(null);
+    const [selectedTechnicalImage, setSelectedTechnicalImage] = useState<any | null>(null);
 
     useEffect(() => {
         const tab = new URLSearchParams(location.search).get('tab');
@@ -131,15 +139,15 @@ export const AdminPage: React.FC = () => {
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600">Pendientes:</span>
+                                    <span className="text-gray-600">Álbumes pendientes:</span>
                                     <span className="font-bold text-yellow-600">{pendingAlbums?.length || 0}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600">Revisadas:</span>
+                                    <span className="text-gray-600">Álbumes aprobados:</span>
                                     <span className="font-bold text-primary-600">{reviewedAlbumList.length}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600">En cuarentena:</span>
+                                    <span className="text-gray-600">Imágenes en cuarentena:</span>
                                     <span className="font-bold text-red-600">{quarantinedImageList.length}</span>
                                 </div>
                             </div>
@@ -181,7 +189,7 @@ export const AdminPage: React.FC = () => {
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                 }`}
                         >
-                            Revisadas
+                            Aprobados
                         </button>
                         <button
                             onClick={() => setActiveView('quarantine')}
@@ -233,14 +241,14 @@ export const AdminPage: React.FC = () => {
                                                                 <span className="font-medium">Creado por:</span> <strong>{album.owner}</strong>
                                                             </div>
                                                         </div>
-                                                        {renderStatusBadge('pending')}
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            {renderStatusBadge('pending')}
+                                                            {renderVisibilityBadge(album.is_public)}
+                                                        </div>
                                                     </div>
                                                     <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-500">
                                                         <div>
                                                             <span className="font-medium">Fotos:</span> {album.image_count || 0}
-                                                        </div>
-                                                        <div>
-                                                            <span className="font-medium">Última actualización:</span> {album.updated_at ? formatDate(album.updated_at) : 'N/A'}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -343,11 +351,7 @@ export const AdminPage: React.FC = () => {
                                                         <div className="flex flex-wrap items-center gap-2">
                                                             <h3 className="text-base font-bold text-gray-800">{album.title}</h3>
                                                             {renderStatusBadge(currentStatus)}
-                                                            {album.is_public && (
-                                                                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-                                                                    🌐 Público
-                                                                </span>
-                                                            )}
+                                                            {renderVisibilityBadge(album.is_public)}
                                                         </div>
 
                                                         <p className="mt-2 text-xs text-gray-600 line-clamp-2">{album.description || 'Sin descripción'}</p>
@@ -453,29 +457,8 @@ export const AdminPage: React.FC = () => {
                                 <div className="space-y-4">
                                     {quarantinedImageList.map((image: any) => (
                                         <div key={image.id} className="border border-red-200 bg-red-50 rounded-lg p-4">
-                                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                                                <div className="flex-1 space-y-3">
-                                                    <div className="flex flex-wrap items-center gap-3">
-                                                        <h3 className="text-lg font-bold text-gray-800">{image.original_filename}</h3>
-                                                        {image.status === 'quarantined' ? (
-                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
-                                                                ⚠️ Cuarentena
-                                                            </span>
-                                                        ) : image.status === 'approved' ? (
-                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-                                                                ✓ Aprobada
-                                                            </span>
-                                                        ) : image.status === 'rejected' ? (
-                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
-                                                                ✗ Rechazada
-                                                            </span>
-                                                        ) : (
-                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
-                                                                ⏳ Analizando
-                                                            </span>
-                                                        )}
-                                                    </div>
-
+                                            <div className="space-y-4">
+                                                <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedImage({
@@ -485,7 +468,7 @@ export const AdminPage: React.FC = () => {
                                                         })}
                                                         className="block w-full overflow-hidden rounded-lg border border-red-200 bg-white text-left shadow-sm"
                                                     >
-                                                        <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
+                                                        <div className="aspect-[16/10] w-full bg-gray-100 overflow-hidden">
                                                             <img
                                                                 src={`/api/uploads/${image.filename}`}
                                                                 alt={image.original_filename}
@@ -497,24 +480,49 @@ export const AdminPage: React.FC = () => {
                                                         </div>
                                                     </button>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                                                        <div><span className="font-medium">Álbum:</span> {image.album}</div>
-                                                        <div><span className="font-medium">Subido por:</span> {image.uploader}</div>
-                                                        <div><span className="font-medium">Nombre original:</span> {image.original_filename}</div>
-                                                        <div><span className="font-medium">Tipo:</span> {image.mime_type || 'N/A'}</div>
-                                                        <div><span className="font-medium">Tamaño:</span> {typeof image.file_size === 'number' ? `${(image.file_size / (1024 * 1024)).toFixed(2)} MB` : 'N/A'}</div>
-                                                        <div><span className="font-medium">Score:</span> {typeof image.steganography_score === 'number' ? image.steganography_score.toFixed(3) : 'N/A'}</div>
-                                                        <div><span className="font-medium">Fecha:</span> {image.created_at ? formatDate(image.created_at) : 'N/A'}</div>
-                                                    </div>
-
-                                                    {image.quarantine_reason && (
-                                                        <div className="text-sm text-gray-700 bg-white border rounded-md p-3">
-                                                            <span className="font-medium">Motivo:</span> {image.quarantine_reason}
+                                                    <div className="space-y-3">
+                                                        <div className="flex flex-wrap items-center gap-3">
+                                                            <h3 className="text-lg font-bold text-gray-800">{image.original_filename}</h3>
+                                                            {image.status === 'quarantined' ? (
+                                                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                                                    ⚠️ Cuarentena
+                                                                </span>
+                                                            ) : image.status === 'approved' ? (
+                                                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                                                    ✓ Aprobada
+                                                                </span>
+                                                            ) : image.status === 'rejected' ? (
+                                                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                                                    ✗ Rechazada
+                                                                </span>
+                                                            ) : (
+                                                                <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                                                                    ⏳ Analizando
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                    )}
 
-                                                    <div className="rounded-md border border-red-200 bg-white p-3 text-sm text-gray-700">
-                                                        <div className="space-y-3">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                                                            <div><span className="font-medium">Álbum:</span> {image.album}</div>
+                                                            <div><span className="font-medium">Subido por:</span> {image.uploader}</div>
+                                                            <div><span className="font-medium">Nombre original:</span> {image.original_filename}</div>
+                                                            <div><span className="font-medium">Tipo:</span> {image.mime_type || 'N/A'}</div>
+                                                            <div><span className="font-medium">Tamaño:</span> {typeof image.file_size === 'number' ? `${(image.file_size / (1024 * 1024)).toFixed(2)} MB` : 'N/A'}</div>
+                                                            <div><span className="font-medium">Score:</span> {typeof image.steganography_score === 'number' ? image.steganography_score.toFixed(3) : 'N/A'}</div>
+                                                            <div><span className="font-medium">Fecha:</span> {image.created_at ? formatDate(image.created_at) : 'N/A'}</div>
+                                                        </div>
+
+                                                        {image.quarantine_reason && (
+                                                            <div className="text-sm text-gray-700 bg-white border rounded-md p-3">
+                                                                <span className="font-medium">Motivo:</span> {image.quarantine_reason}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-md border border-red-200 bg-white p-3 text-sm text-gray-700">
+                                                    <div className="space-y-3">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setSelectedMetadataImage(image)}
@@ -525,81 +533,61 @@ export const AdminPage: React.FC = () => {
                                                             </button>
                                                             <button
                                                                 type="button"
-                                                                onClick={() => setExpandedAnalysisImageId((currentId) => currentId === image.id ? null : image.id)}
+                                                                onClick={() => setSelectedTechnicalImage(image)}
                                                                 className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-2 rounded-md font-medium transition-colors border border-gray-200"
                                                             >
-                                                                {expandedAnalysisImageId === image.id ? 'Ocultar metadatos técnicos' : 'Ver metadatos técnicos (JSON)'}
+                                                                Ver metadatos técnicos (JSON)
                                                             </button>
                                                         </div>
 
-                                                        {expandedAnalysisImageId === image.id && (
-                                                            <div className="mt-3 space-y-3">
-                                                                <div>
-                                                                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Detalles del análisis</div>
-                                                                    <pre className="mt-2 overflow-auto rounded-md bg-gray-50 p-3 text-xs leading-5 text-gray-700">
-                                                                        {JSON.stringify(image.analysis_details || {}, null, 2)}
-                                                                    </pre>
-                                                                </div>
-
-                                                                <div>
-                                                                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Hash del archivo</div>
-                                                                    <div className="mt-1 break-all rounded-md bg-gray-50 p-3 text-xs text-gray-700">
-                                                                        {image.file_hash || 'N/A'}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="w-full lg:w-80 space-y-3">
-                                                    <textarea
-                                                        placeholder="Añade un comentario de revisión (opcional)"
-                                                        value={imageComment[image.id] || ''}
-                                                        onChange={(event) =>
-                                                            setImageComment((previousComments) => ({
-                                                                ...previousComments,
-                                                                [image.id]: event.target.value,
-                                                            }))
-                                                        }
-                                                        onKeyDown={async (e) => {
-                                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                                e.preventDefault();
-                                                                const comment = imageComment[image.id] || '';
-                                                                try {
-                                                                    await api.updateImageComment(image.id, comment);
-                                                                    setImageComment((previousComments) => {
-                                                                        const nextComments = { ...previousComments };
-                                                                        delete nextComments[image.id];
-                                                                        return nextComments;
-                                                                    });
-                                                                } catch (err) {
-                                                                    // ignore
-                                                                }
+                                                        <textarea
+                                                            placeholder="Añade un comentario de revisión (opcional)"
+                                                            value={imageComment[image.id] || ''}
+                                                            onChange={(event) =>
+                                                                setImageComment((previousComments) => ({
+                                                                    ...previousComments,
+                                                                    [image.id]: event.target.value,
+                                                                }))
                                                             }
-                                                        }}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
-                                                        rows={3}
-                                                    />
+                                                            onKeyDown={async (e) => {
+                                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                                    e.preventDefault();
+                                                                    const comment = imageComment[image.id] || '';
+                                                                    try {
+                                                                        await api.updateImageComment(image.id, comment);
+                                                                        setImageComment((previousComments) => {
+                                                                            const nextComments = { ...previousComments };
+                                                                            delete nextComments[image.id];
+                                                                            return nextComments;
+                                                                        });
+                                                                    } catch (err) {
+                                                                        // ignore
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
+                                                            rows={3}
+                                                        />
 
-                                                    <div className="flex flex-col gap-2">
-                                                        <button
-                                                            onClick={() => handleReviewImage(image.id, true)}
-                                                            disabled={reviewImage.isPending}
-                                                            className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2"
-                                                        >
-                                                            <CheckCircle size={18} />
-                                                            <span>{reviewImage.isPending ? 'Procesando...' : 'Aprobar imagen'}</span>
-                                                        </button>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                            <button
+                                                                onClick={() => handleReviewImage(image.id, true)}
+                                                                disabled={reviewImage.isPending}
+                                                                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2"
+                                                            >
+                                                                <CheckCircle size={18} />
+                                                                <span>{reviewImage.isPending ? 'Procesando...' : 'Aprobar imagen'}</span>
+                                                            </button>
 
-                                                        <button
-                                                            onClick={() => handleReviewImage(image.id, false)}
-                                                            disabled={reviewImage.isPending}
-                                                            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2"
-                                                        >
-                                                            <XCircle size={18} />
-                                                            <span>{reviewImage.isPending ? 'Procesando...' : 'Rechazar imagen'}</span>
-                                                        </button>
+                                                            <button
+                                                                onClick={() => handleReviewImage(image.id, false)}
+                                                                disabled={reviewImage.isPending}
+                                                                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2"
+                                                            >
+                                                                <XCircle size={18} />
+                                                                <span>{reviewImage.isPending ? 'Procesando...' : 'Rechazar imagen'}</span>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -630,6 +618,41 @@ export const AdminPage: React.FC = () => {
                 onClose={() => setSelectedMetadataImage(null)}
                 image={selectedMetadataImage}
             />
+            {selectedTechnicalImage && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6">
+                    <div className="w-full max-w-3xl max-h-[calc(100vh-3rem)] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+                        <div className="flex items-center justify-between border-b px-5 py-4">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Metadatos técnicos (JSON)</h3>
+                                <p className="text-sm text-gray-500 truncate">{selectedTechnicalImage.original_filename}</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTechnicalImage(null)}
+                                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto p-5 space-y-4">
+                            <div>
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Detalles del análisis</div>
+                                <pre className="mt-2 overflow-auto rounded-md bg-gray-50 p-3 text-xs leading-5 text-gray-700">
+                                    {JSON.stringify(selectedTechnicalImage.analysis_details || {}, null, 2)}
+                                </pre>
+                            </div>
+
+                            <div>
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Hash del archivo</div>
+                                <div className="mt-1 break-all rounded-md bg-gray-50 p-3 text-xs text-gray-700">
+                                    {selectedTechnicalImage.file_hash || 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

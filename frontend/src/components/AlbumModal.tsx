@@ -105,7 +105,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
                         />
                     </div>
 
-                    <div className="flex items-center">
+                    <div className="flex items-center rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
                         <input
                             type="checkbox"
                             id="isPublic"
@@ -118,7 +118,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({ isOpen, onClose }) => {
                             }}
                             className="rounded"
                         />
-                        <label htmlFor="isPublic" className="ml-2 text-gray-700">
+                        <label htmlFor="isPublic" className="ml-2 text-gray-700 font-medium">
                             Público
                         </label>
                     </div>
