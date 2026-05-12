@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import api from '@services/api';
@@ -12,6 +12,7 @@ export const LoginForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { login } = useAuth();
+    const redirectTimeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
         const stateMessage = (location.state as { message?: string } | null)?.message;
@@ -20,6 +21,14 @@ export const LoginForm: React.FC = () => {
             navigate(location.pathname, { replace: true, state: {} });
         }
     }, [location.pathname, location.state, navigate]);
+
+    useEffect(() => {
+        return () => {
+            if (redirectTimeoutRef.current) {
+                window.clearTimeout(redirectTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,7 +50,7 @@ export const LoginForm: React.FC = () => {
 
             setSuccess('Credenciales válidas. Redirigiendo...');
             
-            setTimeout(() => {
+            redirectTimeoutRef.current = window.setTimeout(() => {
                 navigate('/gallery');
             }, 1800);
         } catch (err: any) {

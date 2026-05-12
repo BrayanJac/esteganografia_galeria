@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
-import { useDeleteImage, useLibraryAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
+import { useDeleteImage, useUserAlbums, useUpdateAlbum, useUploadImage } from '@hooks/useGallery';
 import { AlbumModal } from '@components/AlbumModal';
 import { AlbumEditModal } from '@components/AlbumEditModal';
 import { UploadProgressDialog } from '@components/UploadProgressDialog';
@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 
 export const GalleryPage: React.FC = () => {
-    const { data: albums, isLoading } = useLibraryAlbums();
+    const { data: albums, isLoading } = useUserAlbums();
     const uploadImage = useUploadImage();
     const deleteImage = useDeleteImage();
     const updateAlbum = useUpdateAlbum();
