@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
 import { useQuery } from '@tanstack/react-query';
 import api from '@services/api';
-import { Loader, Shield, LogIn, LogOut, Users, Image as ImageIcon } from 'lucide-react';
+import { Loader, LogIn, LogOut, Users, Image as ImageIcon } from 'lucide-react';
 
 const formatDate = (iso?: string | null) => {
     if (!iso) return 'N/A';
@@ -79,6 +79,35 @@ export const StatusPage: React.FC = () => {
         setModalOpen(true);
     };
 
+    const openApprovedAlbums = async () => {
+        const res = await api.getAdminAlbums();
+        const approvedAlbums = res.data.filter((a: any) => a.status === 'approved');
+        setModalTitle('Álbumes Aprobados');
+        setModalContent(
+            <div className="space-y-2 max-h-[60vh] overflow-auto">
+                {approvedAlbums.length > 0 ? approvedAlbums.map((a: any) => (
+                    <div key={a.id} className="rounded-md border p-3 bg-green-50 border-green-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="font-semibold text-green-800">{a.title}</div>
+                                <div className="text-xs text-gray-600">Por: {a.owner || 'N/A'}</div>
+                            </div>
+                            <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Aprobado</div>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-2">Imágenes: {a.image_count}</div>
+                        <div className="text-xs text-gray-500 mt-1">Creado: {formatDate(a.created_at)}</div>
+                    </div>
+                )) : (
+                    <div className="text-center text-gray-500 py-8">
+                        No hay álbumes aprobados
+                    </div>
+                )}
+            </div>
+        );
+        setModalOpen(true);
+    };
+
+    
     const openEvents = async (direction?: string) => {
         const res = await api.getAdminEvents(direction);
         setModalTitle(direction === 'ingress' ? 'Ingresos' : direction === 'egress' ? 'Salidas' : 'Eventos');
@@ -133,30 +162,43 @@ export const StatusPage: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {[
                                         { label: 'Usuarios', value: data?.summary?.users ?? 0, icon: Users, onClick: openUsers },
-                                        { label: 'Supervisores', value: data?.summary?.supervisors ?? 0, icon: Shield, onClick: () => openUsers() },
+                                        { label: 'Imágenes', value: data?.summary?.images ?? 0, icon: ImageIcon, onClick: undefined },
+                                        { label: 'Álbumes', value: data?.summary?.albums ?? 0, icon: ImageIcon, onClick: openAlbums },
+                                        { label: 'Álbumes aprobados', value: data?.summary?.approved_albums ?? 0, icon: ImageIcon, onClick: openApprovedAlbums },
                                         { label: 'Ingresos', value: data?.summary?.login_events ?? 0, icon: LogIn, onClick: () => openEvents('ingress') },
                                         { label: 'Salidas', value: data?.summary?.logout_events ?? 0, icon: LogOut, onClick: () => openEvents('egress') },
-                                        { label: 'Álbumes', value: data?.summary?.albums ?? 0, icon: ImageIcon, onClick: openAlbums },
-                                        { label: 'Álbumes aprobados', value: data?.summary?.approved_albums ?? 0, icon: ImageIcon, onClick: openAlbums },
-                                        { label: 'Imágenes', value: data?.summary?.images ?? 0, icon: ImageIcon, onClick: () => openEvents() },
-                                        { label: 'En cuarentena', value: data?.summary?.quarantined_images ?? 0, icon: Shield, onClick: () => openAlbums() },
                                     ].map((item) => {
                                         const Icon = item.icon;
+                                        const isStaticButton = item.label === 'Imágenes';
                                         return (
-                                            <button key={item.label} onClick={item.onClick} className="text-left rounded-2xl border bg-white p-5 shadow-sm hover:shadow-md">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm text-gray-500">{item.label}</p>
-                                                        <p className="mt-2 text-3xl font-bold text-gray-900">{item.value}</p>
-                                                    </div>
-                                                    <div className="rounded-full bg-primary-50 p-3 text-primary-600">
-                                                        <Icon size={20} />
+                                            isStaticButton ? (
+                                                <div key={item.label} className="text-left rounded-2xl border bg-white p-5 shadow-sm opacity-75 cursor-not-allowed">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-sm text-gray-500">{item.label}</p>
+                                                            <p className="mt-2 text-3xl font-bold text-gray-900">{item.value}</p>
+                                                        </div>
+                                                        <div className="rounded-full bg-primary-50 p-3 text-primary-600">
+                                                            <Icon size={20} />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </button>
+                                            ) : (
+                                                <button key={item.label} onClick={item.onClick!} className="text-left rounded-2xl border bg-white p-5 shadow-sm hover:shadow-md">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-sm text-gray-500">{item.label}</p>
+                                                            <p className="mt-2 text-3xl font-bold text-gray-900">{item.value}</p>
+                                                        </div>
+                                                        <div className="rounded-full bg-primary-50 p-3 text-primary-600">
+                                                            <Icon size={20} />
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            )
                                         );
                                     })}
                             </div>
@@ -217,20 +259,27 @@ export const StatusPage: React.FC = () => {
 
                             <div className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
                                 <h2 className="text-lg font-semibold text-gray-900">Actividad reciente</h2>
-                                <div className="mt-4 space-y-3">
-                                    {data?.recent_events?.length > 0 ? data.recent_events.map((event: any) => (
-                                        <div key={event.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-gray-50 p-4 text-sm">
-                                            <div>
-                                                <p className="font-medium text-gray-900">{event.event_type}</p>
-                                                <p className="text-gray-600">{event.description}</p>
+                                <div className="mt-4">
+                                    <div className="max-h-96 overflow-y-auto space-y-3">
+                                        {data?.recent_events?.length > 0 ? data.recent_events.slice(0, 50).map((event: any) => (
+                                            <div key={event.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-gray-50 p-4 text-sm">
+                                                <div>
+                                                    <p className="font-medium text-gray-900">{event.event_type}</p>
+                                                    <p className="text-gray-600">{event.description}</p>
+                                                </div>
+                                                <div className="text-right text-gray-500">
+                                                    <p>{event.username || 'Sistema'}</p>
+                                                    <p>{formatDate(event.created_at)}</p>
+                                                </div>
                                             </div>
-                                            <div className="text-right text-gray-500">
-                                                <p>{event.username || 'Sistema'}</p>
-                                                <p>{formatDate(event.created_at)}</p>
-                                            </div>
+                                        )) : (
+                                            <p className="text-sm text-gray-500">Aún no hay eventos recientes.</p>
+                                        )}
+                                    </div>
+                                    {data?.recent_events?.length > 5 && (
+                                        <div className="mt-3 text-center text-xs text-gray-500">
+                                            Mostrando {Math.min(data.recent_events.length, 50)} eventos más recientes
                                         </div>
-                                    )) : (
-                                        <p className="text-sm text-gray-500">Aún no hay eventos recientes.</p>
                                     )}
                                 </div>
                             </div>
