@@ -61,7 +61,8 @@ def crear_token_acceso(data: dict, expires_delta: Optional[timedelta] = None) ->
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + \
+            timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -99,9 +100,13 @@ def autenticar_usuario(db: Session, username: str, password: str, ip_address: st
 
     # Check if the last login attempt was within the time window
     if user.last_login_attempt:
-        time_since_last_attempt = datetime.now(timezone.utc) - user.last_login_attempt
+        # Ensure timezone-aware comparison
+        last_attempt = user.last_login_attempt
+        if last_attempt.tzinfo is None:
+            last_attempt = last_attempt.replace(tzinfo=timezone.utc)
+        time_since_last_attempt = datetime.now(timezone.utc) - last_attempt
         window_duration = timedelta(minutes=LOGIN_ATTEMPTS_WINDOW_MINUTES)
-        
+
         # If more time has passed than the window, reset the counter
         if time_since_last_attempt > window_duration:
             user.failed_login_attempts = 0
