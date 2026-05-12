@@ -161,10 +161,14 @@ export const AlbumDetailPage: React.FC = () => {
                                                     <span className="text-sm text-gray-600">Estado:</span>
                                                     <span className={`px-2 py-1 rounded text-xs font-medium ${image.status === 'clean' ? 'bg-green-100 text-green-700' :
                                                         image.status === 'quarantined' ? 'bg-red-100 text-red-700' :
+                                                        image.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                                        image.status === 'rejected' ? 'bg-red-100 text-red-700' :
                                                             'bg-gray-100 text-gray-700'
                                                         }`}>
                                                         {image.status === 'clean' ? '✓ Limpia' :
                                                             image.status === 'quarantined' ? '⚠️ Cuarentena' :
+                                                            image.status === 'approved' ? '✓ Aprobada' :
+                                                            image.status === 'rejected' ? '✗ Rechazada' :
                                                                 'Analizando'}
                                                     </span>
                                                 </div>

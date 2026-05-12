@@ -457,9 +457,23 @@ export const AdminPage: React.FC = () => {
                                                 <div className="flex-1 space-y-3">
                                                     <div className="flex flex-wrap items-center gap-3">
                                                         <h3 className="text-lg font-bold text-gray-800">{image.original_filename}</h3>
-                                                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
-                                                            ⚠️ Cuarentena
-                                                        </span>
+                                                        {image.status === 'quarantined' ? (
+                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                                                ⚠️ Cuarentena
+                                                            </span>
+                                                        ) : image.status === 'approved' ? (
+                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                                                ✓ Aprobada
+                                                            </span>
+                                                        ) : image.status === 'rejected' ? (
+                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                                                ✗ Rechazada
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                                                                ⏳ Analizando
+                                                            </span>
+                                                        )}
                                                     </div>
 
                                                     <button
