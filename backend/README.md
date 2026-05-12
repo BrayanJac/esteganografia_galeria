@@ -1,103 +1,349 @@
-# SecureFrame Gallery - Backend
+# 🔒 SecureGallery Backend
 
-Una API REST segura para gestión de galerías multimedia con detección de esteganografía integrada.
+API REST segura con FastAPI para gestión de galerías multimedia y detección avanzada de esteganografía.
 
 ## 🚀 Características
 
-- **Autenticación y Autorización**: Sistema de usuarios con roles y JWT
-- **Detección de Esteganografía**: Análisis automático de imágenes con múltiples técnicas
-- **Gestión de Álbumes**: Creación y gestión de álbumes privados/públicos con aprobación
-- **Sistema de Cuarentena**: Aislamiento automático de imágenes sospechosas
-- **Seguridad Avanzada**: Headers de seguridad, rate limiting, logging
-- **Documentación API**: Swagger/OpenAPI integrado
+✅ **Autenticación Segura** - JWT + Argon2 hashing con prevención de brute force  
+✅ **Detección de Esteganografía** - 4 algoritmos: LSB, Histogram, EOF, Frequency Domain  
+✅ **Gestión de Álbumes** - Flujo de aprobación con supervisores  
+✅ **Sistema de Cuarentena** - Aislamiento automático de imágenes sospechosas  
+✅ **Control de Roles** - Usuario, Supervisor, Admin con permisos granulares  
+✅ **Rate Limiting** - Protección contra ataques por fuerza bruta  
+✅ **Auditoría Completa** - Logging de eventos y trazabilidad  
+✅ **Documentación API** - Swagger/OpenAPI interactivo  
 
 ## 📋 Requisitos
 
-- Python 3.8+
-- PostgreSQL
-- Docker (opcional)
+- Python 3.14+
+- SQLite (incluido) o PostgreSQL (producción)
+- pip (gestor de paquetes Python)
 
 ## 🛠️ Instalación
 
-### 1. Clonar el repositorio
+### 1. Clonar y Navegar
 ```bash
-cd backend
+git clone https://github.com/BrayanJac/esteganografia_galeria.git
+cd esteganografia_galeria/backend
 ```
 
-### 2. Crear entorno virtual
+### 2. Crear Entorno Virtual
 ```bash
-python -m venv venv
 # Windows
+python -m venv venv
 venv\Scripts\activate
-# Linux/Mac
+
+# macOS/Linux
+python -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instalar dependencias
+### 3. Instalar Dependencias
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configurar variables de entorno
+### 4. Configurar Variables de Entorno
 ```bash
-# Copiar archivo de ejemplo
 cp .env.example .env
 ```
 
-Editar `.env` con tu configuración:
+Editar `.env`:
 ```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:port/dbname
-SECRET_KEY=tu_secreto_jwt_muy_seguro
+# Base de Datos
+DATABASE_URL=sqlite:///./test.db
+
+# JWT
+SECRET_KEY=tu-clave-muy-segura-minimo-32-caracteres
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Seguridad
+PASSWORD_MIN_LENGTH=12
+LOGIN_ATTEMPTS_LIMIT=5
+LOGIN_ATTEMPTS_WINDOW_MINUTES=15
+MAX_FILE_SIZE=10485760
+
+# Esteganografía
+STEGANOGRAPHY_THRESHOLD=0.4
+ENABLE_LSB_ANALYSIS=true
+ENABLE_HISTOGRAM_ANALYSIS=true
+ENABLE_EOF_ANALYSIS=true
+
+# CORS
+ALLOWED_ORIGINS=["http://localhost:5173","http://localhost:3000"]
 ```
 
-### 5. Configurar base de datos
+### 5. Inicializar Base de Datos
 ```bash
-# Crear base de datos PostgreSQL
-CREATE DATABASE secure_gallery;
+python -m database.init_db
 ```
 
-### 6. Ejecutar aplicación
+### 6. Ejecutar la Aplicación
 ```bash
 python main.py
 ```
 
-La API estará disponible en `http://localhost:8000`
+✅ Backend disponible en `http://localhost:8000`
 
 ## 📚 Documentación API
 
-Una vez iniciada la aplicación, puedes acceder a:
+Una vez iniciada la aplicación, accede a:
 
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-- **OpenAPI JSON**: `http://localhost:8000/openapi.json`
+- **Swagger UI Interactivo:** `http://localhost:8000/docs` ⭐
+- **ReDoc (Alternativo):** `http://localhost:8000/redoc`
+- **OpenAPI JSON Schema:** `http://localhost:8000/openapi.json`
 
-## 🔧 Endpoints de la API
+## 🔑 Autenticación
 
-### 🔐 Autenticación (`/api/auth`)
-
-#### `POST /api/auth/register`
-Registrar un nuevo usuario.
-- **Rate Limit**: 5 peticiones por minuto
-- **Body**:
-```json
+### JWT Tokens
+```python
+# Login retorna:
 {
-  "username": "string (3-50 chars)",
-  "email": "email@valido.com",
-  "password": "string (mínimo 12 chars)"
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer",
+  "usuario": {
+    "id": 1,
+    "username": "usuario",
+    "email": "user@example.com",
+    "role": "user"
+  }
 }
 ```
 
-#### `POST /api/auth/login`
-Iniciar sesión y obtener token JWT.
-- **Rate Limit**: 10 peticiones por minuto
-- **Body**:
-```json
-{
-  "username": "string",
-  "password": "string"
+### Headers Requeridos
+```bash
+Authorization: Bearer <token>
+```
+
+### Validación de Contraseña
+- ✅ Mínimo 12 caracteres
+- ✅ Mayúscula obligatoria (A-Z)
+- ✅ Minúscula obligatoria (a-z)
+- ✅ Número obligatorio (0-9)
+- ✅ Carácter especial obligatorio (!@#$%^&*)
+
+## 🎭 Detección de Esteganografía
+
+### 4 Algoritmos Complementarios
+
+#### 1. LSB Analysis (25% peso)
+Detecta manipulación del bit menos significativo:
+- Análisis de correlación MSB-LSB
+- Chi-square test de uniformidad
+- Análisis de adyacencia de píxeles
+- Block-based LSB uniformity
+- RS Analysis (Regular-Singular)
+- Frequency domain LSB detection
+
+#### 2. Histogram Analysis (20% peso)
+Detecta discontinuidades en histograma:
+- Saltos abruptos de frecuencia
+- Asimetrías innaturales
+- Bandas vacías (gaps)
+
+#### 3. EOF Analysis (15% peso)
+Detecta datos fuera del archivo legítimo:
+- Datos después del EOF marker
+- Segmentos adicionales JPEG
+- Metadatos modificados
+
+#### 4. Frequency Domain Analysis (40% peso)
+Detecta anomalías en dominio de frecuencia:
+- DCT (Discrete Cosine Transform)
+- FFT (Fast Fourier Transform)
+- Análisis de energía en coeficientes
+- Cambios en altas frecuencias
+
+### Scoring Sistema
+```python
+overall_score = (
+    lsb_score * 0.25 +           # 25%
+    histogram_score * 0.20 +      # 20%
+    eof_score * 0.15 +           # 15%
+    frequency_score * 0.40        # 40%
+)
+
+Resultado:
+- overall_score > threshold → QUARANTINED
+- overall_score < threshold → CLEAN
+```
+
+## 🔐 Seguridad Implementada
+
+### Autenticación
+- ✅ JWT con expiración (30 minutos)
+- ✅ Argon2 hashing (resistente GPU brute-force)
+- ✅ Prevención brute force: 5 intentos / 15 min = bloqueo
+- ✅ Validación de contraseña fuerte
+
+### Network Security
+- ✅ CORS restrictivo (whitelist explícita)
+- ✅ Security Headers (CSP, HSTS, X-Frame-Options)
+- ✅ Rate Limiting por IP
+- ✅ Detección de herramientas de ataque
+
+### Data Protection
+- ✅ SQL Injection prevention (SQLAlchemy ORM)
+- ✅ XSS prevention (Content-Security-Policy)
+- ✅ File upload validation (tipo MIME, tamaño)
+- ✅ Input validation y sanitización
+
+### Auditoría
+- ✅ Logging de intentos de login
+- ✅ Tracking de eventos de seguridad
+- ✅ Trazabilidad de acciones por usuario
+- ✅ Identificación de patrones sospechosos
+
+## 📂 Estructura de Carpetas
+
+```
+backend/
+├── main.py                    # 🚀 Punto de entrada
+├── requirements.txt           # Dependencias
+├── .env                       # Configuración local
+├── config/
+│   └── config.py             # Variables de configuración
+├── database/
+│   ├── database.py           # Conexión SQLAlchemy
+│   ├── models.py             # 🗂️ Modelos ORM
+│   └── init_db.py            # Inicializador BD
+├── routers/                   # 🔗 Endpoints API
+│   ├── auth_router.py        # Login, Register, JWT
+│   ├── album_router.py       # CRUD Álbumes
+│   ├── image_router.py       # Upload, Análisis
+│   ├── gallery_router.py     # Galería pública
+│   └── admin_router.py       # Panel administrativo
+├── services/                  # 💼 Lógica de negocio
+│   ├── auth_service.py
+│   ├── album_service.py
+│   ├── image_service.py
+│   ├── gallery_service.py
+│   └── admin_service.py
+├── schemas/                   # ✔️ Validación Pydantic
+│   ├── auth_schemas.py
+│   ├── album_schemas.py
+│   └── image_schemas.py
+├── security/                  # 🔐 Autenticación & Análisis
+│   ├── auth.py               # JWT, hashing
+│   ├── steganography.py      # 🎭 Detección esteganografía
+│   └── middleware.py         # CORS, Rate Limiting
+└── uploads/                   # 📁 Almacenamiento imágenes
+```
+
+## 🎯 Endpoints Principales
+
+### Autenticación
+```
+POST   /api/auth/register      # Registrar usuario
+POST   /api/auth/login         # Iniciar sesión
+GET    /api/auth/me            # Obtener usuario actual
+POST   /api/auth/logout        # Cerrar sesión
+```
+
+### Álbumes
+```
+GET    /api/albums/library     # Mis álbumes
+POST   /api/albums/            # Crear álbum
+PUT    /api/albums/{id}        # Actualizar álbum
+DELETE /api/albums/{id}        # Eliminar álbum
+GET    /api/albums/pending     # Álbumes pendientes (Supervisor)
+POST   /api/albums/{id}/approve # Aprobar/rechazar (Supervisor)
+```
+
+### Imágenes
+```
+POST   /api/images/upload      # 📤 Subir imagen + análisis
+GET    /api/images/quarantined # Imágenes cuarentenadas (Supervisor)
+POST   /api/images/{id}/review # Revisar imagen (Supervisor)
+DELETE /api/images/{id}        # Eliminar imagen
+```
+
+### Galería Pública
+```
+GET    /api/gallery            # Galerías públicas
+GET    /api/gallery/{id}       # Imágenes de galería
+```
+
+### Admin
+```
+GET    /api/admin/stats        # Estadísticas
+GET    /api/admin/users        # Lista usuarios
+GET    /api/admin/albums       # Lista álbumes
+GET    /api/admin/events       # Eventos de seguridad
+```
+
+## 🧪 Testing
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Crear usuario
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "TestPass123!"
+  }'
+
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "TestPass123!"
+  }'
+```
+
+## 📦 Dependencias Principales
+
+```
+fastapi==0.104.1              # Framework web
+uvicorn==0.24.0               # Servidor ASGI
+sqlalchemy==2.0.23            # ORM
+pydantic==2.4.2               # Validación
+python-jose==3.3.0            # JWT
+passlib==1.7.4                # Hashing
+argon2-cffi==23.1.0           # Argon2
+slowapi==0.1.9                # Rate limiting
+pillow==10.0.1                # Procesamiento imágenes
+opencv-python==4.8.1          # Análisis imágenes
+numpy==1.24.3                 # Cálculos numéricos
+scipy==1.11.3                 # Análisis científico
+python-dotenv==1.0.0          # Configuración
+```
+
+## 🚀 Deployment
+
+### Producción con Gunicorn
+```bash
+pip install gunicorn
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
+
+### Con PostgreSQL
+```env
+DATABASE_URL=postgresql://user:password@host:5432/secure_gallery
+```
+
+### Variables Críticas a Cambiar
+```env
+SECRET_KEY=<genera una clave aleatoria fuerte>
+DEBUG=False
+ALLOWED_ORIGINS=["https://tudominio.com"]
+```
+
+## 📖 Documentación Completa
+
+- [README Principal](../README.md) - Información general
+- [Guía Rápida](../QUICKSTART.md) - Inicio rápido
+- [Referencia API Admin](../API_ADMIN_REFERENCE.md) - Endpoints admin detallados
+
+---
+
+**Última actualización:** Mayo 2026
 }
 ```
 

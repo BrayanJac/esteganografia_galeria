@@ -1,103 +1,416 @@
-# SecureGallery Frontend
+# ⚛️ SecureGallery Frontend
 
-Frontend moderno de React con Vite y TypeScript para la galería segura con detección de esteganografía.
+Interfaz moderna de React para galería segura con detección de esteganografía.
 
 ## 🚀 Características
 
-- ⚡ **Vite** - Bundler ultra rápido
-- ⚛️ **React 18** - Librería de UI moderna
-- 📘 **TypeScript** - Type safety completo
-- 🎨 **Tailwind CSS** - Estilos utilitarios
-- 🔐 **Autenticación JWT** - Sistema seguro de login
-- 🔄 **React Query** - Gestión de estado del servidor
-- 🎯 **React Router** - Enrutamiento moderno
-- 📦 **Zustand** - Gestión de estado global ligera
+⚡ **Vite** - Bundler ultra rápido con hot module replacement  
+⚛️ **React 18** - Interfaz moderna y reactiva  
+📘 **TypeScript** - Type safety completo  
+🎨 **Tailwind CSS** - Estilos utilitarios responsivos  
+🔐 **JWT Authentication** - Sistema seguro de autenticación  
+🔄 **React Query** - Gestión de estado del servidor  
+🎯 **React Router** - Enrutamiento moderna  
+📦 **Zustand** - State management ligero  
+🚀 **Vite Proxy** - Desarrollo sin problemas CORS  
 
-## 📋 Requisitos Previos
+## 📋 Requisitos
 
-- Node.js 16+
-- npm o yarn
+- Node.js 18+
+- npm 9+ o yarn
 - Backend corriendo en `http://localhost:8000`
 
 ## 🛠️ Instalación
 
-### 1. Clonar el repositorio
+### 1. Clonar y Navegar
 ```bash
-cd frontend
+git clone https://github.com/BrayanJac/esteganografia_galeria.git
+cd esteganografia_galeria/frontend
 ```
 
-### 2. Instalar dependencias
+### 2. Instalar Dependencias
 ```bash
 npm install
-# o
+# o con yarn
 yarn install
 ```
 
-### 3. Configurar variables de entorno
+### 3. Configurar Variables de Entorno
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` si necesitas cambiar la URL del API:
+Editar `.env`:
 ```env
 VITE_API_URL=http://localhost:8000/api
 ```
+
+### 4. Ejecutar en Desarrollo
+```bash
+npm run dev
+```
+
+✅ Frontend disponible en `http://localhost:5173`
 
 ## 💻 Comandos Disponibles
 
 ### Desarrollo
 ```bash
-npm run dev
+npm run dev          # Inicia servidor con hot reload
 ```
-Abre [http://localhost:5173](http://localhost:5173) en tu navegador.
 
-### Build para producción
+### Build
+```bash
+npm run build        # Genera dist/ optimizado
+npm run preview      # Previsualiza build
+```
+
+### Verificación de Código
+```bash
+npm run type-check   # TypeScript type checking
+npm run lint         # ESLint checking
+```
+
+### Build de Producción
 ```bash
 npm run build
-```
-Crea la carpeta `dist` con los archivos optimizados.
-
-### Preview del build
-```bash
-npm run preview
-```
-
-### Type checking
-```bash
-npm run type-check
-```
-
-### Linting
-```bash
-npm run lint
+# Deploy el contenido de dist/
 ```
 
 ## 📁 Estructura del Proyecto
 
 ```
 src/
-├── components/          # Componentes reutilizables
-│   ├── ProtectedRoute.tsx
-│   ├── Navbar.tsx
-│   ├── LoginForm.tsx
-│   ├── RegisterForm.tsx
-│   └── AlbumModal.tsx
-├── pages/              # Páginas/rutas principales
-│   ├── HomePage.tsx
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── GalleryPage.tsx
-│   └── AdminPage.tsx
-├── services/           # Llamadas a API
-│   └── api.ts
-├── hooks/              # Custom hooks
-│   ├── useAuth.ts
-│   └── useGallery.ts
-├── store/              # Zustand stores
-│   └── authStore.ts
-├── types/              # TypeScript interfaces
-│   └── index.ts
-├── utils/              # Utilidades
+├── components/                 # 🧩 Componentes reutilizables
+│   ├── Navbar.tsx             # Navegación principal
+│   ├── LoginForm.tsx          # Formulario login
+│   ├── RegisterForm.tsx       # Formulario registro
+│   ├── ProtectedRoute.tsx     # Rutas protegidas
+│   ├── GuestRoute.tsx         # Rutas invitado
+│   ├── AlbumModal.tsx         # Modal crear/editar álbum
+│   ├── AlbumDetailsModal.tsx  # Detalles álbum
+│   ├── AlbumEditModal.tsx     # Editar álbum
+│   ├── ImageLightbox.tsx      # Visor de imágenes
+│   ├── ConfirmDialog.tsx      # Diálogo confirmación
+│   └── UploadProgressDialog.tsx # Progreso upload
+│
+├── pages/                      # 📄 Páginas/rutas principales
+│   ├── HomePage.tsx           # Página inicio
+│   ├── LoginPage.tsx          # Página login
+│   ├── RegisterPage.tsx       # Página registro
+│   ├── GalleryPage.tsx        # Galería con álbumes
+│   ├── AlbumDetailPage.tsx    # Detalles álbum
+│   ├── AdminPage.tsx          # Panel admin principal
+│   ├── UsersPage.tsx          # Gestión usuarios
+│   └── StatusPage.tsx         # Dashboard estadísticas
+│
+├── services/                   # 🔗 Cliente HTTP
+│   └── api.ts                 # Axios + interceptores JWT
+│
+├── hooks/                      # 🪝 Custom React Hooks
+│   ├── useAuth.ts             # Autenticación
+│   ├── useGallery.ts          # Galerías e imágenes
+│   └── useUser.ts             # Gestión usuario
+│
+├── store/                      # 🏪 State Management (Zustand)
+│   └── authStore.ts           # Estado de autenticación
+│
+├── types/                      # 📘 TypeScript Types
+│   └── index.ts               # Interfaces compartidas
+│
+├── utils/                      # 🛠️ Utilidades
+│   └── helpers.ts             # Funciones auxiliares
+│
+├── App.tsx                     # 🌳 Componente raíz
+├── main.tsx                    # 🚀 Punto de entrada
+└── index.css                   # 🎨 Estilos globales
+```
+
+## 🔐 Autenticación
+
+El frontend implementa autenticación JWT:
+
+### Flujo de Autenticación
+```
+1. Usuario registra/login
+   ↓
+2. Backend retorna JWT token
+   ↓
+3. Frontend almacena token en localStorage
+   ↓
+4. Axios interceptor adjunta token a headers
+   ↓
+5. Cada petición incluye: Authorization: Bearer <token>
+   ↓
+6. Si token inválido → 401 → redirige a /login
+```
+
+### Token Storage
+```typescript
+// localStorage
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer"
+}
+
+// Headers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+### Rutas Protegidas
+```typescript
+// Solo usuarios autenticados
+<ProtectedRoute path="/gallery" element={<GalleryPage />} />
+
+// Solo invitados (login, register)
+<GuestRoute path="/login" element={<LoginPage />} />
+```
+
+## 🔗 Integración Backend
+
+Configuración en `src/services/api.ts`:
+
+```typescript
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+});
+
+// Interceptor JWT
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+```
+
+### Endpoints Consumidos
+
+**Autenticación:**
+```
+POST   /auth/register         # Registrar usuario
+POST   /auth/login            # Iniciar sesión
+GET    /auth/me               # Usuario actual
+POST   /auth/logout           # Cerrar sesión
+```
+
+**Álbumes:**
+```
+GET    /albums/library        # Mis álbumes
+POST   /albums/               # Crear álbum
+PUT    /albums/{id}           # Actualizar álbum
+DELETE /albums/{id}           # Eliminar álbum
+GET    /albums/{id}           # Detalles álbum
+```
+
+**Imágenes:**
+```
+POST   /images/upload         # 📤 Subir imagen
+GET    /images                # Listar imágenes
+DELETE /images/{id}           # Eliminar imagen
+GET    /images/quarantined    # Imágenes cuarentenadas
+POST   /images/{id}/review    # Revisar imagen
+```
+
+**Galería Pública:**
+```
+GET    /gallery               # Galerías públicas
+GET    /gallery/{id}          # Imágenes galería pública
+```
+
+## 🎨 Temas y Estilos
+
+### Tailwind CSS
+```
+- Diseño responsivo (mobile-first)
+- Colores personalizados
+- Componentes reutilizables
+- Dark mode (opcional)
+```
+
+### Modo Oscuro (Futuro)
+```typescript
+// Próximamente será configurable
+// Documentación en: tailwindcss.com/docs/dark-mode
+```
+
+## 📦 Dependencias Principales
+
+```json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "axios": "^1.6.0",
+    "@tanstack/react-query": "^5.8.0",
+    "zustand": "^4.4.0",
+    "lucide-react": "^0.294.0",
+    "@headlessui/react": "^1.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vite": "^8.0.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0"
+  }
+}
+```
+
+## 🚀 Build para Producción
+
+### Compilar
+```bash
+npm run build
+```
+
+Genera carpeta `dist/` con:
+- ✅ JavaScript minificado
+- ✅ CSS optimizado
+- ✅ Assets comprimidos
+- ✅ Sourcemaps (opcional)
+
+### Servir en Producción
+```bash
+npm run preview           # Previsualiza localmente
+# O deployment en servidor web (nginx, Apache, etc)
+```
+
+## 🛠️ Desarrollo
+
+### Hot Module Replacement (HMR)
+Vite proporciona reload automático:
+```bash
+npm run dev
+
+# Cambios en src/ se reflejan instantáneamente
+# Sin perder estado de componentes
+```
+
+### Debugging
+```bash
+# Chrome DevTools
+# React DevTools extension
+# Network tab para ver requests API
+```
+
+### Proxy en Desarrollo
+```typescript
+// vite.config.ts
+proxy: {
+  '/api': {
+    target: 'http://localhost:8000',
+    changeOrigin: true
+  }
+}
+```
+
+## 📖 Páginas Principales
+
+### HomePage (`/`)
+- Presentación del proyecto
+- Link a login/registro
+- Información sobre esteganografía
+
+### LoginPage (`/login`)
+- Formulario de autenticación
+- Validación de datos
+- Manejo de errores
+
+### GalleryPage (`/gallery`)
+- Lista de álbumes del usuario
+- Crear nuevo álbum
+- Ver imágenes por álbum
+- Indicador esteganografía
+
+### AdminPage (`/admin`)
+- Dashboard estadísticas
+- Vista drill-down interactiva
+- Gestión de usuarios (admin)
+- Logs de seguridad
+
+### StatusPage (`/status`)
+- Estadísticas en tiempo real
+- Gráficos de actividad
+- Análisis de seguridad
+
+## 🔄 State Management
+
+### Zustand Auth Store
+```typescript
+// store/authStore.ts
+interface AuthStore {
+  token: string | null;
+  user: User | null;
+  login: (token: string, user: User) => void;
+  logout: () => void;
+  setUser: (user: User) => void;
+}
+```
+
+### React Query Hooks
+```typescript
+// hooks/useGallery.ts
+useQuery(['albums'], fetchAlbums)
+useMutation(createAlbum)
+useUploadImage()
+```
+
+## 🧪 Testing (Futuro)
+
+```bash
+npm run test          # Ejecutar tests
+npm run coverage      # Cobertura de tests
+```
+
+## 📝 Environment Variables
+
+```env
+# .env.development
+VITE_API_URL=http://localhost:8000/api
+VITE_DEBUG=true
+
+# .env.production
+VITE_API_URL=https://api.tudominio.com
+VITE_DEBUG=false
+```
+
+## 🐛 Troubleshooting
+
+### CORS Error
+```
+Solución: Verificar que backend esté corriendo en 8000
+          y que ALLOWED_ORIGINS incluya 5173
+```
+
+### API No Responde
+```
+Solución: 
+  1. Verificar backend está activo: curl localhost:8000/health
+  2. Verificar VITE_API_URL en .env
+  3. Revisar Network tab en DevTools
+```
+
+### Token Expirado
+```
+Comportamiento: Redirige a /login automáticamente
+El interceptor detecta 401 y limpia token
+```
+
+## 📚 Recursos
+
+- [Vite Docs](https://vitejs.dev/)
+- [React Docs](https://react.dev/)
+- [Tailwind Docs](https://tailwindcss.com/)
+- [TypeScript Docs](https://www.typescriptlang.org/)
+- [Axios Docs](https://axios-http.com/)
+
+---
+
+**Última actualización:** Mayo 2026
 ├── App.tsx             # Componente raíz
 ├── main.tsx            # Punto de entrada
 └── index.css           # Estilos globales

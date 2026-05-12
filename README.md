@@ -1,156 +1,114 @@
-# SecureGallery - Galería Multimedia Segura
+# 🖼️ SecureGallery - Galería Multimedia Segura
 
-Una aplicación web completa para gestionar galerías de imágenes con detección automática integrada de esteganografía, autenticación segura y sistema de roles de usuario.
+Una aplicación web completa y segura para gestionar galerías de imágenes con **detección avanzada de esteganografía**, **autenticación robusta** y **sistema de roles granular**.
+
+[![Estado: Producción](https://img.shields.io/badge/Estado-Producción-green)](https://github.com/BrayanJac/esteganografia_galeria)
+[![Python 3.14](https://img.shields.io/badge/Python-3.14-blue)](https://www.python.org/)
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
+[![React 18](https://img.shields.io/badge/React-18-61dafb)](https://react.dev/)
 
 ## Tabla de Contenidos
 
 1. [¿Qué es SecureGallery?](#qué-es-securegallery)
-2. [¿Cómo Funciona?](#cómo-funciona)
-3. [Componentes Principales](#componentes-principales)
+2. [Características Principales](#características-principales)
+3. [Tecnología Stack](#tecnología-stack)
 4. [Requisitos Previos](#requisitos-previos)
-5. [Instalación Paso a Paso](#instalación-paso-a-paso)
-6. [Primeros Pasos](#primeros-pasos)
-7. [Funcionamiento Detallado](#funcionamiento-detallado)
-8. [Estructura del Proyecto](#estructura-del-proyecto)
-9. [Preguntas Frecuentes](#preguntas-frecuentes)
+5. [Instalación Rápida](#instalación-rápida)
+6. [Ejecución](#ejecución)
+7. [Arquitectura](#arquitectura)
+8. [Seguridad Implementada](#seguridad-implementada)
+9. [Estructura del Proyecto](#estructura-del-proyecto)
+10. [Guía de Desarrollo](#guía-de-desarrollo)
 
 ---
 
 ## ¿Qué es SecureGallery?
 
-SecureGallery es una plataforma web que permite:
+**SecureGallery** es una plataforma web diseñada para gestionar y proteger galerías de imágenes mediante detección inteligente de contenido esteganografiado. Combina funcionalidades modernas de web con algoritmos avanzados de análisis digital.
 
-- **Gestión de Galerías** - Crear, editar y organizar álbumes de fotos
-- **Autenticación Segura** - Cada usuario tiene su propia cuenta protegida
-- **Detección de Esteganografía** - Analiza automáticamente si las imágenes contienen información oculta
-- **Sistema de Roles** - Usuarios normales, supervisores y administradores con diferentes permisos
-- **Cuarentena de Imágenes** - Aísla automáticamente imágenes sospechosas
-- **Galería Pública** - Comparte tus álbumes públicos con otros
+### Características Principales
 
-### Conceptos Clave
+✅ **Gestión de Galerías** - Crear, editar, compartir y organizar álbumes de fotos  
+✅ **Autenticación Segura** - JWT + Argon2 hashing con prevención de brute force  
+✅ **Detección de Esteganografía** - 4 algoritmos complementarios (LSB, Histogram, EOF, FFT/DCT)  
+✅ **Sistema de Cuarentena** - Aislamiento automático de imágenes sospechosas  
+✅ **Control de Acceso** - Roles: Usuario, Supervisor, Admin  
+✅ **Auditoría de Seguridad** - Logging de eventos y intentos de acceso  
+✅ **Rate Limiting** - Protección contra ataques por fuerza bruta  
+✅ **Galería Pública** - Compartir álbumes públicos de forma segura  
 
-**¿Qué es la Esteganografía?**
-Es la técnica de ocultar información dentro de archivos (como imágenes). Por ejemplo, alguien podría ocultar un archivo de texto dentro de una foto sin que se note a simple vista.
+### ¿Qué es la Esteganografía?
 
-**¿Por qué es importante?**
-En contextos de seguridad, es importante detectar si alguien está intentando colarse información oculta en las imágenes que subes.
+La **esteganografía** es la técnica de ocultar información dentro de otros archivos (especialmente imágenes) sin que se note a simple vista. Diferente de la criptografía (que encripta), la esteganografía disimula.
+
+**Ejemplos:**
+- Embeber un documento de texto en una imagen JPEG
+- Ocultar claves SSH en datos de píxeles
+- Ocultación de malware en archivos multimedia
+
+**¿Por qué detectarla?**
+- Prevenir infiltración de malware
+- Detectar intentos de filtración de datos
+- Cumplir regulaciones de seguridad
+- Proteger la integridad del contenido
 
 ---
 
-## ¿Cómo Funciona?
+## 🛠️ Tecnología Stack
 
-### Flujo General
+### Backend
+| Componente | Tecnología | Versión |
+|---|---|---|
+| Framework API | FastAPI | 0.104+ |
+| Servidor ASGI | Uvicorn | 0.24+ |
+| ORM | SQLAlchemy | 2.0+ |
+| Validación | Pydantic | 2.0+ |
+| Autenticación | Python-JOSE + Passlib | - |
+| Hashing | Argon2 | - |
+| Rate Limiting | SlowAPI | - |
+| Procesamiento imágenes | Pillow, OpenCV, NumPy, SciPy | - |
+| Base de Datos | SQLite (desarrollo) / PostgreSQL (producción) | - |
 
+### Frontend
+| Componente | Tecnología | Versión |
+|---|---|---|
+| Librería UI | React | 18.2+ |
+| Lenguaje | TypeScript | 5.3+ |
+| Bundler | Vite | 8.0+ |
+| Estilos | Tailwind CSS | 3.3+ |
+| HTTP Client | Axios | 1.6+ |
+| State Management | Zustand | - |
+| Router | React Router | 6.0+ |
+| Server State | React Query/TanStack Query | - |
+| Iconos | Lucide React | - |
+
+---
+
+## 📋 Requisitos Previos
+
+Antes de empezar, verifica que tengas instalado:
+
+### 1. Python 3.14+
+```bash
+python --version  # Debe ser >= 3.14
 ```
-Usuario              Navegador              Backend                Base de Datos
-  |                    |                     |                          |
-  |--- Registrarse -->|                     |                          |
-  |                    |--- POST /register ->|--- Guardar usuario ----->|
-  |<--- Confirmación --|<--- Token JWT ------|                          |
-  |                    |                     |                          |
-  |--- Iniciar sesión -|                     |                          |
-  |                    |--- POST /login ---->|--- Verificar credenciales|
-  |<--- Token JWT ------|<--- Token JWT ------|                          |
-  |                    |                     |                          |
-  |--- Subir imagen --->|                     |                          |
-  |                    |--- POST /upload --->|--- Guardar archivo ----->|
-  |                    |                     |--- Analizar imagen ----->|
-  |                    |                     |--- Guardar resultado ---->|
-  |<--- Resultado ------|<--- Estado imagen--|<--- Estado análisis ------|
-```
-
-### Paso a Paso: ¿Qué Ocurre Cuando Subes una Imagen?
-
-1. **Carga** - Seleccionas una imagen en el navegador
-2. **Envío** - La imagen se envía al servidor backend
-3. **Almacenamiento** - Se guarda en la carpeta `uploads/`
-4. **Análisis** - El backend ejecuta algoritmos de detección de esteganografía
-5. **Resultado** - Se guarda como "LIMPIA" o "SOSPECHOSA"
-6. **Cuarentena** - Si es sospechosa, se aísla automáticamente
-7. **Notificación** - Ves el resultado en la galería
-
----
-
-## Componentes Principales
-
-### 1. Backend (Python + FastAPI)
-
-**¿Qué es?** Es el "cerebro" de la aplicación que se ejecuta en el servidor.
-
-**¿Qué hace?**
-- Gestiona usuarios y autenticación
-- Procesa las imágenes subidas
-- Realiza el análisis de esteganografía
-- Almacena datos en la base de datos
-- Proporciona APIs REST para que el frontend las use
-
-**Ubicación:** `/backend/`
-
-### 2. Frontend (React + Vite + TypeScript)
-
-**¿Qué es?** Es la interfaz visual que ves en el navegador.
-
-**¿Qué hace?**
-- Muestra formularios para login/registro
-- Permite subir imágenes
-- Muestra la galería con resultados
-- Comunica con el backend
-
-**Ubicación:** `/frontend/`
-
-### 3. Base de Datos (SQLite)
-
-**¿Qué es?** Almacena toda la información de manera organizada.
-
-**¿Qué guarda?**
-- Información de usuarios
-- Detalles de álbumes
-- Información de imágenes
-- Resultados de análisis
-
-> Nota: en esta versión el proyecto usa SQLite por defecto en local, así que no necesitas instalar PostgreSQL para ejecutar la app. Si cambias la variable `DATABASE_URL`, puedes apuntar a otra base de datos compatible.
-
-## Herramientas y Dependencias
-
-La aplicación está construida con estas tecnologías principales:
-
-- **Backend:** FastAPI, Uvicorn, SQLAlchemy, Pydantic, Python-JOSE, Passlib y SlowAPI
-- **Frontend:** React, TypeScript, Vite, TanStack Query, Axios, Zustand, Tailwind CSS y Lucide Icons
-- **Persistencia:** SQLite por defecto en desarrollo local
-
-Estas herramientas cubren autenticación, gestión de galerías, validación de formularios, consumo de APIs y renderizado de la interfaz.
-
----
-
-## Requisitos Previos
-
-Antes de empezar, necesitas tener instalado:
-
-### 1. Python 3.10+
-Lenguaje de programación para el backend.
-- [Descargar Python](https://www.python.org/downloads/)
-- **Verificar instalación:**
-  ```bash
-  python --version
-  ```
+[Descargar Python](https://www.python.org/downloads/)
 
 ### 2. Node.js 18+
-Entorno para ejecutar JavaScript/TypeScript del frontend.
-- [Descargar Node.js](https://nodejs.org/)
-- **Verificar instalación:**
-  ```bash
-  node --version
-  npm --version
-  ```
+```bash
+node --version   # Debe ser >= 18
+npm --version    # Debe estar incluido
+```
+[Descargar Node.js](https://nodejs.org/)
 
-### 3. SQLite
-No necesitas instalar nada extra para ejecutar el proyecto en local. La base de datos SQLite se crea automáticamente con el script de inicialización.
+### 3. Git (Recomendado)
+```bash
+git --version
+```
+[Descargar Git](https://git-scm.com/downloads)
 
-Si quieres usar otra base de datos, puedes cambiar `DATABASE_URL` en el archivo `.env`.
-
-### 4. Git (Opcional pero recomendado)
-Para clonar el repositorio.
-- [Descargar Git](https://git-scm.com/downloads)
+### 4. SQLite (Incluido en Python)
+No necesita instalación adicional. SQLite se crea automáticamente al iniciar.
 
 ---
 
@@ -249,211 +207,274 @@ INFO:     Application startup complete
 
 ---
 
+---
+
 ### PASO 4: Instalar Frontend
 
-#### 4.1 Abre OTRA terminal y entra en la carpeta del frontend
+Abre otra terminal en la carpeta `frontend`:
+
 ```bash
 cd frontend
-```
-
-#### 4.2 Instalar dependencias
-```bash
 npm install
-```
-
-#### 4.3 Iniciar el servidor de desarrollo
-```bash
 npm run dev
 ```
 
-**¿Qué debería ver?**
-```
-➜  Local:   http://localhost:5173/
-```
-
-#### 4.4 Abre en el navegador
-Abre tu navegador favorito y ve a:
-```
-http://localhost:5173
-```
+Abre tu navegador en: `http://localhost:5173`
 
 ---
 
-## Primeros Pasos
+## ✨ Primeros Pasos
 
 ### 1. Registrarse
 
-1. En la página de inicio, click en **"Registrarse"**
-2. Completa el formulario:
-   - **Usuario:** Tu nombre de usuario (ej: "juan123")
-   - **Email:** Tu email (ej: "juan@example.com")
-   - **Contraseña:** Mínimo 12 caracteres, incluyendo:
-     - Mayúsculas (A-Z)
-     - Minúsculas (a-z)
-     - Números (0-9)
-     - Caracteres especiales (!@#$%^&*)
-   - Ejemplo válido: `MiPassword@123!`
-
-3. Click en **"Registrarse"**
+- Click en **"Registrarse"**
+- Completa el formulario:
+  - **Usuario:** Mínimo 3 caracteres
+  - **Email:** Email válido
+  - **Contraseña:** Mínimo 12 caracteres con mayús, minús, número y símbolo
+  - Ejemplo: `MiPassword@123!`
+- Click en **"Registrarse"**
 
 ### 2. Iniciar Sesión
 
-1. Click en **"Iniciar Sesión"**
-2. Ingresa tu usuario y contraseña
-3. Click en **"Iniciar Sesión"**
+- Click en **"Iniciar Sesión"**
+- Ingresa usuario y contraseña
+- ¡Acceso otorgado!
 
 ### 3. Crear un Álbum
 
-1. Una vez dentro, ve a **"Mi Galería"**
-2. Click en **"Nuevo Álbum"**
-3. Completa:
-   - **Título:** Nombre del álbum (ej: "Vacaciones 2024")
-   - **Descripción:** Descripción opcional
-   - **Público:** Marca si quieres que otros lo vean
-4. Click en **"Crear"**
+- Ve a **"Mi Galería"**
+- Click en **"Nuevo Álbum"**
+- Completa:
+  - **Título:** Nombre descriptivo
+  - **Descripción:** Opcional
+  - **Público:** Marca para que otros vean
+- Click en **"Crear"**
 
 ### 4. Subir Imágenes
 
-1. En tu álbum, click en **"Subir imagen"**
-2. Selecciona imágenes de tu computadora
-3. Espera a que se procesen
-4. Verás el estado: "Limpia" o "Sospechosa"
+- Entra al álbum
+- Click en **"Subir Imagen"**
+- Selecciona archivo (máx 10MB)
+- Espera análisis
+- Resultado: ✅ **Limpia** o ⚠️ **Sospechosa**
+
+Si es sospechosa → pasa a cuarentena para revisión de supervisor
 
 ---
 
-## Funcionamiento Detallado
+## 🏗️ Arquitectura Detallada
 
-### Autenticación (Login/Registro)
-
-```
-1. Registro:
-   Usuario ----[nombre, email, contraseña]--> Backend
-   Backend: "Voy a cifrar la contraseña"
-   Backend: "Voy a guardar el usuario en la BD"
-   Frontend: "Listo! Ahora inicia sesión"
-
-2. Iniciar Sesión:
-   Usuario ----[usuario, contraseña]--> Backend
-   Backend: "¿La contraseña coincide?"
-   Backend: "Sí! Aquí está tu TOKEN"
-   Frontend: "Guardaré el TOKEN para futuras peticiones"
-
-3. Peticiones Futuras:
-   Usuario quiere subir imagen
-   Frontend: "Adjuntaré el TOKEN al request"
-   Backend: "¿Tiene TOKEN válido?"
-   Backend: "Sí! Permite la subida"
-```
-
-**¿Qué es un TOKEN?**
-Es como un pase de acceso. Una vez que inicias sesión, el servidor te da un pase que dice "Este usuario es confiable". Cada vez que haces algo, le muestras el pase.
-
-### Análisis de Imágenes
-
-```
-Usuario sube imagen
-    ↓
-Backend recibe la imagen
-    ↓
-Backend guarda la imagen en carpeta "uploads/"
-    ↓
-Backend ejecuta algoritmos de análisis:
-  - LSB Steganography (Least Significant Bit)
-  - DCT Coefficients (Discrete Cosine Transform)
-  - Fourier Analysis
-    ↓
-Backend calcula un "score de sospecha"
-    ↓
-Score > 70%? → CUARENTENA (Sospechosa)
-Score < 30%? → LIMPIA (Segura)
-Score 30-70%? → REQUIERE REVISIÓN (Manual)
-    ↓
-Resultado se guarda en la Base de Datos
-    ↓
-Frontend muestra el resultado al usuario
-```
-
-### Flujo de Roles
-
-```
-USUARIO NORMAL:
-├── Crear álbumes propios
-├── Subir imágenes
-├── Ver su galería
-├── Editar sus galerías aprobadas o rechazadas
-└── Ver galerías públicas
-
-SUPERVISOR:
-├── Revisar imágenes en cuarentena
-├── Aprobar/Rechazar álbumes
-├── Editar galerías aprobadas o rechazadas
-├── Agregar comentarios de revisión
-└── Ver panel de administración
-
-ADMIN:
-├── Todo lo del supervisor
-├── Gestionar usuarios
-├── Ver estadísticas
-└── Acceso completo a todo
-```
-
----
-
-## Estructura del Proyecto
+### Estructura Completa del Proyecto
 
 ```
 esteganografia_galeria/
 │
-├── backend/                          [API REST - Python]
-│   ├── main.py                       Archivo principal (ejecutar esto)
-│   ├── requirements.txt              Dependencias Python
-│   ├── .env                          Variables de configuración
+├── backend/                               [🐍 FastAPI REST API]
+│   ├── main.py                            ⭐ Punto de entrada
+│   ├── requirements.txt                   📦 Dependencias Python
+│   ├── .env                               🔐 Configuración
+│   │
 │   ├── config/
-│   │   └── config.py                 Configuración del app
+│   │   └── config.py                      ⚙️ Variables de configuración
+│   │
 │   ├── database/
-│   │   ├── database.py               Conexión a BD
-│   │   └── models.py                 Estructura de datos
-│   ├── routers/                      Endpoints de API
-│   │   ├── auth_router.py            Login/Registro
-│   │   ├── album_router.py           Gestión álbumes
-│   │   ├── image_router.py           Gestión imágenes
-│   │   └── gallery_router.py         Galería pública
-│   ├── services/                     Lógica de negocio
-│   │   ├── auth_service.py
-│   │   ├── album_service.py
-│   │   ├── image_service.py
-│   │   └── gallery_service.py
-│   ├── security/                     Seguridad
-│   │   ├── auth.py                   Autenticación JWT
-│   │   ├── middleware.py             CORS, headers
-│   │   └── steganography.py          Análisis esteganografía
-│   └── uploads/                      Imágenes guardadas
+│   │   ├── database.py                    🔌 Conexión SQLAlchemy
+│   │   ├── models.py                      📊 Modelos ORM
+│   │   └── init_db.py                     🗄️ Inicialización BD
+│   │
+│   ├── routers/
+│   │   ├── auth_router.py                 🔑 Endpoints: Registro/Login
+│   │   ├── album_router.py                📁 Endpoints: Álbumes
+│   │   ├── image_router.py                🖼️ Endpoints: Subir/Analizar
+│   │   └── gallery_router.py              🎞️ Endpoints: Galería pública
+│   │
+│   ├── services/
+│   │   ├── auth_service.py                🛡️ Lógica autenticación
+│   │   ├── album_service.py               💼 Lógica álbumes
+│   │   ├── image_service.py               🔍 Lógica imágenes
+│   │   └── gallery_service.py             📸 Lógica galería
+│   │
+│   ├── security/
+│   │   ├── auth.py                        🔐 JWT + Hashing
+│   │   ├── middleware.py                  🛡️ CORS + Headers + Rate Limit
+│   │   └── steganography.py               🔎 4 algoritmos detección
+│   │
+│   ├── uploads/                           📁 Imágenes almacenadas
+│   └── test.db                            🗄️ Base de datos SQLite
 │
-├── frontend/                         [Interfaz - React]
+├── frontend/                              [⚛️ React + TypeScript]
 │   ├── src/
-│   │   ├── components/               Componentes React
-│   │   │   ├── Navbar.tsx
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── ProtectedRoute.tsx
-│   │   │   └── ...
-│   │   ├── pages/                    Páginas completas
-│   │   │   ├── HomePage.tsx
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── GalleryPage.tsx
-│   │   │   └── ...
+│   │   ├── components/                    🧩 Componentes React
+│   │   │   ├── Navbar.tsx                 🎬 Barra de navegación
+│   │   │   ├── LoginForm.tsx              📝 Formulario login
+│   │   │   ├── AlbumModal.tsx             🎨 Modal crear álbum
+│   │   │   ├── ImageLightbox.tsx          🎞️ Visor de imágenes
+│   │   │   └── ProtectedRoute.tsx         🔐 Rutas protegidas
+│   │   │
+│   │   ├── pages/                         📄 Páginas principales
+│   │   │   ├── HomePage.tsx               🏠 Página inicio
+│   │   │   ├── LoginPage.tsx              🔑 Página login
+│   │   │   ├── GalleryPage.tsx            🎞️ Mi galería
+│   │   │   ├── AlbumDetailPage.tsx        📁 Detalle álbum
+│   │   │   └── AdminPage.tsx              🛠️ Panel admin
+│   │   │
 │   │   ├── services/
-│   │   │   └── api.ts                Cliente HTTP
-│   │   ├── hooks/                    Hooks personalizados
-│   │   ├── store/                    Estado global
-│   │   ├── types/                    Tipos TypeScript
-│   │   ├── App.tsx                   Componente raíz
-│   │   └── main.tsx                  Punto de entrada
-│   ├── package.json                  Dependencias Node
-│   ├── vite.config.ts                Configuración Vite
-│   └── .env                          Variables de entorno
+│   │   │   └── api.ts                     🔗 Cliente HTTP (Axios)
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useAuth.ts                 🔐 Hook autenticación
+│   │   │   ├── useGallery.ts              🎨 Hook galería
+│   │   │   └── useUser.ts                 👤 Hook usuario
+│   │   │
+│   │   ├── store/
+│   │   │   └── authStore.ts               🏪 Estado global (Zustand)
+│   │   │
+│   │   ├── types/
+│   │   │   └── index.ts                   📘 Tipos TypeScript
+│   │   │
+│   │   ├── utils/
+│   │   │   └── helpers.ts                 🧰 Funciones auxiliares
+│   │   │
+│   │   ├── App.tsx                        🎯 Componente raíz
+│   │   ├── main.tsx                       ⚡ Punto entrada Vite
+│   │   └── index.css                      🎨 Tailwind CSS
+│   │
+│   ├── package.json                       📦 Dependencias Node
+│   ├── tsconfig.json                      ⚙️ Config TypeScript
+│   ├── vite.config.ts                     ⚙️ Config Vite
+│   ├── tailwind.config.js                 🎨 Config Tailwind
+│   ├── postcss.config.js                  🎨 Config PostCSS
+│   └── .env                               🔐 Variables entorno
 │
-└── README.md                         Este archivo
+├── README.md                              📖 Este archivo
+├── QUICKSTART.md                          ⚡ Inicio rápido
+├── API_ADMIN_REFERENCE.md                 📚 Referencia API
+├── PROJECT_STATUS.md                      📊 Estado proyecto
+├── FEATURES.md                            ✨ Características
+├── CHANGELOG.md                           📝 Historial versiones
+└── .git/                                  🔄 Control de versiones
 ```
+
+### Flujo de Datos
+
+```
+USUARIO
+  ↓
+[Frontend - React]
+  ├─→ Componentes UI (React)
+  ├─→ Validación local
+  ├─→ Zustand (Estado global)
+  └─→ Axios (HTTP Client)
+        ↓
+  [Backend - FastAPI]
+    ├─→ Middleware (CORS, Rate Limit, Security)
+    ├─→ Router (Validación)
+    ├─→ Service (Lógica negocio)
+    ├─→ Database (SQLAlchemy ORM)
+    │   └─→ SQLite
+    └─→ Security (JWT, Hashing, Steganography)
+        ↓
+    [Response con estado]
+        ↓
+  [Frontend - Actualiza UI]
+    └─→ Usuario ve resultado
+```
+
+### Ciclo de Vida: Subida de Imagen
+
+```
+1️⃣ Usuario selecciona imagen
+   ├─ Frontend valida: ¿Max 10MB?
+   └─ ¿Formato válido?
+
+2️⃣ Frontend envía POST /api/images/upload
+   ├─ Headers: Authorization: Bearer {JWT}
+   ├─ Body: FormData con imagen
+
+3️⃣ Backend recibe en image_router.py
+   ├─ Middleware valida: ¿Token válido?
+   ├─ ¿IP dentro de rate limit?
+   └─ Service guarda archivo en uploads/
+
+4️⃣ Backend ejecuta steganography.py
+   ├─ Algoritmo 1: LSB Analysis (25%)
+   ├─ Algoritmo 2: Histogram (20%)
+   ├─ Algoritmo 3: EOF Detection (15%)
+   └─ Algoritmo 4: Frequency Domain (40%)
+
+5️⃣ Backend calcula score
+   ├─ score < 0.4 → CLEAN ✅
+   └─ score > 0.4 → QUARANTINE ⚠️
+
+6️⃣ Backend guarda en Base de Datos
+   ├─ Image: metadata, filename, owner
+   ├─ ImageMetadata: análisis, score
+   └─ SecurityLog: auditoria
+
+7️⃣ Frontend recibe respuesta
+   ├─ Actualiza UI
+   └─ Muestra estado: ✅ o ⚠️
+```
+
+---
+
+## 🔐 Seguridad Implementada (8 Capas)
+
+### Capa 1: Autenticación
+- ✅ JWT con expiración 30 minutos
+- ✅ Argon2 para hashing de contraseñas (GPU-resistant)
+- ✅ Contraseñas validadas: 12+ chars, mayús, minús, número, símbolo
+- ✅ Token en localStorage (frontend)
+
+### Capa 2: Autorización
+- ✅ Roles: Usuario, Supervisor, Admin
+- ✅ Endpoints protegidos por get_current_user()
+- ✅ Validación granular por endpoint
+- ✅ Album owner check antes de editar
+
+### Capa 3: Rate Limiting
+- ✅ SlowAPI: 100 req/min por IP por defecto
+- ✅ Login: 5 intentos / 15 minutos
+- ✅ Upload: 10 imágenes / hora
+- ✅ Bloqueo temporal después de límite
+
+### Capa 4: CORS & Headers
+- ✅ CORS: Solo localhost:5173 en desarrollo
+- ✅ X-Frame-Options: DENY (anti-clickjacking)
+- ✅ X-Content-Type-Options: nosniff
+- ✅ Strict-Transport-Security (HTTPS en producción)
+- ✅ Content-Security-Policy
+
+### Capa 5: Input Validation
+- ✅ Validación de tipos en todos los endpoints
+- ✅ Sanitización de strings
+- ✅ File type checking (magic bytes)
+- ✅ Size limits (10MB por imagen)
+- ✅ Pydantic models para validación automática
+
+### Capa 6: SQL Injection Prevention
+- ✅ SQLAlchemy ORM (prepared statements)
+- ✅ Parametrized queries
+- ✅ No SQL raw strings interpoladas
+- ✅ Type-safe queries
+
+### Capa 7: Detection & Logging
+- ✅ SecurityLog table para auditoria
+- ✅ Detección de patrones maliciosos:
+  - SQL injection attempts
+  - XSS payloads
+  - Path traversal
+  - Common attack tools
+- ✅ IP logging en intentos fallidos
+
+### Capa 8: Steganography Detection
+- ✅ LSB (Least Significant Bit) Analysis
+- ✅ Histogram Discontinuity Detection
+- ✅ EOF (End-of-File) Analysis
+- ✅ Frequency Domain Analysis (FFT/DCT)
+- ✅ Weighted scoring system
+- ✅ Automatic quarantine > 0.4 score
 
 ---
 
@@ -509,174 +530,139 @@ npm run lint
 
 ---
 
-## Problemas Comunes y Soluciones
+## 🐛 Troubleshooting
 
 ### "Error conectando a la base de datos"
-
-**Causa:** El archivo SQLite local no existe todavía, está corrupto o cambiaste `DATABASE_URL`.
-
-**Solución:**
 ```bash
+# Regenerar base de datos SQLite
 cd backend
 python -m database.init_db
-
-# Verificar credenciales en .env si apuntaste a otra base de datos
-cat .env
 ```
 
 ### "Cannot GET /api/..."
-
-**Causa:** El backend no está ejecutándose.
-
-**Solución:**
 ```bash
-# Verificar que el backend esté ejecutándose - la terminal debe mostrar:
-# "INFO:     Application startup complete"
+# Verificar que backend está corriendo en 8000
+curl http://localhost:8000/health
 
-# Si no, inicia el backend:
-cd backend
-python main.py
+# Si no responde, reinicia:
+cd backend && python main.py
 ```
 
-### "Error CORS"
-
-**Causa:** El frontend y backend no se están comunicando correctamente.
-
-**Solución:**
+### "CORS Error"
 ```bash
-# Verificar en el .env del frontend:
+# Verificar VITE_API_URL en frontend/.env
 VITE_API_URL=http://localhost:8000/api
 
-# Reiniciar ambos servidores:
-# Backend: Ctrl+C y python main.py
-# Frontend: Ctrl+C y npm run dev
+# Reiniciar ambos servicios
 ```
 
-### "npm: comando no encontrado"
+### "npm/python: comando no encontrado"
+- Verifica que Node.js y Python estén instalados
+- En Windows: Agregalosal PATH durante instalación
+- Ejecuta: `node --version` y `python --version`
 
-**Causa:** Node.js no está instalado o no está en PATH.
-
-**Solución:**
-```bash
-# Descargar e instalar Node.js desde:
-https://nodejs.org/
-
-# Verificar después:
-node --version
-npm --version
-```
-
-### "python: comando no encontrado"
-
-**Causa:** Python no está instalado o no está en PATH.
-
-**Solución:**
-```bash
-# Descargar e instalar Python desde:
-https://www.python.org/downloads/
-
-# En Windows: Marca "Add Python to PATH" durante la instalación
-
-# Verificar después:
-python --version
-```
+### "Token expired"
+- Se redirige automáticamente a /login
+- Inicia sesión de nuevo para obtener nuevo token
 
 ---
 
-## Preguntas Frecuentes
+## ❓ Preguntas Frecuentes
 
-### ¿Cuántas imágenes puedo subir?
-No hay límite definido. El máximo por imagen es 10MB (configurable).
+**¿Cuántas imágenes puedo subir?**
+- Límite de 10MB por imagen (configurable en `.env`)
+- Sin límite en cantidad total
 
-### ¿Qué formatos de imagen son soportados?
-JPG, PNG, GIF, BMP, WebP y otros formatos estándar.
+**¿Qué formatos son soportados?**
+- JPEG, PNG, GIF, WebP, BMP y formatos estándar
 
-### ¿Se comprimen las imágenes?
-No, se guardan en su tamaño original.
+**¿Se comprimen las imágenes?**
+- No, se guardan en tamaño original
 
-### ¿Puedo cambiar mi contraseña?
-Por el momento no, pero en próximas versiones.
+**¿Qué es "Cuarentena"?**
+- Aislamiento de imágenes sospechosas de esteganografía
+- Requiere revisión de supervisor
 
-### ¿Qué es "Cuarentena"?
-Es cuando una imagen es marcada como sospechosa por el análisis y se aísla. Un supervisor debe revisar si realmente contiene esteganografía.
+**¿Qué rol necesito para revisar imágenes?**
+- Supervisor o Admin
 
-### ¿Qué es un "Rol"?
-Es el tipo de usuario. Cada rol tiene permisos diferentes:
-- **Usuario:** Puede crear álbumes y subir imágenes
-- **Supervisor:** Puede revisar imágenes en cuarentena
-- **Admin:** Acceso completo al sistema
+**¿Puedo cambiar mi contraseña?**
+- Contacta con un administrador
 
-### ¿Puedo eliminar mi cuenta?
-Aún no, pero puedes contactar con un administrador.
+**¿Son mis datos privados?**
+- Sí, cada usuario ve solo sus datos
+- Galerías públicas visibles para todos
 
-### ¿Son mis datos privados?
-Sí, cada usuario solo ve sus propios datos, excepto las galerías públicas.
-
-### ¿Cuánto tiempo tarda el análisis de esteganografía?
-Típicamente 1-5 segundos dependiendo del tamaño de la imagen.
-
-### ¿Puedo editar mis galerías?
-Sí. Los usuarios pueden editar sus galerías si ya fueron aprobadas o rechazadas. Si una galería sigue pendiente, no se permite editarla.
-
-### ¿Qué puede hacer un supervisor con una galería?
-Puede editar galerías aprobadas o rechazadas y agregar comentarios de revisión desde el panel de administración.
-
-### ¿Puedo usar la aplicación sin conexión?
-No, requiere una conexión porque utiliza un servidor.
+**¿Cuánto tarda el análisis?**
+- Típicamente 1-5 segundos por imagen
 
 ---
 
-## Documentación Adicional
+## 📚 Documentación Adicional
 
-- [Backend README](./backend/README.md) - Documentación detallada del backend
-- [Frontend README](./frontend/README.md) - Documentación detallada del frontend
-- [Frontend QUICKSTART](./frontend/QUICKSTART.md) - Guía rápida del frontend
-
----
-
-## Contribución
-
-¿Quieres mejorar el proyecto?
-
-1. **Reporta errores** - Si encuentras un bug, crea un issue
-2. **Sugiere mejoras** - ¿Tienes ideas? Queremos escucharlas
-3. **Contribuye código** - Fork y envía un pull request
+- **[QUICKSTART.md](QUICKSTART.md)** - Guía de inicio rápido (5 minutos)
+- **[API_ADMIN_REFERENCE.md](API_ADMIN_REFERENCE.md)** - Referencia endpoints administrativos
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Estado y roadmap del proyecto
+- **[FEATURES.md](FEATURES.md)** - Lista completa de características
+- **[CHANGELOG.md](CHANGELOG.md)** - Historial de versiones
+- **[backend/README.md](backend/README.md)** - Documentación del backend
+- **[frontend/README.md](frontend/README.md)** - Documentación del frontend
 
 ---
 
-## Licencia
+## 🎓 Propósito Educativo
 
-Este proyecto está bajo licencia MIT. Eres libre de usarlo, modificarlo y distribuirlo.
+Este proyecto fue desarrollado con **fines educativos** para aprender:
 
----
-
-## Autores
-
-Desarrollado por: **Jacome Brayan** , **Raura Andrea** , **Toscano Jossue**
-
----
-
-## Agradecimientos
-
-- FastAPI - Framework del backend
-- React - Librería de UI
-- PostgreSQL - Base de datos
-- Comunidad open source
+✅ Desarrollo Full Stack (Python + React)  
+✅ Autenticación y Autorización JWT  
+✅ Procesamiento y análisis de imágenes  
+✅ Algoritmos criptográficos y detección  
+✅ Diseño de APIs REST seguras  
+✅ Gestión de bases de datos  
+✅ Buenas prácticas de seguridad  
+✅ Arquitectura de aplicaciones web  
 
 ---
 
-## Notas Educativas
+## 🤝 Contribuciones
 
-Este proyecto fue creado con **fines educativos** para aprender:
-- Desarrollo full stack
-- Seguridad en aplicaciones web
-- Procesamiento de imágenes
-- Autenticación y autorización
-- Bases de datos relacionales
-- APIs REST
+Las contribuciones son bienvenidas. Para cambios significativos:
+
+1. Fork el repositorio
+2. Crea una rama (`git checkout -b feature/mejora`)
+3. Commit tus cambios (`git commit -am 'Agregar mejora'`)
+4. Push a la rama (`git push origin feature/mejora`)
+5. Abre un Pull Request
 
 ---
 
-Para preguntas o problemas, consulta la documentación o contacta al equipo de desarrollo.
+## 📄 Licencia
 
-¡Gracias por usar SecureGallery!
+Este proyecto está bajo licencia MIT. Ver archivo [LICENSE](LICENSE) para detalles.
+
+---
+
+## 📞 Contacto & Soporte
+
+- **Reportar Bugs:** Abre un [issue en GitHub](https://github.com/BrayanJac/esteganografia_galeria/issues)
+- **Sugerencias:** Discusiones en GitHub
+- **Documentación:** Consulta el wiki del proyecto
+
+---
+
+## 🙏 Agradecimientos
+
+Gracias a todos los contribuyentes y usuarios de esta plataforma.
+
+---
+
+**Última Actualización:** Mayo 2026
+
+**Versión:** 1.0.0
+
+**Estado:** ✅ Producción
+
+---
+
+¡Disfruta usando **SecureGallery**! 🎉
