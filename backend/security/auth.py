@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import secrets
 import re
@@ -59,9 +59,9 @@ def validar_fuerza_contraseña(password: str) -> tuple[bool, str]:
 def crear_token_acceso(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -97,9 +97,18 @@ def autenticar_usuario(db: Session, username: str, password: str, ip_address: st
         db.commit()
         return None
 
+    # Check if the last login attempt was within the time window
+    if user.last_login_attempt:
+        time_since_last_attempt = datetime.now(timezone.utc) - user.last_login_attempt
+        window_duration = timedelta(minutes=LOGIN_ATTEMPTS_WINDOW_MINUTES)
+        
+        # If more time has passed than the window, reset the counter
+        if time_since_last_attempt > window_duration:
+            user.failed_login_attempts = 0
+
     if not verify_password(password, user.password_hash):
         user.failed_login_attempts += 1
-        user.last_login_attempt = datetime.utcnow()
+        user.last_login_attempt = datetime.now(timezone.utc)
 
         if user.failed_login_attempts >= LOGIN_ATTEMPTS_LIMIT:
             user.is_active = False
@@ -109,7 +118,7 @@ def autenticar_usuario(db: Session, username: str, password: str, ip_address: st
         return None
 
     user.failed_login_attempts = 0
-    user.last_login_attempt = datetime.utcnow()
+    user.last_login_attempt = datetime.now(timezone.utc)
 
     db.add(login_attempt)
     db.commit()

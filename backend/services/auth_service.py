@@ -63,6 +63,12 @@ async def authenticate_user(username: str, password: str, db: Session, ip_addres
         db, username, password, ip_address, user_agent)
 
     if not usuario:
+        usuario_bloqueado = db.query(User).filter(User.username == username).first()
+        if usuario_bloqueado and not usuario_bloqueado.is_active and usuario_bloqueado.failed_login_attempts >= LOGIN_ATTEMPTS_LIMIT:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales inválidas"

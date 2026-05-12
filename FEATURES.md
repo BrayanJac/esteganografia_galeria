@@ -156,12 +156,6 @@
 - `MAX_FILE_SIZE` - Tamaño máximo de archivo
 - `GALLERY_ROTATION_INTERVAL` - Intervalo de rotación (ms)
 
-### Base de Datos
-- Soporta SQLite (por defecto)
-- Configurable a PostgreSQL
-- Migraciones automáticas disponibles
-
----
 
 ## 🚀 Performance
 
