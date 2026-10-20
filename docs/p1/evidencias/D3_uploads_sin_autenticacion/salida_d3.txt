@@ -1,0 +1,21 @@
+﻿== Paso 1: usuario sintético crea un álbum PRIVADO y un supervisor lo aprueba
+POST /api/auth/register -> HTTP 200 {"mensaje":"Usuario registrado exitosamente"}
+    (429 por límite de peticiones; se espera 61 s y se repite)
+POST /api/albums/ (is_public=false) -> HTTP 200 {"id":1,"title":"Álbum privado D3","description":"Prueba P1","status":"pending","created_at":"2026-10-20T05:28:07"}
+POST /api/albums/1/approve -> HTTP 200 {"mensaje":"Álbum aprobado exitosamente"}
+
+== Paso 2: subir una imagen sintética con datos tras el fin de archivo
+imagen local: 501 bytes, sha256=22c39f53b818bff162110b0c3ba921864407fd99e9499ba42980be60b7574342
+POST /api/images/upload -> HTTP 200 {"id":1,"filename":"22c39f53b818bff1_1792492087.816967.png","status":"quarantined","steganography_score":0.2999237700127235}
+
+== Paso 3: controles que SÍ protegen (contraste)
+GET /api/gallery/1 sin token (álbum privado) -> HTTP 404 {"detail":"Álbum no encontrado"}
+GET /api/images/quarantined sin token -> HTTP 403 {"detail":"Not authenticated"}
+
+== Paso 4: descargar el archivo en cuarentena SIN token
+GET /api/uploads/22c39f53b818bff1_1792492087.816967.png sin token -> HTTP 200, 501 bytes, sha256=22c39f53b818bff162110b0c3ba921864407fd99e9499ba42980be60b7574342
+¿es idéntico al archivo subido?: True
+¿contiene los datos ocultos?: True
+
+Nombre guardado en ultimo_filename.txt para repetir con curl:
+  curl.exe -s -o NUL -w "HTTP %{http_code} %{size_download} bytes\n" http://127.0.0.1:8001/api/uploads/22c39f53b818bff1_1792492087.816967.png

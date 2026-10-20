@@ -1,0 +1,2 @@
+﻿admin 'lab_admin' creado en la base de laboratorio
+POST /api/auth/supervisors -> HTTP 200 {"mensaje":"Supervisor creado exitosamente","supervisor":{"id":2,"username":"lab_super","email":"lab_super@example.org","role":"supervisor"}}

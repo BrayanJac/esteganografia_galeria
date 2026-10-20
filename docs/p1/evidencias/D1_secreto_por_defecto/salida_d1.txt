@@ -1,0 +1,24 @@
+﻿== Paso 0: ¿hay una variable de entorno SECRET_KEY que tenga prioridad sobre el .env?
+SECRET_KEY presente en el entorno de esta consola: False
+(python-dotenv no sobrescribe variables existentes; el servidor debe arrancarse en una consola igual)
+
+== Paso 1: la clave por defecto está en el código y en el ejemplo publicado
+config/config.py:10: SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+.env.example:5: SECRET_KEY=your-super-secret-key-change-in-production-min-32-chars
+
+== Paso 2: ¿el .env del laboratorio usa la clave publicada? (sin imprimir el valor)
+SECRET_KEY definida en backend/.env: True
+backend/.env == backend/.env.example: True
+
+== Paso 3: iniciar sesión con un usuario sintético y obtener su token
+POST /api/auth/register -> HTTP 200 {"mensaje":"Usuario registrado exitosamente"}
+cabecera: {'alg': 'HS256', 'typ': 'JWT'}
+payload : {'sub': 'lab_d1', 'exp': 1792475755}
+
+== Paso 4: validar la firma del token emitido con la clave publicada
+firma VÁLIDA con la clave de .env.example -> {'sub': 'lab_d1', 'exp': 1792475755}
+control: con una clave aleatoria la firma falla -> Signature verification failed.
+
+== Paso 5: un token fabricado fuera del servidor con la clave publicada es aceptado
+GET /api/auth/me (token fabricado con la clave de .env.example) -> HTTP 200 {"id":3,"username":"lab_d1","email":"lab_d1@example.org","role":"user","is_active":true}
+GET /api/auth/me (control: token firmado con clave aleatoria) -> HTTP 401 {"detail":"No se pudieron validar las credenciales"}

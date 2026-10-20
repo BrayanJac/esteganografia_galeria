@@ -1,0 +1,23 @@
+﻿> curl.exe -s -D - -o descarga.png http://127.0.0.1:8001/api/uploads/22c39f53b818bff1_1792492087.816967.png   (sin cabecera Authorization)
+HTTP/1.1 200 OK
+date: Tue, 20 Oct 2026 05:28:07 GMT
+server: uvicorn
+cache-control: public, max-age=31536000
+x-content-type-options: nosniff
+content-type: image/jpeg
+content-length: 501
+last-modified: Tue, 20 Oct 2026 05:28:07 GMT
+etag: ca2a001bb930f571904c0dc8323227d8
+content-security-policy: default-src 'self'; img-src 'self' data: blob: https://fastapi.tiangolo.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: geolocation=(), microphone=(), camera=()
+strict-transport-security: max-age=31536000; includeSubDomains
+
+> (Get-FileHash descarga.png -Algorithm SHA256).Hash
+22c39f53b818bff162110b0c3ba921864407fd99e9499ba42980be60b7574342
+
+> curl.exe -s http://127.0.0.1:8001/api/images/quarantined   (contraste: listado de cuarentena, sin token)
+{"detail":"Not authenticated"}
+HTTP 403

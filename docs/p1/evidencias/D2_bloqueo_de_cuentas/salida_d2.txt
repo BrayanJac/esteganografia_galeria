@@ -1,0 +1,36 @@
+﻿== Paso 1: crear un usuario desechable y comprobar que entra
+POST /api/auth/register -> HTTP 200 {"mensaje":"Usuario registrado exitosamente"}
+login con contraseña correcta -> HTTP 200
+[SQLite lab.db] estado inicial: id=4 username=lab_d2 is_active=1 failed_login_attempts=0 last_login_attempt=2026-10-20 05:25:58.215094
+
+== Paso 2: un anónimo falla el login 5 veces (solo conoce el nombre de usuario)
+intento fallido 1 -> HTTP 401 {"detail":"Credenciales inválidas"}
+intento fallido 2 -> HTTP 401 {"detail":"Credenciales inválidas"}
+intento fallido 3 -> HTTP 401 {"detail":"Credenciales inválidas"}
+intento fallido 4 -> HTTP 401 {"detail":"Credenciales inválidas"}
+intento fallido 5 -> HTTP 401 {"detail":"Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."}
+[SQLite lab.db] tras los intentos fallidos: id=4 username=lab_d2 is_active=0 failed_login_attempts=5 last_login_attempt=2026-10-20 05:26:00.011510
+
+== Paso 3: el dueño legítimo usa su contraseña correcta
+login con contraseña correcta -> HTTP 401 {"detail":"Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."}
+
+== Paso 4: simular que pasó la ventana de 15 min (last_login_attempt = hace 20 min)
+[SQLite lab.db] tras retroceder la marca de tiempo: id=4 username=lab_d2 is_active=0 failed_login_attempts=5 last_login_attempt=2026-10-20 05:06:00.080858
+login con contraseña correcta tras la ventana -> HTTP 401 {"detail":"Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."}
+[SQLite lab.db] sigue bloqueada: id=4 username=lab_d2 is_active=0 failed_login_attempts=5 last_login_attempt=2026-10-20 05:06:00.080858
+
+== Paso 5: solo un admin puede desbloquear (manual); el atacante vuelve a bloquear
+    (429 por límite de peticiones; se espera 61 s y se repite)
+POST /api/admin/users/4/unlock -> HTTP 200 {"mensaje":"Usuario desbloqueado exitosamente","usuario":{"id":4,"username":"lab_d2","email":"lab_d2@example.org","is_active":true,"failed_login_attempts":0}}
+login con contraseña correcta tras el desbloqueo -> HTTP 200
+nuevo intento fallido 1 -> HTTP 401
+nuevo intento fallido 2 -> HTTP 401
+nuevo intento fallido 3 -> HTTP 401
+nuevo intento fallido 4 -> HTTP 401
+nuevo intento fallido 5 -> HTTP 401
+login con contraseña correcta -> HTTP 401 {"detail":"Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."}
+[SQLite lab.db] bloqueada de nuevo: id=4 username=lab_d2 is_active=0 failed_login_attempts=5 last_login_attempt=2026-10-20 05:27:02.957061
+
+== Paso 6: el mensaje distingue cuenta bloqueada de cuenta inexistente (apoya E3)
+login de usuario inexistente -> HTTP 401 {"detail":"Credenciales inválidas"}
+login de cuenta bloqueada -> HTTP 401 {"detail":"Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador."}
