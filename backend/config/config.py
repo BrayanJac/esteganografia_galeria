@@ -7,7 +7,15 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
 
 # Security
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+# Claves publicadas en el repositorio: nunca deben aceptarse.
+_CLAVES_PUBLICAS = {
+    "your-secret-key-change-in-production",
+    "your-super-secret-key-change-in-production-min-32-chars",
+}
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if len(SECRET_KEY) < 32 or SECRET_KEY in _CLAVES_PUBLICAS:
+    raise RuntimeError(
+        "SECRET_KEY falta o es insegura: define en backend/.env una clave aleatoria de al menos 32 caracteres")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
