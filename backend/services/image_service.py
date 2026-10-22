@@ -1,11 +1,15 @@
+import io
 import json
 import os
 
 from fastapi import HTTPException, status, UploadFile
+from PIL import Image as PILImage
 from sqlalchemy.orm import Session
 from database.models import Image, ImageStatus, Album, AlbumStatus
 from security.steganography import analyze_image
 from config.config import MAX_FILE_SIZE, UPLOAD_DIR
+
+TIPOS_PERMITIDOS = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 
 
 async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Session):
@@ -23,12 +27,6 @@ async def upload_image(album_id: int, file: UploadFile, user_id: int, db: Sessio
         )
 
     file_data = await process_file(file)
-
-    if file_data['mime_type'] not in ["image/jpeg", "image/png", "image/gif", "image/webp"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tipo de archivo inválido"
-        )
 
     image = create_image_record(
         file_data['filename'],
@@ -126,10 +124,9 @@ async def process_file(file: UploadFile):
     from datetime import datetime
 
     content = await file.read()
-    # Detect MIME type using simple magic-bytes checks and filename fallback
-    import mimetypes
+    # Detect MIME type using magic-bytes checks only: the filename is not trusted
 
-    def _detect_mime(buf: bytes, filename: str) -> str:
+    def _detect_mime(buf: bytes) -> str:
         if buf.startswith(b"\xff\xd8\xff"):
             return 'image/jpeg'
         if buf.startswith(b'\x89PNG\r\n\x1a\n'):
@@ -140,11 +137,25 @@ async def process_file(file: UploadFile):
             return 'image/webp'
         if buf.startswith(b'BM'):
             return 'image/bmp'
-        # fallback to extension
-        mim, _ = mimetypes.guess_type(filename)
-        return mim or 'application/octet-stream'
+        return 'application/octet-stream'
 
-    file_mime = _detect_mime(content, file.filename)
+    file_mime = _detect_mime(content)
+
+    # Validate BEFORE writing to disk: allowed type and decodable image
+    if file_mime not in TIPOS_PERMITIDOS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tipo de archivo inválido"
+        )
+    try:
+        with PILImage.open(io.BytesIO(content)) as imagen:
+            imagen.verify()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo no es una imagen válida"
+        )
+
     file_hash = hashlib.sha256(content).hexdigest()
     filename = f"{file_hash[:16]}_{datetime.utcnow().timestamp()}.{file_mime.split('/')[-1]}"
     file_path = os.path.join(UPLOAD_DIR, filename)
