@@ -1,0 +1,28 @@
+{
+  "excepciones": [
+    {
+      "id": "EXC-002",
+      "caso": "SCA:fastapi",
+      "motivo": "requirements.txt fija fastapi<0.105, lo que obliga a usar fastapi en una versión con vulnerabilidades corregidas en versiones posteriores. Actualizarlo implica cambiar FastAPI y Pydantic y requiere regresión completa.",
+      "mitigacion": "Planificar la migración de FastAPI/Starlette con pruebas de regresión completas (Parcial 2). Mientras tanto, la app corre solo en el laboratorio local y la subida de archivos exige sesión y tamaño máximo.",
+      "aprobado_por": "Equipo de trabajo (pendiente de visto bueno del docente)",
+      "vence": "2026-11-30"
+    },
+    {
+      "id": "EXC-003",
+      "caso": "SCA:starlette",
+      "motivo": "fastapi 0.104 exige una versión de starlette con vulnerabilidades corregidas en versiones posteriores; no se puede actualizar sin actualizar fastapi (ver EXC-002).",
+      "mitigacion": "Se resuelve con la migración de EXC-002. Mientras tanto, la app corre solo en el laboratorio local y la subida de archivos exige sesión y tamaño máximo.",
+      "aprobado_por": "Equipo de trabajo (pendiente de visto bueno del docente)",
+      "vence": "2026-11-30"
+    },
+    {
+      "id": "EXC-004",
+      "caso": "SCA:anyio",
+      "motivo": "La versión de starlette fijada por fastapi 0.104 exige una versión de anyio con vulnerabilidades corregidas en versiones posteriores (ver EXC-002 y EXC-003).",
+      "mitigacion": "Se resuelve con la migración de EXC-002. Mientras tanto, la app corre solo en el laboratorio local.",
+      "aprobado_por": "Equipo de trabajo (pendiente de visto bueno del docente)",
+      "vence": "2026-11-30"
+    }
+  ]
+}

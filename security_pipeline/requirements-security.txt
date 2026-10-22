@@ -1,0 +1,5 @@
+# Herramientas del pipeline de seguridad (solo desarrollo; no son dependencias de la app)
+pytest==9.1.1
+httpx==0.27.2  # el TestClient de Starlette 0.27 no funciona con httpx 0.28+
+bandit==1.9.4
+pip-audit==2.10.1
