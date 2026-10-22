@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from datetime import datetime
 from contextlib import asynccontextmanager
 import uvicorn
 from database.database import create_tables
+from database.models import User, UserRole
+from security.auth import require_exact_role
 from routers.auth_router import router as auth_router
 
 try:
@@ -80,7 +82,9 @@ async def health_check():
 
 
 @app.get('/internal/db_tables')
-async def internal_db_tables():
+async def internal_db_tables(
+    current_user: User = Depends(require_exact_role(UserRole.ADMIN))
+):
     from database.database import engine
     from sqlalchemy import inspect
     inspector = inspect(engine)
