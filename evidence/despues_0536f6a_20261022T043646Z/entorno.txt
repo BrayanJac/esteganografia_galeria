@@ -1,0 +1,17 @@
+fecha_utc: 2026-10-22T04:36:46Z
+commit: 0536f6a (feature/act2-p1)
+cambios_sin_commit:
+?? evidence/despues_0536f6a_20261022T043646Z/
+sistema: MINGW64_NT-10.0-26300 3.4.10-87d57229.x86_64 x86_64
+python: Python 3.11.9
+herramientas:
+bandit                  1.9.4
+fastapi                 0.104.1
+httpx                   0.27.2
+pillow                  13.0.0
+pip_audit               2.10.1
+pytest                  9.1.1
+python-jose             3.5.0
+python-multipart        0.0.32
+starlette               0.27.0
+comando: ./security_pipeline/run_security_checks.sh despues

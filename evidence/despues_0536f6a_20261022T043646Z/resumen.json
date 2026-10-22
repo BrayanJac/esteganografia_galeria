@@ -1,0 +1,205 @@
+{
+  "pruebas": [
+    {
+      "nombre": "test_CP_02_imagen_privada_no_se_descarga_sin_permiso",
+      "caso": "CP-02",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_05_usuario_no_ve_ni_edita_album_privado_de_otro",
+      "caso": "CP-05",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_06_usuario_normal_no_accede_a_rutas_de_supervisor_ni_admin",
+      "caso": "CP-06",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_01_clave_jwt_no_tiene_valor_conocido",
+      "caso": "CP-01",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_04_endpoint_interno_no_es_publico",
+      "caso": "CP-04",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_03_archivo_disfrazado_de_imagen_se_rechaza_y_no_queda_en_disco",
+      "caso": "CP-03",
+      "estado": "PASA"
+    },
+    {
+      "nombre": "test_CP_07_subida_y_descarga_legitimas_siguen_funcionando",
+      "caso": "CP-07",
+      "estado": "PASA"
+    }
+  ],
+  "totales": {
+    "pruebas": 7,
+    "pasan": 7,
+    "fallan": 0,
+    "bandit_unicos": 2,
+    "bandit_duplicados_removidos": 0,
+    "pip_audit_unicos": 12,
+    "pip_audit_duplicados_removidos": 8
+  },
+  "hallazgos_candidatos": [
+    {
+      "herramienta": "bandit",
+      "id": "B104",
+      "titulo": "hardcoded_bind_all_interfaces",
+      "severidad": "MEDIUM",
+      "confianza": "MEDIUM",
+      "ubicacion": "backend\\main.py:96"
+    },
+    {
+      "herramienta": "bandit",
+      "id": "B105",
+      "titulo": "hardcoded_password_string",
+      "severidad": "LOW",
+      "confianza": "MEDIUM",
+      "ubicacion": "backend\\services\\auth_service.py:92"
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-63374",
+      "titulo": "anyio 3.7.1",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "anyio",
+      "corregido_en": [
+        "4.14.2"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-64847",
+      "titulo": "anyio 3.7.1",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "anyio",
+      "corregido_en": [
+        "4.14.2"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2024-23342",
+      "titulo": "ecdsa 0.19.2",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "ecdsa",
+      "corregido_en": []
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2024-24762",
+      "titulo": "fastapi 0.104.1",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "fastapi",
+      "corregido_en": [
+        "0.109.1"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-85394",
+      "titulo": "python-jose 3.5.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "python-jose",
+      "corregido_en": []
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2024-47874",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "0.40.0"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2025-54121",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "0.47.2"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-48710",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "1.0.1"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-48818",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "1.1.0"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-48817",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "1.1.0"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-54283",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "1.3.1"
+      ]
+    },
+    {
+      "herramienta": "pip-audit",
+      "id": "CVE-2026-54282",
+      "titulo": "starlette 0.27.0",
+      "severidad": "N/D",
+      "confianza": "N/D",
+      "ubicacion": "starlette",
+      "corregido_en": [
+        "1.3.0"
+      ]
+    }
+  ],
+  "fallos_del_gate": [],
+  "avisos": [
+    "Bandit MEDIUM/MEDIUM B104 en backend\\main.py:96 (candidato a revisión manual)",
+    "Bandit LOW/MEDIUM B105 en backend\\services\\auth_service.py:92 (candidato a revisión manual)",
+    "anyio 3.7.1: 2 vulnerabilidad(es) con excepción EXC-004",
+    "ecdsa 0.19.2: 1 vulnerabilidad(es) sin versión corregida disponible",
+    "fastapi 0.104.1: 1 vulnerabilidad(es) con excepción EXC-002",
+    "python-jose 3.5.0: 1 vulnerabilidad(es) sin versión corregida disponible",
+    "starlette 0.27.0: 7 vulnerabilidad(es) con excepción EXC-003"
+  ],
+  "resultado": "PASA"
+}

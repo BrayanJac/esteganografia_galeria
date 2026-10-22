@@ -1,0 +1,19 @@
+Confirmación manual · 2026-10-22T04:37:45+00:00
+
+[CP-01] Token de admin fabricado SIN contraseña, firmado con claves publicadas en el repositorio
+  token firmado con la clave pública de 36 caracteres -> estado=401 cuerpo={"detail":"No se pudieron validar las credenciales"}
+  token firmado con la clave pública de 55 caracteres -> estado=401 cuerpo={"detail":"No se pudieron validar las credenciales"}
+
+[CP-02] Imagen de un álbum PRIVADO descargada sin sesión y con la sesión de otro usuario
+  subida por el dueño: estado=200 archivo=066fab0cbe84b400_1792661876.958705.png
+  GET /api/uploads/066fab0cbe84b400_1792661876.958705.png (sin sesión) -> estado=404 bytes=33
+  GET /api/uploads/066fab0cbe84b400_1792661876.958705.png (otro_usuario) -> estado=404 bytes=33
+
+[CP-03] Archivos que no son imágenes subidos con extensión de imagen
+  foto.png: estado=400 cuerpo={"detail":"Tipo de archivo inválido"}
+  archivos nuevos en la carpeta de subidas: []
+  dibujo.gif: estado=400 cuerpo={"detail":"Tipo de archivo inválido"}
+  archivos nuevos en la carpeta de subidas: []
+
+[CP-04] GET /internal/db_tables sin sesión
+  estado=403 cuerpo={"detail":"Not authenticated"}

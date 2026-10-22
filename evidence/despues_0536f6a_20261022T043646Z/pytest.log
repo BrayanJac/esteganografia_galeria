@@ -1,0 +1,24 @@
+.......                                                                  [100%]
+============================== warnings summary ===============================
+venv\Lib\site-packages\starlette\formparsers.py:10
+  C:\Users\PACO\Desktop\Universidad\SEGURIDAD DE SW\proyecto-seguridad\esteganografia_galeria\backend\venv\Lib\site-packages\starlette\formparsers.py:10: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+database\database.py:14
+  C:\Users\PACO\Desktop\Universidad\SEGURIDAD DE SW\proyecto-seguridad\esteganografia_galeria\backend\database\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+database\models.py:7
+  C:\Users\PACO\Desktop\Universidad\SEGURIDAD DE SW\proyecto-seguridad\esteganografia_galeria\backend\database\models.py:7: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+security_tests/test_authorization.py::test_CP_02_imagen_privada_no_se_descarga_sin_permiso
+  C:\Users\PACO\Desktop\Universidad\SEGURIDAD DE SW\proyecto-seguridad\esteganografia_galeria\backend\venv\Lib\site-packages\httpx\_client.py:690: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+security_tests/test_authorization.py::test_CP_02_imagen_privada_no_se_descarga_sin_permiso
+  C:\Users\PACO\Desktop\Universidad\SEGURIDAD DE SW\proyecto-seguridad\esteganografia_galeria\backend\venv\Lib\site-packages\passlib\handlers\argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+7 passed, 5 warnings in 12.23s
