@@ -1,0 +1,19 @@
+Confirmación manual · 2026-10-22T04:06:56+00:00
+
+[CP-01] Token de admin fabricado SIN contraseña, firmado con claves publicadas en el repositorio
+  token firmado con la clave pública de 36 caracteres -> estado=401 cuerpo={"detail":"No se pudieron validar las credenciales"}
+  token firmado con la clave pública de 55 caracteres -> estado=200 cuerpo={"id":1,"username":"admin_real","email":"admin_real@example.test","role":"admin","is_active":true}
+
+[CP-02] Imagen de un álbum PRIVADO descargada sin sesión y con la sesión de otro usuario
+  subida por el dueño: estado=200 archivo=7d38b4cf6dd96027_1792660028.244563.png
+  GET /api/uploads/7d38b4cf6dd96027_1792660028.244563.png (sin sesión) -> estado=200 bytes=153
+  GET /api/uploads/7d38b4cf6dd96027_1792660028.244563.png (otro_usuario) -> estado=200 bytes=153
+
+[CP-03] Archivos que no son imágenes subidos con extensión de imagen
+  foto.png: estado=200 cuerpo={"id":2,"filename":"e3921cf489d40438_1792660028.466089.png","status":"quarantined","steganography_score":0.0}
+  archivos nuevos en la carpeta de subidas: ['e3921cf489d40438_1792660028.466089.png']
+  dibujo.gif: estado=200 cuerpo={"id":3,"filename":"b0397b5185dddbd4_1792660028.616277.gif","status":"quarantined","steganography_score":0.0}
+  archivos nuevos en la carpeta de subidas: ['b0397b5185dddbd4_1792660028.616277.gif']
+
+[CP-04] GET /internal/db_tables sin sesión
+  estado=200 cuerpo={"tables":["albums","image_metadata","images","login_attempts","security_logs","users"]}
