@@ -10,7 +10,7 @@ passlib[bcrypt]>=1.7
 argon2-cffi>=23.0
 python-multipart>=0.0.6
 # For image processing: allow a range so pip can pick compatible wheels
-Pillow>=9.5,<10.2
+Pillow>=13.0.0,<14
 opencv-python>=4.6,<4.9
 numpy>=1.23,<1.26
 scipy>=1.10,<1.12
