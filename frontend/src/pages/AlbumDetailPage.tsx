@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navbar } from '@components/Navbar';
 import { ImageLightbox } from '@components/ImageLightbox';
 import { ConfirmDialog } from '@components/ConfirmDialog';
+import { SecureImage } from '@components/SecureImage';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@services/api';
@@ -146,7 +147,7 @@ export const AlbumDetailPage: React.FC = () => {
                                             className="block w-full text-left"
                                         >
                                             <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
-                                                <img
+                                                <SecureImage
                                                     src={`/api/uploads/${image.filename}`}
                                                     alt={image.filename}
                                                     className="h-full w-full object-contain"

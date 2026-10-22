@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Calendar, User, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { SecureImage } from '@components/SecureImage';
 
 const getLastComment = (commentString: string | null | undefined): string | null => {
     if (!commentString) return null;
@@ -35,7 +36,7 @@ export const AlbumDetailsModal: React.FC<AlbumDetailsModalProps> = ({ isOpen, on
                     <div className="space-y-6">
                         <div className="overflow-hidden rounded-2xl border bg-gray-50">
                             {album.cover_image_filename ? (
-                                <img
+                                <SecureImage
                                     src={`/api/uploads/${album.cover_image_filename}`}
                                     alt={album.title}
                                     className="h-80 w-full object-cover"
@@ -74,7 +75,7 @@ export const AlbumDetailsModal: React.FC<AlbumDetailsModalProps> = ({ isOpen, on
                                     {album.images.map((image: any) => (
                                         <div key={image.id} className="overflow-hidden rounded-xl border bg-gray-50 shadow-sm">
                                             <div className="aspect-[4/3] bg-gray-100">
-                                                <img
+                                                <SecureImage
                                                     src={`/api/uploads/${image.filename}`}
                                                     alt={image.original_filename || image.filename}
                                                     className="h-full w-full object-cover"

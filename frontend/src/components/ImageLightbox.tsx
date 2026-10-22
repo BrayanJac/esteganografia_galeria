@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { SecureImage } from './SecureImage';
 
 interface ImageLightboxProps {
     isOpen: boolean;
@@ -48,7 +49,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({ isOpen, src, alt, 
                 {title && <h3 className="mb-3 pr-12 text-lg font-semibold text-gray-800">{title}</h3>}
 
                 <div className="flex max-h-[85vh] items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-                    <img
+                    <SecureImage
                         src={src}
                         alt={alt}
                         className="max-h-[85vh] max-w-full object-contain"

@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from database.models import Album, Image, AlbumStatus, ImageStatus
+from database.models import Album, Image, AlbumStatus, ImageStatus, User, UserRole
 from config.config import UPLOAD_DIR
 import os
 
@@ -84,20 +84,43 @@ def get_album_images(album_id: int, db: Session):
     }
 
 
-def serve_image(filename: str):
-    file_path = os.path.join(UPLOAD_DIR, filename)
+def _can_view_private_image(user: User | None, album: Album) -> bool:
+    if user is None:
+        return False
+    role = str(getattr(user.role, "value", user.role)).lower()
+    return user.id == album.owner_id or role in (UserRole.SUPERVISOR.value, UserRole.ADMIN.value)
 
+
+def serve_image(filename: str, db: Session, user: User | None = None):
+    not_found = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Imagen no encontrada"
+    )
+
+    # Only files registered in the database are served (the filename is not trusted)
+    image = db.query(Image).filter(Image.filename == filename).first()
+    if not image:
+        raise not_found
+
+    album = image.album
+    is_public = (
+        image.status in (ImageStatus.CLEAN, ImageStatus.APPROVED)
+        and album.status == AlbumStatus.APPROVED
+        and album.is_public
+    )
+    # 404 instead of 403 so the existence of private files is not revealed
+    if not is_public and not _can_view_private_image(user, album):
+        raise not_found
+
+    file_path = os.path.join(UPLOAD_DIR, image.filename)
     if not os.path.exists(file_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Imagen no encontrada"
-        )
+        raise not_found
 
     return FileResponse(
         file_path,
         media_type="image/jpeg",
         headers={
-            "Cache-Control": "public, max-age=31536000",
+            "Cache-Control": "public, max-age=31536000" if is_public else "private, no-store",
             "X-Content-Type-Options": "nosniff"
         }
     )

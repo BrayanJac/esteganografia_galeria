@@ -4,6 +4,7 @@ import { Navbar } from '@components/Navbar';
 import { ImageLightbox } from '@components/ImageLightbox';
 import { AlbumDetailsModal } from '@components/AlbumDetailsModal';
 import { MetadataModal } from '@components/MetadataModal';
+import { SecureImage } from '@components/SecureImage';
 import { useAuth } from '@hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApproveAlbum, useDeleteAlbum, usePendingAlbums, useQuarantinedImages, useReviewedAlbums, useReviewImage } from '@hooks/useGallery';
@@ -221,7 +222,7 @@ export const AdminPage: React.FC = () => {
                                             >
                                                 <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100">
                                                     {album.cover_image_filename ? (
-                                                        <img
+                                                        <SecureImage
                                                             src={`/api/uploads/${album.cover_image_filename}`}
                                                             alt={album.title}
                                                             className="h-full w-full object-cover transition duration-500 hover:scale-105"
@@ -336,7 +337,7 @@ export const AdminPage: React.FC = () => {
                                                 >
                                                     <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100">
                                                         {album.cover_image_filename ? (
-                                                            <img
+                                                            <SecureImage
                                                                 src={`/api/uploads/${album.cover_image_filename}`}
                                                                 alt={album.title}
                                                                 className="h-full w-full object-cover transition duration-500 hover:scale-105"
@@ -469,7 +470,7 @@ export const AdminPage: React.FC = () => {
                                                         className="block w-full overflow-hidden rounded-lg border border-red-200 bg-white text-left shadow-sm"
                                                     >
                                                         <div className="aspect-[16/10] w-full bg-gray-100 overflow-hidden">
-                                                            <img
+                                                            <SecureImage
                                                                 src={`/api/uploads/${image.filename}`}
                                                                 alt={image.original_filename}
                                                                 className="h-full w-full object-contain"

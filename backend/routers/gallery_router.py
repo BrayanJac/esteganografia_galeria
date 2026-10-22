@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database.database import get_db
+from database.models import User
+from security.auth import get_optional_user
 from services.gallery_service import get_public_gallery, get_album_images, serve_image
 
 router = APIRouter()
@@ -19,5 +21,9 @@ async def get_album_images_endpoint(album_id: int, db: Annotated[Session, Depend
 
 
 @router.get("/uploads/{filename}")
-async def get_image_endpoint(filename: str):
-    return serve_image(filename)
+async def get_image_endpoint(
+    filename: str,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User | None, Depends(get_optional_user)]
+):
+    return serve_image(filename, db, current_user)

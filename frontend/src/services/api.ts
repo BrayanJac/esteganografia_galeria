@@ -181,6 +181,10 @@ class ApiClient {
         return this.client.get(`/gallery/${albumId}`);
     }
 
+    async getImageBlob(filename: string) {
+        return this.client.get<Blob>(`/uploads/${encodeURIComponent(filename)}`, { responseType: 'blob' });
+    }
+
     // Health check
     async healthCheck() {
         return this.client.get('/health');

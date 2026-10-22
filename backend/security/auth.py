@@ -14,6 +14,7 @@ from config.config import *
 pwd_context = CryptContext(
     schemes=["argon2", "pbkdf2_sha256"], deprecated="auto")
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -161,6 +162,16 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         )
 
     return user
+
+
+def get_optional_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security), db: Session = Depends(get_db)) -> Optional[User]:
+    """Return the authenticated user, or None when there is no valid token (public routes)."""
+    if credentials is None:
+        return None
+    try:
+        return get_current_user(credentials, db)
+    except HTTPException:
+        return None
 
 
 def require_role(required_role: UserRole):

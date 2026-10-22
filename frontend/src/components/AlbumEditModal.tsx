@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image as ImageIcon, Trash2, X } from 'lucide-react';
+import { SecureImage } from '@components/SecureImage';
 
 type AlbumEditPayload = {
     title: string;
@@ -200,7 +201,7 @@ export const AlbumEditModal: React.FC<AlbumEditModalProps> = ({
                                     <div key={image.id} className="rounded-lg border bg-gray-50 p-3">
                                         <div className="flex items-start gap-3">
                                             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-gray-200">
-                                                <img
+                                                <SecureImage
                                                     src={`/api/uploads/${image.filename}`}
                                                     alt={image.original_filename || image.filename}
                                                     className="h-full w-full object-cover"

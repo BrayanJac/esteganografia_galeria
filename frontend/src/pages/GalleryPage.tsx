@@ -4,6 +4,7 @@ import { useDeleteImage, useUserAlbums, useUpdateAlbum, useUploadImage } from '@
 import { AlbumModal } from '@components/AlbumModal';
 import { AlbumEditModal } from '@components/AlbumEditModal';
 import { UploadProgressDialog } from '@components/UploadProgressDialog';
+import { SecureImage } from '@components/SecureImage';
 import { Plus, Upload, Loader, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
@@ -141,7 +142,7 @@ export const GalleryPage: React.FC = () => {
                                 <div key={album.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
                                     <div className="bg-gray-100 h-44 overflow-hidden">
                                         {album.cover_image_filename ? (
-                                            <img
+                                            <SecureImage
                                                 src={`/api/uploads/${album.cover_image_filename}`}
                                                 alt={album.title}
                                                 className="h-full w-full object-cover transition duration-500 hover:scale-105"
